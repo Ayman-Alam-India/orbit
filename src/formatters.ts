@@ -1,0 +1,2 @@
+export function formatIncidentTime(timestamp: string) { return new Date(timestamp.replace('Z', '')).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) }
+export function relativeTime(timestamp: string) { const minutes = Math.max(1, Math.round((Date.now() - new Date(timestamp).getTime()) / 60000)); return minutes < 60 ? `${minutes}m ago` : `${Math.round(minutes / 60)}h ago` }
