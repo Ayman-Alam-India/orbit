@@ -2,4 +2,52 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { getIncidents } from '../api'
 import { IncidentRow } from '../components/IncidentRow'
-export function Dashboard() { const { data } = useQuery({ queryKey: ['dashboard-incidents'], queryFn: () => getIncidents(1) }); const active = data?.incidents.filter((incident) => incident.status === 'open').length ?? 0; return <><div className="page-heading"><div><p className="eyebrow">FRIDAY, SEPTEMBER 18, 2026</p><h1>Good afternoon, Alex</h1><p className="lede">Here&apos;s what&apos;s happening across your production systems.</p></div><Link className="button button-primary" to="/incidents">View all incidents</Link></div><section className="metric-grid"><div className="metric-card metric-alert"><span>Active incidents</span><strong>{active}</strong><small>Needs attention now</small></div><div className="metric-card"><span>Resolved today</span><strong>7</strong><small className="positive">↑ 2 from yesterday</small></div><div className="metric-card"><span>Overall uptime</span><strong>98.2%</strong><small>Across 14 services</small></div></section><section className="section-block"><div className="section-title"><div><p className="eyebrow">LIVE FEED</p><h2>Recent incidents</h2></div><Link to="/incidents">See all →</Link></div><div className="incident-list">{data?.incidents.map((incident) => <IncidentRow key={incident.id} incident={incident} />)}</div></section></> }
+export function Dashboard() {
+  const { data } = useQuery({ queryKey: ['dashboard-incidents'], queryFn: () => getIncidents(1) })
+  const active = data?.incidents.filter((incident) => incident.status === 'open').length ?? 0
+  return (
+    <>
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">FRIDAY, SEPTEMBER 18, 2026</p>
+          <h1>Good afternoon, Alex</h1>
+          <p className="lede">Here&apos;s what&apos;s happening across your production systems.</p>
+        </div>
+        <Link className="button button-primary" to="/incidents">
+          View all incidents
+        </Link>
+      </div>
+      <section className="metric-grid">
+        <div className="metric-card metric-alert">
+          <span>Active incidents</span>
+          <strong>{active}</strong>
+          <small>Needs attention now</small>
+        </div>
+        <div className="metric-card">
+          <span>Resolved today</span>
+          <strong>7</strong>
+          <small className="positive">↑ 2 from yesterday</small>
+        </div>
+        <div className="metric-card">
+          <span>Overall uptime</span>
+          <strong>98.2%</strong>
+          <small>Across 14 services</small>
+        </div>
+      </section>
+      <section className="section-block">
+        <div className="section-title">
+          <div>
+            <p className="eyebrow">LIVE FEED</p>
+            <h2>Recent incidents</h2>
+          </div>
+          <Link to="/incidents">See all →</Link>
+        </div>
+        <div className="incident-list">
+          {data?.incidents.map((incident) => (
+            <IncidentRow key={incident.id} incident={incident} />
+          ))}
+        </div>
+      </section>
+    </>
+  )
+}

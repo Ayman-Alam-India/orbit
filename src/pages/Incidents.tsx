@@ -1,5 +1,56 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { getIncidents } from '../api'
-import { IncidentRow } from '../components/IncidentRow'
-export function Incidents() { const [page, setPage] = useState(1); const [query, setQuery] = useState(''); const { data, isLoading } = useQuery({ queryKey: ['incidents'], queryFn: () => getIncidents(page, query) }); return <><div className="page-heading"><div><p className="eyebrow">OPERATIONS / INCIDENTS</p><h1>Incidents</h1><p className="lede">Track, triage, and resolve production issues.</p></div><button className="button button-primary">＋ New incident</button></div><div className="toolbar"><label className="search"><span>⌕</span><input value={query} onChange={(event) => { setPage(1); setQuery(event.target.value) }} placeholder="Search incidents" /></label><select aria-label="Filter by status"><option>All statuses</option><option>Open</option><option>Acknowledged</option></select><span className="toolbar-count">{data?.incidents.length ?? 0} shown</span></div><div className="incident-list">{isLoading ? <div className="loading">Loading incidents...</div> : data?.incidents.map((incident) => <IncidentRow key={incident.id} incident={incident} />)}</div><div className="pagination"><button disabled={page === 1} onClick={() => setPage(page - 1)}>← Previous</button><span>Page {page} of {data?.totalPages ?? 1}</span><button disabled={page === (data?.totalPages ?? 1)} onClick={() => setPage(page + 1)}>Next →</button></div></> }
+import { IncidentList } from '../components/IncidentList'
+export function Incidents() {
+  const [page, setPage] = useState(1)
+  const [query, setQuery] = useState('')
+  const { data, isLoading } = useQuery({
+    queryKey: ['incidents'],
+    queryFn: () => getIncidents(page, query),
+  })
+  const visibleIncidents = data?.incidents.filter((incident) => incident.title.includes(query))
+  return (
+    <>
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">OPERATIONS / INCIDENTS</p>
+          <h1>Incidents</h1>
+          <p className="lede">Track, triage, and resolve production issues.</p>
+        </div>
+        <button className="button button-primary">＋ New incident</button>
+      </div>
+      <div className="toolbar">
+        <label className="search">
+          <span>⌕</span>
+          <input
+            value={query}
+            onChange={(event) => {
+              setPage(1)
+              setQuery(event.target.value)
+            }}
+            placeholder="Search incidents"
+          />
+        </label>
+        <select aria-label="Filter by status">
+          <option>All statuses</option>
+          <option>Open</option>
+          <option>Acknowledged</option>
+        </select>
+        <span className="toolbar-count">{visibleIncidents?.length ?? 0} shown</span>
+      </div>
+      {isLoading ? <div className="loading">Loading incidents...</div> : <IncidentList incidents={visibleIncidents ?? []} />}
+      <div className="pagination">
+        <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+          ← Previous
+        </button>
+        <span>
+          Page {page} of {data?.totalPages ?? 1}
+        </span>
+        <button disabled={page === (data?.totalPages ?? 1)} onClick={() => setPage(page + 1)}>
+          Next →
+        </button>
+      </div>
+    </>
+  )
+}

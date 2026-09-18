@@ -12,6 +12,6 @@ describe('incident API contract', () => {
   })
 
   it('rejects acknowledgement for a closed incident', async () => {
-    await expect(acknowledgeIncident('3')).rejects.toThrow('Only active incidents')
+    await expect(acknowledgeIncident('5')).rejects.toThrow('Only active incidents')
   })
 })
