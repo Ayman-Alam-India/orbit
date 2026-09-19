@@ -2,10 +2,13 @@ import { DataModeSchema } from '@shared'
 import { z } from 'zod'
 
 // Load .env if it exists (Node built-in, no dotenv). Without it, the defaults below apply.
-try {
-  process.loadEnvFile()
-} catch {
-  // No .env file: fine, everything has a safe default.
+// Tests never read .env: they must not call real APIs with real keys (see vitest.config.ts).
+if (!process.env.VITEST) {
+  try {
+    process.loadEnvFile()
+  } catch {
+    // No .env file: fine, everything has a safe default.
+  }
 }
 
 export const AiProviderNameSchema = z.enum(['mock', 'google'])
