@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it } from 'vitest'
 import { Route, Routes } from 'react-router-dom'
@@ -100,7 +100,8 @@ describe('Ask ORBIT', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Ask by voice' }))
       const answer = await screen.findByText(/Offline analysis for Brazil/)
       await userEvent.click(screen.getByRole('button', { name: '🔊 Listen' }))
-      expect(spoken).toEqual([answer.textContent])
+      // No narrator voice in tests (no key → 503), so it falls back to the browser's voice.
+      await waitFor(() => expect(spoken).toEqual([answer.textContent]))
       expect(screen.getByRole('button', { name: '◼ Stop' })).toBeInTheDocument()
     })
   })

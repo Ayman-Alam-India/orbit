@@ -93,7 +93,7 @@ export function buildTourStops(
       id: `ripple_${chainRoot.id}`,
       kind: 'ripple',
       eyebrow: 'Ripple effect',
-      title: `How ${cause?.title ?? 'one event'} spreads`,
+      title: 'Follow the ripple',
       caption: steps.join(' → '),
       narration: `Now watch the ripple. ${cause?.title ?? 'This event'} leads to ${steps.join(', then ')}. Some of these links are ORBIT analysis built on sourced facts, and ORBIT always says which.`,
       camera: landing ? { ...landing.centroid, altitude: 2 } : { lat: 20, lng: 60, altitude: 2.2 },

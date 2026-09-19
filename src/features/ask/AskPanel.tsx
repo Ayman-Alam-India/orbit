@@ -30,6 +30,7 @@ export function AskPanel() {
   const threadRef = useRef<HTMLDivElement>(null)
   const [listening, setListening] = useState(false)
   const [speakingId, setSpeakingId] = useState<number>()
+  const [voiceReady, setVoiceReady] = useState(false)
   const stopSpeaking = useRef<() => void>(undefined)
   const Recognition = recognitionCtor()
 
@@ -82,7 +83,12 @@ export function AskPanel() {
     stopSpeaking.current?.()
     if (speakingId === turn.id) return setSpeakingId(undefined)
     setSpeakingId(turn.id)
-    stopSpeaking.current = speak(turn.answer?.answer ?? '', () => setSpeakingId(undefined))
+    setVoiceReady(false)
+    stopSpeaking.current = speak(
+      turn.answer?.answer ?? '',
+      () => setSpeakingId(undefined),
+      () => setVoiceReady(true),
+    )
   }
 
   const submit = (e: FormEvent) => {
@@ -135,7 +141,11 @@ export function AskPanel() {
                       aria-pressed={speakingId === turn.id}
                       onClick={() => readAloud(turn)}
                     >
-                      {speakingId === turn.id ? '◼ Stop' : '🔊 Listen'}
+                      {speakingId !== turn.id
+                        ? '🔊 Listen'
+                        : voiceReady
+                          ? '◼ Stop'
+                          : 'Preparing voice…'}
                     </button>
                   )}
                   <span className={styles.provider}>{providerLabel(turn.answer.provider)}</span>

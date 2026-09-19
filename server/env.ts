@@ -23,6 +23,10 @@ const EnvSchema = z.object({
   /** Groq (free tier): the second, independent model used for claim verification. */
   GROQ_API_KEY: z.string().optional(),
   GROQ_MODEL: z.string().default('openai/gpt-oss-120b'),
+  /** Gemini text-to-speech for the tour narrator (comma list, tried in order; same key as GOOGLE_*). */
+  GOOGLE_TTS_MODEL: z.string().default('gemini-3.1-flash-tts-preview,gemini-2.5-flash-preview-tts'),
+  /** A Gemini prebuilt voice: Charon is deep and calm; Kore, Puck and Aoede are alternatives. */
+  GOOGLE_TTS_VOICE: z.string().default('Charon'),
 })
 
 // Treat empty values (e.g. `GOOGLE_GENERATIVE_AI_API_KEY=`) as "not set".

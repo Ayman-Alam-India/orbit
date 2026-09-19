@@ -5,7 +5,7 @@ import { useEvents } from '../features/event/useEvents'
 import { useMarkets } from '../features/markets/useMarkets'
 import { useImpacts } from '../features/ripple/useImpacts'
 import { buildTourStops } from '../features/tour/buildTourStops'
-import { canSpeak, speak } from '../features/tour/speech'
+import { canSpeak, prefetchSpeech, speak } from '../features/tour/speech'
 import { paths } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import styles from './TourOverlay.module.css'
@@ -58,10 +58,16 @@ export function TourOverlay() {
     wasActive.current = tourActive
   }, [tourActive, navigate, setAskOpen])
 
-  // Point the globe at the current stop.
+  // Point the globe at the current stop, and fetch the next stop's narration while this one plays.
+  const upcoming = stops[index + 1]?.narration
   useEffect(() => {
     if (tourActive && stop) setTourFocus({ ...stop.camera, countryId: stop.countryId })
   }, [tourActive, stop, setTourFocus])
+  useEffect(() => {
+    if (tourActive && !muted && stop) {
+      void prefetchSpeech(stop.narration).then(() => upcoming && prefetchSpeech(upcoming))
+    }
+  }, [tourActive, muted, stop, upcoming])
 
   // Narrate the stop, then move on (or finish the tour after the last one).
   useEffect(() => {
@@ -72,9 +78,9 @@ export function TourOverlay() {
       timer = setTimeout(next, SILENT_STOP_MS)
       return () => clearTimeout(timer)
     }
-    // Safety net: some browsers occasionally never fire "end" on long utterances.
+    // Safety net if "end" never fires: generous, since the first play of a clip includes generating it.
     const words = stop.narration.split(/\s+/).length
-    const fallback = setTimeout(next, Math.max(SILENT_STOP_MS, (words / 2.2) * 1000 + 4000))
+    const fallback = setTimeout(next, (words / 1.8) * 1000 + 20_000)
     const cancel = speak(stop.narration, () => {
       clearTimeout(fallback)
       timer = setTimeout(next, GAP_MS)

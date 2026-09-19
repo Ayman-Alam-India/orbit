@@ -17,7 +17,8 @@
     "format": "prettier --write .",
     "check": "npm run lint && npm test && npm run build",
     "preview": "vite preview",
-    "docs:pdf": "node scripts/build-pdf.mjs"
+    "docs:pdf": "node scripts/build-pdf.mjs",
+    "warm:voice": "tsx --tsconfig tsconfig.server.json scripts/warm-narration.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.76",

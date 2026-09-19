@@ -23,6 +23,8 @@ export const API_ROUTES = {
   insight: (subjectType: InsightSubjectType, subjectId: string) =>
     `/api/insights/${subjectType}/${subjectId}`,
   ask: '/api/ask',
+  /** POST { text } → audio/wav (the narrator's voice), or a 503 error when no voice is available. */
+  speech: '/api/speech',
   verify: (subjectType: InsightSubjectType, subjectId: string) =>
     `/api/verify/${subjectType}/${subjectId}`,
   markets: (countryId?: CountryId) => `/api/markets${query({ countryId })}`,
