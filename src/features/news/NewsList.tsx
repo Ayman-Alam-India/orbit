@@ -40,7 +40,7 @@ export function NewsList({ countryId, limit = 6 }: NewsListProps) {
                   {n.title}
                 </a>
                 <span className={styles.meta}>
-                  <span>{sourceName(n.sourceId)}</span>
+                  <span>{n.publisher ?? sourceName(n.sourceId)}</span>
                   <span>·</span>
                   <span>{formatDate(n.publishedAt)}</span>
                   {n.eventId && n.countryIds[0] && (

@@ -17,6 +17,8 @@ export const NewsHeadlineSchema = z.object({
   countryIds: z.array(CountryIdSchema),
   /** Set when the headline is about a specific ORBIT event. */
   eventId: EventIdSchema.optional(),
+  /** The outlet that published it (e.g. "reuters.com"), when the source is an aggregator like GDELT. */
+  publisher: z.string().min(1).optional(),
 })
 
 export type NewsHeadline = z.infer<typeof NewsHeadlineSchema>

@@ -26,5 +26,12 @@
     "url": "https://example.org/mock-climate-institute",
     "type": "research",
     "reliability": "high"
+  },
+  {
+    "id": "src_gdelt",
+    "name": "GDELT Project: live news feed",
+    "url": "https://www.gdeltproject.org/",
+    "type": "dataset",
+    "reliability": "medium"
   }
 ]
