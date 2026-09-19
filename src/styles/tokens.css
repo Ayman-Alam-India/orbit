@@ -39,14 +39,14 @@
   --kind-geopolitical: var(--color-primary);
   --kind-health: var(--color-accent);
 
-  /* Globe: dark hologram in orange */
-  --globe-ocean: #07070a;
-  --globe-land: rgba(255, 122, 26, 0.05);
-  --globe-land-hover: rgba(255, 122, 26, 0.2);
-  --globe-land-selected: rgba(255, 150, 40, 0.45);
+  /* Globe: realistic Earth; countries are faint outlines, orange marks the selection */
+  --globe-specular: #5d6b80;
+  --globe-land: rgba(0, 0, 0, 0);
+  --globe-land-hover: rgba(255, 255, 255, 0.14);
+  --globe-land-selected: rgba(255, 150, 40, 0.42);
   --globe-land-side: rgba(0, 0, 0, 0);
-  --globe-border: rgba(255, 138, 42, 0.45);
-  --globe-atmosphere: #ff7a1a;
+  --globe-border: rgba(255, 255, 255, 0.22);
+  --globe-atmosphere: #6ab7ff;
   /* Ripple rings around severe events: an r, g, b triplet (alpha is animated in code) */
   --globe-ring: 255, 106, 0;
 

@@ -1,6 +1,8 @@
 .shell {
   position: relative;
   height: 100%;
+  /* Starfield behind everything (public-domain night sky, bundled for offline use). */
+  background: var(--color-bg) url('/textures/night-sky.png') center / cover;
   /* clip (not hidden): the shell can never be scrolled, even by scrollIntoView on off-screen content */
   overflow: clip;
 }

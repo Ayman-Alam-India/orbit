@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Globe, { type GlobeMethods } from 'react-globe.gl'
 import { useMatch, useNavigate } from 'react-router-dom'
-import { MeshPhongMaterial } from 'three'
+import { Color, MeshPhongMaterial, TextureLoader } from 'three'
 import { getStaticJson } from '../api/client'
 import { useCountries } from '../features/country/useCountry'
 import { useEvents } from '../features/event/useEvents'
@@ -12,6 +12,13 @@ import { useUiStore } from '../state/uiStore'
 import { cssVar, severityColor } from '../styles/cssVar'
 import { needsRing, pinAltitude, ringColor, ringMaxRadius, tooltipHtml } from './globeStyle'
 import { MINI_GLOBE_ALTITUDE, MINI_GLOBE_ROTATE_SPEED } from './miniGlobe'
+
+/** Public-domain NASA imagery (via the globe.gl examples), stored in public/textures so it works offline. */
+const TEXTURES = {
+  day: '/textures/earth-blue-marble.jpg',
+  bump: '/textures/earth-topology.png',
+  water: '/textures/earth-water.png',
+}
 
 /** Slow idle rotation on the global view, and how long it waits after the user lets go. */
 const GLOBAL_ROTATE_SPEED = 0.35
@@ -27,7 +34,8 @@ type CountryFeature = {
 type CountryShapes = { type: 'FeatureCollection'; features: CountryFeature[] }
 
 /**
- * Cinematic globe (decision owner: Arham): an orange dark-hologram globe with thin severity-coloured pins,
+ * Cinematic globe (decision owner: Arham): a realistic Earth (day texture, terrain, shiny oceans, stars)
+ * with faint country outlines, orange selection, thin severity-coloured pins,
  * ripple rings on severe events (4-5), hover tooltips, and a slow idle rotation. All colours come from tokens.
  */
 export default function OrbitGlobe() {
@@ -87,7 +95,15 @@ export default function OrbitGlobe() {
     }
   }, [])
 
-  const material = useMemo(() => new MeshPhongMaterial({ color: cssVar('--globe-ocean') }), [])
+  // Realistic Earth: NASA Blue Marble day texture + terrain bump (via props below) + shiny oceans.
+  const material = useMemo(() => new MeshPhongMaterial({ shininess: 14 }), [])
+  useEffect(() => {
+    new TextureLoader().load(TEXTURES.water, (texture) => {
+      material.specularMap = texture
+      material.specular = new Color(cssVar('--globe-specular'))
+      material.needsUpdate = true
+    })
+  }, [material])
   const severeEvents = useMemo(() => (events.data ?? []).filter(needsRing), [events.data])
   const fadeRing = useMemo(() => ringColor(cssVar('--globe-ring')), [])
 
@@ -96,11 +112,13 @@ export default function OrbitGlobe() {
       ref={globeRef}
       width={size.width}
       height={size.height}
-      backgroundColor={cssVar('--color-bg')}
+      backgroundColor="rgba(0, 0, 0, 0)"
       globeMaterial={material}
+      globeImageUrl={TEXTURES.day}
+      bumpImageUrl={TEXTURES.bump}
       showAtmosphere
       atmosphereColor={cssVar('--globe-atmosphere')}
-      atmosphereAltitude={0.18}
+      atmosphereAltitude={0.16}
       polygonsData={shapes.data?.features ?? []}
       polygonCapColor={(f) => {
         const id = (f as CountryFeature).properties.id
