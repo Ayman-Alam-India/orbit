@@ -1,12 +1,16 @@
-import { Link, useParams } from 'react-router-dom'
-import { paths } from '../../routes'
-import { ErrorBoundary, ItemList, Panel, QueryState, SeverityBadge } from '../../ui'
+import { useParams } from 'react-router-dom'
+import { ErrorBoundary, Panel, QueryState } from '../../ui'
 import { InsightCard } from '../insight/InsightCard'
 import { NewsList } from '../news/NewsList'
 import { TimelineList } from '../timeline/TimelineList'
+import { CountryEvents } from './CountryEvents'
+import { CountryHero } from './CountryHero'
 import { useCountry, useCountryEvents } from './useCountry'
 
-/** PLACEHOLDER (owner: Ayman). Route /country/:countryId. */
+/**
+ * Route /country/:countryId (decision owner: Ayman).
+ * Hero + stat strip, then Events → ORBIT explains → Timeline → Headlines.
+ */
 export function CountryPanel() {
   const { countryId = '' } = useParams()
   const country = useCountry(countryId)
@@ -14,45 +18,29 @@ export function CountryPanel() {
 
   return (
     <>
-      <Panel
-        eyebrow="Country"
-        title={country.data?.name ?? countryId}
-        actions={<Link to={paths.global()}>Globe</Link>}
-      >
-        <QueryState query={country} label="country">
-          {(c) => (
-            <>
-              <p>{c.summary}</p>
-              <SeverityBadge severity={c.riskLevel} />
-            </>
-          )}
-        </QueryState>
-      </Panel>
-      <Panel eyebrow="Events">
-        <QueryState query={events} label="events">
-          {(list) => (
-            <ItemList
-              items={list}
-              getKey={(e) => e.id}
-              empty="No tracked events for this country."
-              renderItem={(e) => (
-                <Link to={paths.event(countryId, e.id)}>
-                  {e.title} <SeverityBadge severity={e.severity} />
-                </Link>
-              )}
-            />
-          )}
-        </QueryState>
-      </Panel>
-      <ErrorBoundary title="Insight failed">
-        <InsightCard subjectType="country" subjectId={countryId} />
-      </ErrorBoundary>
-      <ErrorBoundary title="Timeline failed">
-        <TimelineList countryId={countryId} />
-      </ErrorBoundary>
-      <ErrorBoundary title="Headlines failed">
-        <NewsList countryId={countryId} />
-      </ErrorBoundary>
+      <QueryState query={country} label="country">
+        {(c) => <CountryHero country={c} />}
+      </QueryState>
+      {country.isSuccess && (
+        <>
+          <ErrorBoundary title="Events failed">
+            <Panel eyebrow="Events">
+              <QueryState query={events} label="events">
+                {(list) => <CountryEvents countryId={countryId} events={list} />}
+              </QueryState>
+            </Panel>
+          </ErrorBoundary>
+          <ErrorBoundary title="Insight failed">
+            <InsightCard subjectType="country" subjectId={countryId} />
+          </ErrorBoundary>
+          <ErrorBoundary title="Timeline failed">
+            <TimelineList countryId={countryId} />
+          </ErrorBoundary>
+          <ErrorBoundary title="Headlines failed">
+            <NewsList countryId={countryId} />
+          </ErrorBoundary>
+        </>
+      )}
     </>
   )
 }

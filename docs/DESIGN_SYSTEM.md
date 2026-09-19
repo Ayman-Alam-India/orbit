@@ -85,6 +85,7 @@ warm atmosphere. Cyan stays the UI colour (links, focus, buttons). Orange is use
 | `SeverityBadge` | Shows severity 1–5 with its colour and label (severity 5 pulses slowly)                                                        |
 | `Button`        | Variants `primary` (cyan), `accent` (amber: Ask ORBIT, AI), `ghost`. Sizes `sm`, `md`. `iconOnly` requires `aria-label`        |
 | `Tag`           | Small uppercase pill. `kind` (`geopolitical` / `health`) colours it; without `kind` it is neutral                              |
+| `StatTile`      | One labelled figure (`label`, `value`, optional `hint`). Put several in a grid for a stat strip                                |
 
 New primitives are decided with Arham (the design decision owner).
 
