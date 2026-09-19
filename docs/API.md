@@ -122,7 +122,8 @@ Check `kind` before using kind-specific fields.
 
 ### NewsHeadline (`shared/schemas/news.ts`)
 
-`id` (`news_...`), `title`, `url`, `sourceId`, `publishedAt`, `countryIds` (may be empty), `eventId` (optional, links to an OrbitEvent).
+`id` (`news_...`), `title`, `url`, `sourceId`, `publishedAt`, `countryIds` (may be empty), `eventId` (optional, links to an OrbitEvent),
+`publisher` (optional: the outlet's domain, e.g. `reuters.com`, set for live GDELT headlines whose `sourceId` is `src_gdelt`).
 
 ### Source (`shared/schemas/source.ts`)
 
@@ -198,6 +199,16 @@ Rules for every live source (server-side only):
 3. On any failure: log `[sources] ...` and return `readCache(key)`, then seed. Never throw to the route.
 4. Live items must follow the same ID rules (e.g. `news_<source>_<slug>`) and reference existing sources.
 5. A new external API key = a new empty line in `.env.example` + a field in `server/env.ts`.
+
+**Live news (implemented): GDELT** (`server/sources/gdelt.ts`), free and keyless.
+
+- Feeds: one per country (query = the country's name) plus a global feed (the countries with severity 4–5 events).
+  English-language articles from the last 7 days, max 10 per feed, `id` = `news_gdelt_<hash of URL>`.
+- `GET /api/news` answers **immediately** with seed + cached live headlines. A stale or missing cache (over 30 min old)
+  starts a background refresh, so GDELT's slowness never blocks the UI. Live headlines therefore appear on the next load.
+- In `DATA_MODE=live` the server pre-fetches every feed on startup (`[sources] warming live news…`), one request
+  every 10 s with a 20 s back-off on HTTP 429, because GDELT rate-limits hard. Start it well before the demo so the cache is full.
+- Cached feeds live in `server/.cache/news-<COUNTRY|global>.json`. With wifi off, cached and seed headlines keep working.
 
 ## Changing this contract
 
