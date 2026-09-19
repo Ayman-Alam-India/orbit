@@ -18,9 +18,17 @@ vi.mock('ai', async (importOriginal) => ({
   generateText: (...args: unknown[]) => generateText(...args),
 }))
 
+// In-memory stand-in for the disk cache (server/sources/cache.ts).
+const cache = new Map<string, unknown>()
+vi.mock('../sources/cache', () => ({
+  readCache: async (key: string) => cache.get(key),
+  writeCache: async (key: string, value: unknown) => void cache.set(key, value),
+}))
+
 const { askOrbit, generateInsight } = await import('.')
 
 beforeEach(() => {
+  cache.clear()
   generateText.mockReset()
   vi.spyOn(console, 'warn').mockImplementation(() => {})
 })
@@ -50,6 +58,19 @@ describe('AI module with the Google provider', () => {
     })
     const answer = await askOrbit({ question: 'Why?', context: { countryId: 'BRA' } })
     expect(AskAnswerSchema.parse(answer).answer).toBe('Heat is driving admissions.')
+  })
+
+  it('serves the cached real insight when the model later fails', async () => {
+    generateText.mockResolvedValueOnce({
+      output: { summary: 'Real text.', keyPoints: ['Point.'], sourceIds: [], confidence: 'medium' },
+    })
+    await generateInsight('country', 'USA')
+    expect(cache.has('ai-insight-country-usa')).toBe(true)
+
+    generateText.mockRejectedValue(new Error('fetch failed'))
+    const offline = await generateInsight('country', 'USA')
+    expect(offline.provider).toBe('google')
+    expect(offline.summary).toBe('Real text.')
   })
 
   it('falls back to the mock provider when the model fails (e.g. no wifi)', async () => {

@@ -10,6 +10,7 @@ import {
 import { store } from '../data/store'
 import { env } from '../env'
 import { notFound } from '../http'
+import { readCache, writeCache } from '../sources/cache'
 import { googleProvider } from './providers/google'
 import { mockProvider } from './providers/mock'
 import type { AiContext, AiProvider } from './types'
@@ -57,19 +58,45 @@ function buildContext(subjectType: InsightSubjectType, subjectId: string): AiCon
   }
 }
 
-/** Runs the real provider, validates its output, and falls back to mock on any failure. */
+/**
+ * Runs the real provider and validates its output. Successful real answers are saved to the disk
+ * cache (when a cacheKey is given). On any failure: the cached answer if there is one, then mock.
+ * So once an insight has been seen online, the demo shows the same real text with wifi off.
+ */
 async function withFallback<T>(
   label: string,
   run: (provider: AiProvider) => Promise<unknown>,
   validate: (value: unknown) => T,
+  cacheKey?: string,
 ): Promise<T> {
   const provider = selectedProvider()
   try {
-    return validate(await run(provider))
+    const result = validate(await run(provider))
+    if (cacheKey && provider !== mockProvider) {
+      await writeCache(cacheKey, result).catch((err) =>
+        console.warn('[ai] cache write failed', err),
+      )
+    }
+    return result
   } catch (err) {
     if (provider === mockProvider) throw err
+    const cached = cacheKey ? await readCache<unknown>(cacheKey) : undefined
+    const fromCache = cached === undefined ? undefined : safeValidate(validate, cached)
+    if (fromCache !== undefined) {
+      console.warn(`[ai] ${provider.name} ${label} failed, serving cached answer:`, err)
+      return fromCache
+    }
     console.warn(`[ai] ${provider.name} ${label} failed, falling back to mock:`, err)
     return validate(await run(mockProvider))
+  }
+}
+
+/** A cached file that no longer matches the contract is ignored rather than served. */
+function safeValidate<T>(validate: (value: unknown) => T, value: unknown): T | undefined {
+  try {
+    return validate(value)
+  } catch {
+    return undefined
   }
 }
 
@@ -82,6 +109,7 @@ export function generateInsight(
     'insight',
     (p) => p.generateInsight({ subjectType, subjectId, context }),
     (v) => AIInsightSchema.parse(v),
+    `ai-insight-${subjectType}-${subjectId.toLowerCase()}`,
   )
 }
 
