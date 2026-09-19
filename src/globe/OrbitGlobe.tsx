@@ -26,6 +26,7 @@ const TEXTURES = {
 /** Slow idle rotation on the global view, and how long it waits after the user lets go. */
 const GLOBAL_ROTATE_SPEED = 0.35
 const RESUME_ROTATION_MS = 4000
+const TOUR_FLIGHT_MS = 2600
 
 /** One country shape from public/data/countries.geojson (Natural Earth 110m, slimmed to id + name). */
 type CountryFeature = {
@@ -44,7 +45,7 @@ type CountryShapes = { type: 'FeatureCollection'; features: CountryFeature[] }
 export default function OrbitGlobe() {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
   const navigate = useNavigate()
-  const { hoveredCountryId, setHoveredCountry, simulation } = useUiStore()
+  const { hoveredCountryId, setHoveredCountry, simulation, tourFocus } = useUiStore()
   const selectedCountryId = useMatch(`${ROUTE_PATTERNS.country}/*`)?.params.countryId
   const shapes = useQuery({
     queryKey: ['globe', 'shapes'],
@@ -68,6 +69,12 @@ export default function OrbitGlobe() {
   useEffect(() => {
     const globe = globeRef.current
     if (!globe) return
+    // Guided tour: a slow, cinematic flight to each stop, with rotation paused.
+    if (tourFocus) {
+      globe.controls().autoRotate = false
+      globe.pointOfView(tourFocus, TOUR_FLIGHT_MS)
+      return
+    }
     // What-if simulator: hold the camera on the scenario's chokepoint.
     if (simulation) {
       globe.pointOfView({ ...simulation.chokepoint.location, altitude: 1.9 }, 1500)
@@ -83,7 +90,7 @@ export default function OrbitGlobe() {
     globe.controls().autoRotateSpeed = selectedCountryId
       ? MINI_GLOBE_ROTATE_SPEED
       : GLOBAL_ROTATE_SPEED
-  }, [selectedCountryId, countries.data, simulation])
+  }, [selectedCountryId, countries.data, simulation, tourFocus])
 
   // Idle auto-rotation: pause while the user drags, resume a few seconds after they let go.
   useEffect(() => {
@@ -96,7 +103,9 @@ export default function OrbitGlobe() {
       controls.autoRotate = false
     }
     const resume = () => {
-      timer = setTimeout(() => (controls.autoRotate = true), RESUME_ROTATION_MS)
+      timer = setTimeout(() => {
+        if (!useUiStore.getState().tourFocus) controls.autoRotate = true
+      }, RESUME_ROTATION_MS)
     }
     controls.addEventListener('start', pause)
     controls.addEventListener('end', resume)
@@ -162,6 +171,7 @@ export default function OrbitGlobe() {
         const id = (f as CountryFeature).properties.id
         const role = simulation?.affected.find((a) => a.countryId === id)?.role
         if (role) return cssVar(`--sim-${role}`)
+        if (id === tourFocus?.countryId) return cssVar('--globe-land-selected')
         if (id === selectedCountryId) return cssVar('--globe-land-selected')
         return id === hoveredCountryId ? cssVar('--globe-land-hover') : cssVar('--globe-land')
       }}

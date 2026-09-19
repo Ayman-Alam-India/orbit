@@ -65,6 +65,7 @@
   z-index: var(--z-panel);
   overflow-y: auto;
   scrollbar-gutter: stable;
+  transition: opacity var(--duration-slow) var(--ease-out);
 }
 
 .shell[data-mode='global'] .overlay {
@@ -146,4 +147,13 @@
 .drawer[data-open='true'] {
   transform: translateX(0);
   opacity: 1;
+}
+
+/* ---------- Guided tour: the panels step aside so the globe has the stage ---------- */
+
+.shell[data-tour='true'] .overlay,
+.shell[data-tour='true'] .ticker {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-slow) var(--ease-out);
 }

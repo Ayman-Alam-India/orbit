@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react'
-import { Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
+import { Outlet, useLocation, useMatch, useNavigate, useSearchParams } from 'react-router-dom'
 import { AskPanel } from '../features/ask/AskPanel'
 import { paths, ROUTE_PATTERNS } from '../routes'
 import { useUiStore } from '../state/uiStore'
@@ -7,6 +7,7 @@ import { ErrorBoundary, Loader } from '../ui'
 import styles from './OrbitLayout.module.css'
 import { HeadlineTicker } from './HeadlineTicker'
 import { TopBar } from './TopBar'
+import { TourOverlay } from './TourOverlay'
 import { useMiniGlobeTransform } from './useMiniGlobeTransform'
 
 // The globe is heavy (three.js), so it loads separately from the rest of the app.
@@ -27,8 +28,15 @@ export function OrbitLayout() {
   const onSimulator = Boolean(useMatch(ROUTE_PATTERNS.simulate))
   const isGlobal = onGlobal || onSimulator
   const mode = isGlobal ? 'global' : 'detail'
-  const { askOpen, setAskOpen } = useUiStore()
+  const { askOpen, setAskOpen, tourActive, setTourActive } = useUiStore()
   const miniGlobeStyle = useMiniGlobeTransform()
+  const [searchParams] = useSearchParams()
+
+  // Demo link: /?tour=1 opens the guided tour straight away.
+  const tourRequested = searchParams.get('tour') === '1'
+  useEffect(() => {
+    if (tourRequested) setTourActive(true)
+  }, [tourRequested, setTourActive])
 
   useEffect(() => {
     if (!askOpen) return
@@ -38,7 +46,7 @@ export function OrbitLayout() {
   }, [askOpen, setAskOpen])
 
   return (
-    <div className={styles.shell} data-mode={mode} style={miniGlobeStyle}>
+    <div className={styles.shell} data-mode={mode} data-tour={tourActive} style={miniGlobeStyle}>
       <div className={styles.globe} data-testid="globe-stage">
         <ErrorBoundary title="The globe failed to load">
           <Suspense fallback={<Loader label="Loading globe" />}>
@@ -57,6 +65,7 @@ export function OrbitLayout() {
       )}
 
       <TopBar />
+      <TourOverlay />
 
       <div className={styles.ticker}>
         <HeadlineTicker />

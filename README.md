@@ -7,6 +7,13 @@ markets, weather and explainable, multi-model-verified AI, in one flow: **Global
 bill → the rupee and pump prices. Every link is sourced or clearly labelled as ORBIT analysis, has a live market figure,
 and is drawn as an arc on the globe.
 
+**What if…** (`/simulate`): close the Strait of Hormuz or Bab el-Mandeb, pick an oil-price shock, and ORBIT shows the
+knock-on effects with transparent arithmetic on live and sourced numbers. It is labelled as a simulation, not a forecast.
+
+**Guided tour** (`▶ Tour`, or open `/?tour=1` for the demo): the globe flies through the most severe events and the
+strongest ripple chain, and the browser's free speech engine narrates it. Narration uses sourced data only. Keys: ← → to
+move, space to pause, M to mute, Esc to exit. Ask ORBIT also takes voice questions (🎙, Chrome/Edge) and reads answers aloud.
+
 Built in 24 hours by Arham, Ayman, Affan, Shrey and Hardik. This README is the team's starting point, and each section
 links to the document that holds the full detail.
 
