@@ -1,86 +1,264 @@
 [
   {
-    "kind": "geopolitical",
-    "id": "evt_ind_usa_tech_partnership",
-    "title": "India and US expand technology partnership",
-    "summary": "Mock event: both governments announce joint semiconductor and AI research programmes.",
-    "countryIds": ["IND", "USA"],
-    "location": { "lat": 28.61, "lng": 77.21 },
-    "occurredAt": "2026-09-15T09:00:00Z",
-    "severity": 2,
-    "sourceIds": ["src_mock_wire", "src_mock_trade_office"],
-    "tags": ["technology", "bilateral"],
-    "category": "diplomacy",
-    "actors": ["Government of India", "US Government"]
-  },
-  {
-    "kind": "geopolitical",
-    "id": "evt_usa_tariff_review",
-    "title": "US opens review of electronics tariffs",
-    "summary": "Mock event: a 90-day review of import tariffs on consumer electronics begins, unsettling suppliers in Asia.",
-    "countryIds": ["USA"],
-    "location": { "lat": 38.9, "lng": -77.04 },
-    "occurredAt": "2026-09-10T14:30:00Z",
-    "severity": 3,
-    "sourceIds": ["src_mock_trade_office"],
-    "tags": ["trade", "tariffs"],
-    "category": "trade",
-    "actors": ["US Government"]
-  },
-  {
-    "kind": "geopolitical",
-    "id": "evt_bra_amazon_protection_talks",
-    "title": "Amazon nations meet on forest protection",
-    "summary": "Mock event: Brazil hosts neighbouring states to coordinate deforestation monitoring and funding.",
-    "countryIds": ["BRA"],
-    "location": { "lat": -3.12, "lng": -60.02 },
-    "occurredAt": "2026-09-05T12:00:00Z",
-    "severity": 2,
-    "sourceIds": ["src_mock_wire", "src_mock_climate_institute"],
-    "tags": ["climate", "regional"],
-    "category": "diplomacy",
-    "actors": ["Government of Brazil"]
+    "kind": "health",
+    "id": "hs_cod_ebola_bundibugyo_2026",
+    "title": "Ebola (Bundibugyo virus) outbreak in DR Congo",
+    "summary": "As of 7 September 2026, the DRC has reported 6,757 confirmed cases and 3,267 deaths (case fatality ratio 48.3%) across 61 health zones in six provinces, with Ituri the worst affected. Uganda has reported 20 cases.",
+    "countryIds": ["COD", "UGA"],
+    "location": {
+      "lat": 1.566,
+      "lng": 30.252
+    },
+    "occurredAt": "2026-09-10T00:00:00Z",
+    "severity": 5,
+    "sourceIds": ["src_who_don617"],
+    "tags": ["ebola", "outbreak", "cross-border"],
+    "indicator": "Confirmed Ebola cases in DR Congo",
+    "metric": {
+      "value": 6757,
+      "unit": "confirmed cases (as of 7 Sep 2026)"
+    }
   },
   {
     "kind": "health",
-    "id": "hs_ind_dengue_surge",
-    "title": "Dengue cases rise after late monsoon",
-    "summary": "Mock signal: several states report dengue case counts well above the seasonal average.",
-    "countryIds": ["IND"],
-    "location": { "lat": 19.08, "lng": 72.88 },
-    "occurredAt": "2026-09-17T06:00:00Z",
+    "id": "hs_usa_florida_dengue_2026",
+    "title": "Locally acquired dengue rises in Florida",
+    "summary": "Florida reported 41 new locally acquired dengue cases between 6 and 12 September 2026, bringing the 2026 total to 152.",
+    "countryIds": ["USA"],
+    "location": {
+      "lat": 27.8,
+      "lng": -81.7
+    },
+    "occurredAt": "2026-09-18T00:00:00Z",
+    "severity": 2,
+    "sourceIds": ["src_nathnac_outbreaks"],
+    "tags": ["dengue", "vector-borne"],
+    "indicator": "Locally acquired dengue cases in Florida",
+    "metric": {
+      "value": 152,
+      "unit": "cases in 2026"
+    }
+  },
+  {
+    "kind": "health",
+    "id": "hs_usa_newyork_legionnaires_2026",
+    "title": "Legionnaires' disease cluster in New York",
+    "summary": "12 confirmed cases of Legionnaires' disease, including one death, were reported in New York as of 15 September 2026.",
+    "countryIds": ["USA"],
+    "location": {
+      "lat": 40.71,
+      "lng": -74
+    },
+    "occurredAt": "2026-09-16T00:00:00Z",
+    "severity": 2,
+    "sourceIds": ["src_nathnac_outbreaks"],
+    "tags": ["legionella", "cluster"],
+    "indicator": "Confirmed Legionnaires' disease cases",
+    "metric": {
+      "value": 12,
+      "unit": "confirmed cases, 1 death"
+    }
+  },
+  {
+    "kind": "health",
+    "id": "hs_fra_west_nile_2026",
+    "title": "West Nile virus spreads across French regions",
+    "summary": "France has reported 92 locally acquired West Nile virus cases across multiple regions as of 16 September 2026.",
+    "countryIds": ["FRA"],
+    "location": {
+      "lat": 46.6,
+      "lng": 2.4
+    },
+    "occurredAt": "2026-09-17T00:00:00Z",
+    "severity": 3,
+    "sourceIds": ["src_nathnac_outbreaks"],
+    "tags": ["west-nile", "vector-borne"],
+    "indicator": "Locally acquired West Nile virus cases",
+    "metric": {
+      "value": 92,
+      "unit": "cases (as of 16 Sep 2026)"
+    }
+  },
+  {
+    "kind": "health",
+    "id": "hs_lbr_lassa_fever_2026",
+    "title": "Lassa fever cases in Liberia",
+    "summary": "Liberia has reported 33 Lassa fever cases, including 11 deaths, as of 30 August 2026.",
+    "countryIds": ["LBR"],
+    "location": {
+      "lat": 6.3,
+      "lng": -10.8
+    },
+    "occurredAt": "2026-09-16T00:00:00Z",
+    "severity": 3,
+    "sourceIds": ["src_nathnac_outbreaks"],
+    "tags": ["lassa", "haemorrhagic-fever"],
+    "indicator": "Lassa fever cases",
+    "metric": {
+      "value": 33,
+      "unit": "cases, 11 deaths (as of 30 Aug 2026)"
+    }
+  },
+  {
+    "kind": "health",
+    "id": "hs_deu_malaria_frankfurt_2026",
+    "title": "Malaria cluster with deaths in Frankfurt",
+    "summary": "Germany reported a further fatal malaria case in Frankfurt on 17 September 2026, bringing the cluster to 8 infections and 3 deaths.",
+    "countryIds": ["DEU"],
+    "location": {
+      "lat": 50.11,
+      "lng": 8.68
+    },
+    "occurredAt": "2026-09-18T00:00:00Z",
+    "severity": 2,
+    "sourceIds": ["src_nathnac_outbreaks"],
+    "tags": ["malaria", "cluster"],
+    "indicator": "Malaria infections in the Frankfurt cluster",
+    "metric": {
+      "value": 8,
+      "unit": "infections, 3 fatal"
+    }
+  },
+  {
+    "kind": "health",
+    "id": "hs_ita_usutu_2026",
+    "title": "Usutu virus cases in Italy",
+    "summary": "Italy has reported 12 Usutu virus cases as of 9 September 2026.",
+    "countryIds": ["ITA"],
+    "location": {
+      "lat": 42.8,
+      "lng": 12.5
+    },
+    "occurredAt": "2026-09-16T00:00:00Z",
+    "severity": 1,
+    "sourceIds": ["src_nathnac_outbreaks"],
+    "tags": ["usutu", "vector-borne"],
+    "indicator": "Usutu virus cases",
+    "metric": {
+      "value": 12,
+      "unit": "cases (as of 9 Sep 2026)"
+    }
+  },
+  {
+    "kind": "geopolitical",
+    "id": "evt_yem_houthis_seize_hanish_islands",
+    "title": "Houthis seize Red Sea islands and strike Saudi Arabia",
+    "summary": "Houthi forces seized the Greater and Lesser Hanish islands, about 160 km north of the Bab el-Mandeb Strait, after earlier taking the port of Mokha and Mayun island. The Houthis said they fired missiles and drones at King Khalid Air Base in Khamis Mushait. The UN estimated over 80,000 people were displaced in two weeks.",
+    "countryIds": ["YEM", "SAU"],
+    "location": {
+      "lat": 13.72,
+      "lng": 42.73
+    },
+    "occurredAt": "2026-09-14T00:00:00Z",
+    "severity": 5,
+    "sourceIds": ["src_toi_houthis_islands"],
+    "tags": ["red-sea", "shipping", "conflict"],
+    "category": "conflict",
+    "actors": ["Houthis (Ansar Allah)", "Saudi-led coalition", "Yemeni government forces"]
+  },
+  {
+    "kind": "geopolitical",
+    "id": "evt_rus_duma_vote_occupied_ukraine",
+    "title": "Russia holds State Duma vote in occupied Ukraine",
+    "summary": "Russia's State Duma elections run 18–20 September 2026, with early voting in occupied Donetsk, Luhansk, Kherson and Zaporizhzhia carried out by mobile polling teams accompanied by armed troops. Ukraine condemned the vote.",
+    "countryIds": ["RUS", "UKR"],
+    "location": {
+      "lat": 48,
+      "lng": 37.8
+    },
+    "occurredAt": "2026-09-17T00:00:00Z",
     "severity": 4,
-    "sourceIds": ["src_mock_health_agency"],
-    "tags": ["vector-borne", "seasonal"],
-    "indicator": "Dengue cases",
-    "metric": { "value": 18400, "unit": "cases this month" }
+    "sourceIds": ["src_kyivpost_duma"],
+    "tags": ["election", "occupation", "war"],
+    "category": "election",
+    "actors": ["Russian Central Election Commission", "Government of Ukraine"]
   },
   {
-    "kind": "health",
-    "id": "hs_bra_heatwave_hospital_load",
-    "title": "Heatwave raises hospital admissions",
-    "summary": "Mock signal: heat-related admissions climb in central Brazil during an early-season heatwave.",
-    "countryIds": ["BRA"],
-    "location": { "lat": -15.79, "lng": -47.88 },
-    "occurredAt": "2026-09-12T10:00:00Z",
+    "kind": "geopolitical",
+    "id": "evt_usa_chn_trump_xi_summit",
+    "title": "Trump and Xi prepare Washington summit on trade truce",
+    "summary": "US President Donald Trump is set to host Chinese President Xi Jinping in Washington the week after 18 September. The October 2025 Busan trade truce, which suspends US tariffs in exchange for Chinese rare-earth exports, expires about five weeks after the summit; Beijing wants a long extension, Washington a shorter one.",
+    "countryIds": ["USA", "CHN"],
+    "location": {
+      "lat": 38.9,
+      "lng": -77.04
+    },
+    "occurredAt": "2026-09-18T00:00:00Z",
     "severity": 3,
-    "sourceIds": ["src_mock_health_agency", "src_mock_climate_institute"],
-    "tags": ["heat", "climate"],
-    "indicator": "Heat-related hospital admissions",
-    "metric": { "value": 27, "unit": "% above baseline" }
+    "sourceIds": ["src_euronews_trump_xi"],
+    "tags": ["trade", "tariffs", "rare-earths"],
+    "category": "diplomacy",
+    "actors": ["Donald Trump", "Xi Jinping"]
   },
   {
-    "kind": "health",
-    "id": "hs_usa_measles_cluster",
-    "title": "Measles cluster reported in two states",
-    "summary": "Mock signal: health officials trace a measles cluster linked to low local vaccination rates.",
+    "kind": "geopolitical",
+    "id": "evt_usa_fed_rate_hike_sep2026",
+    "title": "US Federal Reserve raises interest rates",
+    "summary": "The Federal Open Market Committee raised the federal funds target range by 0.25 percentage points to 3.75–4%, citing elevated inflation while noting that economic activity is expanding at a solid pace.",
     "countryIds": ["USA"],
-    "location": { "lat": 31.97, "lng": -99.9 },
-    "occurredAt": "2026-09-08T16:00:00Z",
-    "severity": 3,
-    "sourceIds": ["src_mock_health_agency"],
-    "tags": ["vaccine-preventable"],
-    "indicator": "Measles cases",
-    "metric": { "value": 64, "unit": "confirmed cases" }
+    "location": {
+      "lat": 38.89,
+      "lng": -77.05
+    },
+    "occurredAt": "2026-09-16T00:00:00Z",
+    "severity": 2,
+    "sourceIds": ["src_fed_fomc_20260916"],
+    "tags": ["monetary-policy", "inflation"],
+    "category": "economy",
+    "actors": ["Federal Reserve"]
+  },
+  {
+    "kind": "geopolitical",
+    "id": "evt_kos_thaci_sentenced",
+    "title": "Former Kosovo president Thaçi sentenced to 25 years",
+    "summary": "The Kosovo Specialist Chambers in The Hague sentenced former president Hashim Thaçi to 25 years in prison on four counts of war crimes, including the murder of 96 political opponents and perceived collaborators.",
+    "countryIds": ["KOS"],
+    "location": {
+      "lat": 52.08,
+      "lng": 4.3
+    },
+    "occurredAt": "2026-09-16T00:00:00Z",
+    "severity": 2,
+    "sourceIds": ["src_aljazeera_thaci"],
+    "tags": ["war-crimes", "justice"],
+    "category": "justice",
+    "actors": ["Kosovo Specialist Chambers", "Hashim Thaçi"]
+  },
+  {
+    "kind": "geopolitical",
+    "id": "evt_nzl_ind_fta_passed",
+    "title": "New Zealand passes India free trade agreement",
+    "summary": "New Zealand's Parliament passed the India FTA legislation 93–29. Tariffs will be eliminated or substantially reduced on about 95% of New Zealand exports to India; the deal still needs further steps before it enters into force.",
+    "countryIds": ["NZL", "IND"],
+    "location": {
+      "lat": -41.29,
+      "lng": 174.78
+    },
+    "occurredAt": "2026-09-16T00:00:00Z",
+    "severity": 1,
+    "sourceIds": ["src_ln24_nz_india_fta"],
+    "tags": ["trade", "bilateral"],
+    "category": "trade",
+    "actors": ["Government of New Zealand", "Government of India"]
+  },
+  {
+    "kind": "geopolitical",
+    "id": "evt_usa_unga81_high_level_week",
+    "title": "World leaders gather for UNGA81 High-level Week",
+    "summary": "The UN General Assembly's High-level Week runs 18–28 September 2026 in New York, with the General Debate from 22 September, under the theme \"Restoring trust, managing transformation: A United Nations that delivers for all.\"",
+    "countryIds": ["USA"],
+    "location": {
+      "lat": 40.749,
+      "lng": -73.968
+    },
+    "occurredAt": "2026-09-18T00:00:00Z",
+    "severity": 1,
+    "sourceIds": ["src_un_hlw_2026"],
+    "tags": ["united-nations", "multilateral"],
+    "category": "diplomacy",
+    "actors": [
+      "United Nations General Assembly",
+      "President of the General Assembly Khalilur Rahman"
+    ]
   }
 ]

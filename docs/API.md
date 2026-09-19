@@ -75,14 +75,14 @@ event. With only `countryId`, it answers about that country. With neither, it an
 
 ## Shared rules for all data
 
-| Rule                                                    | Example                                                                                    |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| Country ID = ISO 3166-1 alpha-3, uppercase              | `IND`, `USA`, `BRA` (matches `properties.id` in `public/data/countries.geojson`)           |
-| Other IDs = prefix + lowercase slug (`a-z`, `0-9`, `_`) | `evt_usa_tariff_review`, `hs_ind_dengue_surge`, `news_...`, `src_...`, `tl_...`, `ins_...` |
-| Dates = ISO 8601 UTC with `Z`                           | `2026-09-19T10:00:00Z`                                                                     |
-| Coordinates = `{ lat, lng }`                            | `{ "lat": 28.61, "lng": 77.21 }`                                                           |
-| Severity = integer 1–5                                  | 1 Low, 2 Guarded, 3 Elevated, 4 High, 5 Critical                                           |
-| Field names = camelCase. Enum values = lowercase        | `occurredAt`, `"geopolitical"`                                                             |
+| Rule                                                    | Example                                                                                           |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Country ID = ISO 3166-1 alpha-3, uppercase              | `IND`, `USA`, `BRA` (matches `properties.id` in `public/data/countries.geojson`; Kosovo is `KOS`) |
+| Other IDs = prefix + lowercase slug (`a-z`, `0-9`, `_`) | `evt_usa_tariff_review`, `hs_ind_dengue_surge`, `news_...`, `src_...`, `tl_...`, `ins_...`        |
+| Dates = ISO 8601 UTC with `Z`                           | `2026-09-19T10:00:00Z`                                                                            |
+| Coordinates = `{ lat, lng }`                            | `{ "lat": 28.61, "lng": 77.21 }`                                                                  |
+| Severity = integer 1–5                                  | 1 Low, 2 Guarded, 3 Elevated, 4 High, 5 Critical                                                  |
+| Field names = camelCase. Enum values = lowercase        | `occurredAt`, `"geopolitical"`                                                                    |
 
 ## Entities (data dictionary)
 
@@ -156,7 +156,7 @@ AIInsight (ins_) ── subjectId ──► world | Country | OrbitEvent,  sourc
 The server checks every one of these links when it starts, and `npm test` checks them too (`server/data/seed.test.ts`).
 A broken link stops the server with a message such as `news.json news_x: unknown source "src_missing"`.
 
-## Mock data format (`server/data/seed/`)
+## Data files (`server/data/seed/` and `server/data/fixtures/`)
 
 One JSON file per entity, each a plain **array** of objects matching the schema above:
 
@@ -168,16 +168,28 @@ One JSON file per entity, each a plain **array** of objects matching the schema 
 | `sources.json`   | `Source[]`                                          | Shrey |
 | `timeline.json`  | `TimelineEvent[]`                                   | Shrey |
 
-The current files are **small illustrative samples** (3 countries, 6 events). Everything marked "Mock" and every
-`src_mock_*` source is placeholder content, to be replaced with real, sourced data (tasks ORB-SHR-01 and ORB-SHR-02).
-To check your edits, run `npm test`. The seed test prints the exact file, item and field that is wrong.
+**Curated seed (what the app shows):** 15 countries, 14 real events (7 geopolitical, 7 health signals), 7 headlines and
+11 timeline entries, current as of 19 September 2026. Sourcing rules:
+
+- Every fact comes from a page that was actually opened. Each `sources.json` entry points to that exact page
+  (WHO Disease Outbreak News, the UKHSA NaTHNaC outbreak list, the Federal Reserve, the UN, and named news articles).
+- Populations (2024) and capitals come from the World Bank (`SP.POP.TOTL` and its country API), and `centroid` is the capital's
+  location. Kosovo uses the map's `KOS` code (the World Bank uses `XKX`).
+- `riskLevel` and event `severity` are **ORBIT's editorial ratings** based on the tracked events, not an official index.
+- Headlines use the article's real title and URL. Dates are publication dates (time set to 00:00 UTC).
+
+**Test fixtures (`server/data/fixtures/`):** a small, stable, clearly fake data set (India, US, Brazil with `example.org`
+sources). Tests always run against it (`ORBIT_SEED_DIR` in `vitest.config.ts`), so curating the real seed never breaks a test.
+
+To check your edits, run `npm test`. The seed test validates both data sets, checks that every country exists on the globe
+map, and rejects placeholder (`example.org`) sources in the curated seed. It prints the exact file, item and field that is wrong.
 
 ## Data modes and future live data
 
-| Setting       | `mock` (default)              | `live`                                               |
-| ------------- | ----------------------------- | ---------------------------------------------------- |
-| `DATA_MODE`   | Seed data only, fully offline | Seed data + live sources (`server/sources/`)         |
-| `AI_PROVIDER` | Canned answers from seed data | `google` (Gemini). Falls back to mock on any failure |
+| Setting       | `mock` (default)                      | `live`                                               |
+| ------------- | ------------------------------------- | ---------------------------------------------------- |
+| `DATA_MODE`   | Seed data only, fully offline         | Seed data + live sources (`server/sources/`)         |
+| `AI_PROVIDER` | Offline analysis built from seed data | `google` (Gemini). Falls back to mock on any failure |
 
 Rules for every live source (server-side only):
 

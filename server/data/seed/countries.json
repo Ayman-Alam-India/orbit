@@ -1,12 +1,62 @@
 [
   {
-    "id": "IND",
-    "name": "India",
-    "region": "South Asia",
-    "capital": "New Delhi",
-    "centroid": { "lat": 22.0, "lng": 79.0 },
-    "population": 1450000000,
-    "summary": "Mock profile: the world's most populous country, balancing rapid growth with monsoon-season health and infrastructure pressures.",
+    "id": "COD",
+    "name": "DR Congo",
+    "region": "Sub-Saharan Africa",
+    "capital": "Kinshasa",
+    "centroid": { "lat": -4.325, "lng": 15.3222 },
+    "population": 109276265,
+    "summary": "Battling a large Ebola (Bundibugyo virus) outbreak: 6,757 confirmed cases and 3,267 deaths as of 7 September 2026, concentrated in Ituri and North Kivu.",
+    "riskLevel": 5
+  },
+  {
+    "id": "UGA",
+    "name": "Uganda",
+    "region": "Sub-Saharan Africa",
+    "capital": "Kampala",
+    "centroid": { "lat": 0.314269, "lng": 32.5729 },
+    "population": 50015092,
+    "summary": "Has reported 20 cases linked to the Ebola (Bundibugyo virus) outbreak in neighbouring DR Congo.",
+    "riskLevel": 3
+  },
+  {
+    "id": "YEM",
+    "name": "Yemen",
+    "region": "Middle East & North Africa",
+    "capital": "Sana'a",
+    "centroid": { "lat": 15.352, "lng": 44.2075 },
+    "population": 40583164,
+    "summary": "Fighting has escalated around the Bab el-Mandeb Strait as Houthi forces seize Red Sea islands and trade strikes with Saudi Arabia.",
+    "riskLevel": 5
+  },
+  {
+    "id": "SAU",
+    "name": "Saudi Arabia",
+    "region": "Middle East & North Africa",
+    "capital": "Riyadh",
+    "centroid": { "lat": 24.6748, "lng": 46.6977 },
+    "population": 35300280,
+    "summary": "Targeted by Houthi missile and drone attacks on its southern air bases while conducting airstrikes in Yemen.",
+    "riskLevel": 4
+  },
+  {
+    "id": "UKR",
+    "name": "Ukraine",
+    "region": "Europe & Central Asia",
+    "capital": "Kyiv",
+    "centroid": { "lat": 50.4536, "lng": 30.5038 },
+    "population": 37860221,
+    "summary": "Russia is holding State Duma voting in the occupied Donetsk, Luhansk, Kherson and Zaporizhzhia regions, which Kyiv condemns.",
+    "riskLevel": 4
+  },
+  {
+    "id": "RUS",
+    "name": "Russia",
+    "region": "Europe & Central Asia",
+    "capital": "Moscow",
+    "centroid": { "lat": 55.7558, "lng": 37.6176 },
+    "population": 143669648,
+    "summary": "Holding State Duma elections on 18–20 September 2026, including in occupied parts of Ukraine.",
     "riskLevel": 3
   },
   {
@@ -14,19 +64,89 @@
     "name": "United States",
     "region": "North America",
     "capital": "Washington, D.C.",
-    "centroid": { "lat": 39.8, "lng": -98.6 },
-    "population": 340000000,
-    "summary": "Mock profile: the largest economy, where trade policy decisions ripple across global supply chains.",
+    "centroid": { "lat": 38.8895, "lng": -77.032 },
+    "population": 340003797,
+    "summary": "Hosts the UN General Assembly's High-level Week and an upcoming Trump–Xi summit; the Federal Reserve raised rates to 3.75–4%.",
     "riskLevel": 2
   },
   {
-    "id": "BRA",
-    "name": "Brazil",
-    "region": "South America",
-    "capital": "Brasília",
-    "centroid": { "lat": -10.8, "lng": -52.9 },
-    "population": 212000000,
-    "summary": "Mock profile: steward of most of the Amazon, facing climate-driven heat and environmental diplomacy questions.",
+    "id": "CHN",
+    "name": "China",
+    "region": "East Asia & Pacific",
+    "capital": "Beijing",
+    "centroid": { "lat": 40.0495, "lng": 116.286 },
+    "population": 1408975000,
+    "summary": "Preparing for a Trump–Xi summit in Washington as the October 2025 Busan trade truce nears expiry.",
+    "riskLevel": 2
+  },
+  {
+    "id": "FRA",
+    "name": "France",
+    "region": "Europe & Central Asia",
+    "capital": "Paris",
+    "centroid": { "lat": 48.8566, "lng": 2.35097 },
+    "population": 68551653,
+    "summary": "Reporting 92 locally acquired West Nile virus cases across several regions as of 16 September 2026.",
+    "riskLevel": 2
+  },
+  {
+    "id": "LBR",
+    "name": "Liberia",
+    "region": "Sub-Saharan Africa",
+    "capital": "Monrovia",
+    "centroid": { "lat": 6.30039, "lng": -10.7957 },
+    "population": 5612817,
+    "summary": "Reporting 33 Lassa fever cases, including 11 deaths, as of 30 August 2026.",
     "riskLevel": 3
+  },
+  {
+    "id": "DEU",
+    "name": "Germany",
+    "region": "Europe & Central Asia",
+    "capital": "Berlin",
+    "centroid": { "lat": 52.5235, "lng": 13.4115 },
+    "population": 83516593,
+    "summary": "A malaria cluster in Frankfurt has reached 8 infections and 3 deaths.",
+    "riskLevel": 1
+  },
+  {
+    "id": "ITA",
+    "name": "Italy",
+    "region": "Europe & Central Asia",
+    "capital": "Rome",
+    "centroid": { "lat": 41.8955, "lng": 12.4823 },
+    "population": 58952704,
+    "summary": "Reporting 12 Usutu virus cases as of 9 September 2026.",
+    "riskLevel": 1
+  },
+  {
+    "id": "KOS",
+    "name": "Kosovo",
+    "region": "Europe & Central Asia",
+    "capital": "Pristina",
+    "centroid": { "lat": 42.565, "lng": 20.926 },
+    "population": 1594353,
+    "summary": "Former president Hashim Thaçi was sentenced to 25 years for war crimes by the Kosovo Specialist Chambers in The Hague.",
+    "riskLevel": 2
+  },
+  {
+    "id": "NZL",
+    "name": "New Zealand",
+    "region": "East Asia & Pacific",
+    "capital": "Wellington",
+    "centroid": { "lat": -41.2865, "lng": 174.776 },
+    "population": 5290000,
+    "summary": "Parliament passed the India free trade agreement 93–29, cutting tariffs on about 95% of exports to India once in force.",
+    "riskLevel": 1
+  },
+  {
+    "id": "IND",
+    "name": "India",
+    "region": "South Asia",
+    "capital": "New Delhi",
+    "centroid": { "lat": 28.6353, "lng": 77.225 },
+    "population": 1450935791,
+    "summary": "Its free trade agreement with New Zealand, signed in New Delhi on 27 April 2026, cleared New Zealand's Parliament.",
+    "riskLevel": 1
   }
 ]

@@ -30,7 +30,9 @@ describe('ORBIT app', () => {
   it('renders the global view with the globe and a global insight', async () => {
     renderWithProviders(<AppRoutes />, { route: '/' })
     expect(await screen.findByTestId('globe')).toBeInTheDocument()
-    expect(await screen.findByText(/Mock insight for the world/)).toBeInTheDocument()
+    expect(
+      await screen.findByText(/ORBIT is tracking 6 events across 3 countries/),
+    ).toBeInTheDocument()
   })
 
   it('renders a country page from real API data', async () => {

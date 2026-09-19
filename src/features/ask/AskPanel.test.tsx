@@ -34,7 +34,7 @@ describe('Ask ORBIT', () => {
     expect(await screen.findByText('Brazil')).toBeInTheDocument()
     await userEvent.type(screen.getByLabelText('Question'), 'What is happening?')
     await userEvent.click(screen.getByRole('button', { name: 'Ask' }))
-    const answer = await screen.findByText(/Mock answer about Brazil/)
+    const answer = await screen.findByText(/Offline analysis for Brazil/)
     expect(answer).toBeInTheDocument()
     expect(screen.getByText('What is happening?')).toBeInTheDocument()
     expect(
@@ -46,6 +46,8 @@ describe('Ask ORBIT', () => {
     renderAt('/country/IND/event/hs_ind_dengue_surge')
     expect(await screen.findByText('Dengue cases rise after late monsoon')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Why does this matter?' }))
-    expect(await screen.findByText(/Mock answer about India/)).toBeInTheDocument()
+    expect(
+      await screen.findByText(/Offline analysis for Dengue cases rise after late monsoon/),
+    ).toBeInTheDocument()
   })
 })

@@ -9,9 +9,9 @@ withTestApiServer()
 describe('insight panel', () => {
   it('shows summary, key points, named sources, confidence and provider', async () => {
     renderWithProviders(<InsightCard subjectType="event" subjectId="hs_ind_dengue_surge" />)
-    expect(await screen.findByText(/Mock insight for Dengue cases/)).toBeInTheDocument()
+    expect(await screen.findByText(/Mock signal: several states report dengue/)).toBeInTheDocument()
     expect(
-      screen.getByText('Dengue cases rise after late monsoon (severity 4)'),
+      screen.getByText('Dengue cases rise after late monsoon (18,400 cases this month)'),
     ).toBeInTheDocument()
     expect(
       await screen.findByRole('link', { name: 'Mock Global Health Agency' }),
@@ -22,7 +22,7 @@ describe('insight panel', () => {
 
   it('works for the global subject', async () => {
     renderWithProviders(<InsightCard subjectType="global" subjectId="world" />)
-    expect(await screen.findByText(/Mock insight for the world/)).toBeInTheDocument()
+    expect(await screen.findByText(/ORBIT is tracking 6 events/)).toBeInTheDocument()
   })
 
   it('shows an error state for an unknown subject', async () => {

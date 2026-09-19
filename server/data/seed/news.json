@@ -1,55 +1,65 @@
 [
   {
-    "id": "news_ind_usa_chip_deal",
-    "title": "Mock: New Delhi and Washington sign chip research pact",
-    "url": "https://example.org/mock-wire/ind-usa-chip-pact",
-    "sourceId": "src_mock_wire",
-    "publishedAt": "2026-09-15T11:00:00Z",
-    "countryIds": ["IND", "USA"],
-    "eventId": "evt_ind_usa_tech_partnership"
+    "id": "news_euronews_trump_xi_summit_preview",
+    "title": "What to expect from the Trump-Xi summit, from tariffs to a possible $30 billion deal",
+    "url": "https://www.euronews.com/business/2026/09/18/what-to-expect-from-the-trump-xi-summit-from-tariffs-to-a-possible-30-billion-deal",
+    "sourceId": "src_euronews_trump_xi",
+    "publishedAt": "2026-09-18T00:00:00Z",
+    "countryIds": ["USA", "CHN"],
+    "eventId": "evt_usa_chn_trump_xi_summit"
   },
   {
-    "id": "news_usa_tariff_review_opens",
-    "title": "Mock: Electronics importers brace for tariff review",
-    "url": "https://example.org/mock-wire/usa-tariff-review",
-    "sourceId": "src_mock_wire",
-    "publishedAt": "2026-09-10T18:00:00Z",
+    "id": "news_kyivpost_duma_early_voting",
+    "title": "Russia Holds Early State Duma Voting in Occupied Ukraine as Armed Troops Accompany Mobile Polling Teams",
+    "url": "https://www.kyivpost.com/post/84772",
+    "sourceId": "src_kyivpost_duma",
+    "publishedAt": "2026-09-17T00:00:00Z",
+    "countryIds": ["RUS", "UKR"],
+    "eventId": "evt_rus_duma_vote_occupied_ukraine"
+  },
+  {
+    "id": "news_aljazeera_thaci_sentenced",
+    "title": "Former Kosovo President Hashim Thaci sentenced to 25 years for war crimes",
+    "url": "https://www.aljazeera.com/news/2026/9/16/former-kosovo-president-hashim-thaci-convicted-of-war-crimes",
+    "sourceId": "src_aljazeera_thaci",
+    "publishedAt": "2026-09-16T00:00:00Z",
+    "countryIds": ["KOS"],
+    "eventId": "evt_kos_thaci_sentenced"
+  },
+  {
+    "id": "news_fed_fomc_statement_sep2026",
+    "title": "Federal Reserve issues FOMC statement",
+    "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm",
+    "sourceId": "src_fed_fomc_20260916",
+    "publishedAt": "2026-09-16T00:00:00Z",
     "countryIds": ["USA"],
-    "eventId": "evt_usa_tariff_review"
+    "eventId": "evt_usa_fed_rate_hike_sep2026"
   },
   {
-    "id": "news_bra_amazon_summit",
-    "title": "Mock: Amazon summit ends with shared monitoring plan",
-    "url": "https://example.org/mock-wire/amazon-summit",
-    "sourceId": "src_mock_wire",
-    "publishedAt": "2026-09-06T09:00:00Z",
-    "countryIds": ["BRA"],
-    "eventId": "evt_bra_amazon_protection_talks"
+    "id": "news_ln24_nz_india_fta",
+    "title": "New Zealand Parliament Passes India Free Trade Agreement",
+    "url": "https://ln24international.com/2026/09/16/new-zealand-parliament-passes-india-free-trade-agreement/",
+    "sourceId": "src_ln24_nz_india_fta",
+    "publishedAt": "2026-09-16T00:00:00Z",
+    "countryIds": ["NZL", "IND"],
+    "eventId": "evt_nzl_ind_fta_passed"
   },
   {
-    "id": "news_ind_dengue_hospitals",
-    "title": "Mock: Hospitals in Mumbai add dengue wards",
-    "url": "https://example.org/mock-wire/mumbai-dengue-wards",
-    "sourceId": "src_mock_wire",
-    "publishedAt": "2026-09-18T07:30:00Z",
-    "countryIds": ["IND"],
-    "eventId": "hs_ind_dengue_surge"
+    "id": "news_toi_houthis_hanish_islands",
+    "title": "Houthis seize more key islands in Red Sea, launch attacks into Saudi Arabia",
+    "url": "https://www.timesofisrael.com/houthis-seize-more-key-islands-in-red-sea-launch-attacks-into-saudi-arabia/",
+    "sourceId": "src_toi_houthis_islands",
+    "publishedAt": "2026-09-14T00:00:00Z",
+    "countryIds": ["YEM", "SAU"],
+    "eventId": "evt_yem_houthis_seize_hanish_islands"
   },
   {
-    "id": "news_bra_heat_advice",
-    "title": "Mock: Brasília issues heat safety guidance",
-    "url": "https://example.org/mock-wire/brasilia-heat-guidance",
-    "sourceId": "src_mock_wire",
-    "publishedAt": "2026-09-13T08:00:00Z",
-    "countryIds": ["BRA"],
-    "eventId": "hs_bra_heatwave_hospital_load"
-  },
-  {
-    "id": "news_global_supply_chains",
-    "title": "Mock: Shippers reroute as trade uncertainty grows",
-    "url": "https://example.org/mock-wire/supply-chains",
-    "sourceId": "src_mock_wire",
-    "publishedAt": "2026-09-16T12:00:00Z",
-    "countryIds": ["USA", "IND"]
+    "id": "news_who_don617_ebola_drc",
+    "title": "Ebola disease caused by Bundibugyo virus - Democratic Republic of the Congo",
+    "url": "https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON617",
+    "sourceId": "src_who_don617",
+    "publishedAt": "2026-09-10T00:00:00Z",
+    "countryIds": ["COD", "UGA"],
+    "eventId": "hs_cod_ebola_bundibugyo_2026"
   }
 ]

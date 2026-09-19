@@ -11,6 +11,8 @@ export default defineConfig({
     // Frontend tests run in jsdom. Server/shared tests opt into Node with `// @vitest-environment node`.
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    // Tests use the small, stable fixture data set, not the curated seed (see server/data/store.ts).
+    env: { ORBIT_SEED_DIR: 'server/data/fixtures' },
     include: [
       'src/**/*.test.{ts,tsx}',
       'server/**/*.test.ts',

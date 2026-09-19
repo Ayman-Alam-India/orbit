@@ -1,4 +1,5 @@
 import type { SourceId } from '@shared'
+import { shortSourceName } from '../event/format'
 import { useSources } from '../event/useSources'
 import styles from './Insight.module.css'
 
@@ -17,9 +18,9 @@ export function SourceChips({ ids }: { ids: SourceId[] }) {
             target="_blank"
             rel="noreferrer"
             className={styles.chip}
-            title={`Reliability: ${source.reliability}`}
+            title={`${source.name} · reliability: ${source.reliability}`}
           >
-            {source.name}
+            {shortSourceName(source.name)}
           </a>
         ) : (
           <span key={id} className={styles.chip}>
