@@ -18,4 +18,6 @@ export const useEvent = (id: EventId) =>
   useQuery({
     queryKey: eventKeys.detail(id),
     queryFn: () => apiGet<OrbitEvent>(API_ROUTES.event(id)),
+    // An empty id means "no event selected" (e.g. Ask ORBIT on the global view): don't fetch.
+    enabled: Boolean(id),
   })

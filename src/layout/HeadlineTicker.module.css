@@ -1,0 +1,76 @@
+.ticker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  height: 32px;
+  padding: 0 var(--space-3);
+  border: var(--border-width) solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  backdrop-filter: blur(var(--blur-panel));
+}
+
+.label {
+  flex: none;
+  color: var(--color-alert);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+
+.viewport {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: ticker-scroll var(--ticker-duration) linear infinite;
+}
+
+.ticker:hover .track,
+.ticker:focus-within .track {
+  animation-play-state: paused;
+}
+
+.copy {
+  display: flex;
+}
+
+.item {
+  padding-right: var(--space-7);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+}
+
+.item:hover,
+.item:focus-visible {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+@keyframes ticker-scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+
+  .viewport {
+    overflow-x: auto;
+  }
+
+  .copy {
+    display: none;
+  }
+}

@@ -67,3 +67,23 @@ button {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+/* Hover tooltip on the globe (the globe library renders labels as HTML, see src/globe/globeStyle.ts) */
+.globe-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width) solid var(--globe-border);
+  border-radius: var(--radius-sm);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--blur-panel));
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  color: var(--color-text);
+}
+
+.globe-tooltip span {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+}

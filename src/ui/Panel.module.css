@@ -1,10 +1,27 @@
 .panel {
-  background: var(--color-surface);
-  border: var(--border-width) solid var(--color-border);
+  background: var(--glass-bg);
+  border: var(--border-width) solid var(--glass-border);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-panel);
+  box-shadow: var(--shadow-panel), var(--glass-highlight);
   backdrop-filter: blur(var(--blur-panel));
   padding: var(--space-4) var(--space-5);
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
+}
+
+.panel:hover {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--shadow-panel), var(--glass-highlight), var(--glow-soft);
+}
+
+.accent {
+  border-color: var(--glass-accent-border);
+}
+
+.accent:hover {
+  border-color: var(--color-accent);
+  box-shadow: var(--shadow-panel), var(--glass-highlight), var(--glow-accent);
 }
 
 .header {
@@ -24,6 +41,11 @@
   text-transform: uppercase;
 }
 
+.accent .eyebrow {
+  color: var(--color-accent);
+}
+
 .title {
+  color: var(--color-highlight);
   font-size: var(--text-lg);
 }

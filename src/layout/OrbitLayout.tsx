@@ -1,23 +1,41 @@
-import { lazy, Suspense } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { lazy, Suspense, useEffect } from 'react'
+import { Outlet, useLocation, useMatch, useNavigate } from 'react-router-dom'
 import { AskPanel } from '../features/ask/AskPanel'
-import { paths } from '../routes'
+import { paths, ROUTE_PATTERNS } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import { ErrorBoundary, Loader } from '../ui'
 import styles from './OrbitLayout.module.css'
+import { TopBar } from './TopBar'
+import { useMiniGlobeTransform } from './useMiniGlobeTransform'
 
 // The globe is heavy (three.js), so it loads separately from the rest of the app.
 const OrbitGlobe = lazy(() => import('../globe/OrbitGlobe'))
 
 /**
- * App shell (owner: Arham). The globe stays mounted behind everything; the route's panel
- * (<Outlet/>) renders in the overlay column, so the globe never reloads between pages.
+ * App shell (decision owner: Arham).
+ * - Global view ("/"): full-screen globe, panels in a right column.
+ * - Detail views (country, event): the globe squeezes into a mini globe in the bottom-left and the
+ *   route's content fills a centred column. Clicking the mini globe returns to the global view.
+ * The globe stays mounted in both modes, so it never reloads.
  */
 export function OrbitLayout() {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const isGlobal = Boolean(useMatch(ROUTE_PATTERNS.global))
+  const mode = isGlobal ? 'global' : 'detail'
   const { askOpen, setAskOpen } = useUiStore()
+  const miniGlobeStyle = useMiniGlobeTransform()
+
+  useEffect(() => {
+    if (!askOpen) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setAskOpen(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [askOpen, setAskOpen])
+
   return (
-    <div className={styles.shell}>
-      <div className={styles.globe}>
+    <div className={styles.shell} data-mode={mode} style={miniGlobeStyle}>
+      <div className={styles.globe} data-testid="globe-stage">
         <ErrorBoundary title="The globe failed to load">
           <Suspense fallback={<Loader label="Loading globe" />}>
             <OrbitGlobe />
@@ -25,28 +43,36 @@ export function OrbitLayout() {
         </ErrorBoundary>
       </div>
 
-      <header className={styles.topbar}>
-        <Link to={paths.global()} className={styles.brand}>
-          ORBIT
-        </Link>
-        <button type="button" className={styles.askButton} onClick={() => setAskOpen(!askOpen)}>
-          Ask ORBIT
-        </button>
-      </header>
+      {!isGlobal && (
+        <button
+          type="button"
+          className={styles.miniGlobeButton}
+          aria-label="Back to global view"
+          onClick={() => navigate(paths.global())}
+        />
+      )}
+
+      <TopBar />
 
       <main className={styles.overlay}>
-        <ErrorBoundary title="This view failed to load">
-          <Outlet />
-        </ErrorBoundary>
+        <div key={location.pathname} className={styles.view}>
+          <ErrorBoundary title="This view failed to load">
+            <Outlet />
+          </ErrorBoundary>
+        </div>
       </main>
 
-      {askOpen && (
-        <aside className={styles.ask}>
-          <ErrorBoundary title="Ask ORBIT failed">
-            <AskPanel />
-          </ErrorBoundary>
-        </aside>
-      )}
+      <aside
+        className={styles.drawer}
+        data-open={askOpen}
+        aria-label="Ask ORBIT"
+        aria-hidden={!askOpen}
+        inert={!askOpen}
+      >
+        <ErrorBoundary title="Ask ORBIT failed">
+          <AskPanel />
+        </ErrorBoundary>
+      </aside>
     </div>
   )
 }

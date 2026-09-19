@@ -1,0 +1,24 @@
+.tag {
+  --tag-color: var(--color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--tag-color);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tag[data-kind='geopolitical'] {
+  --tag-color: var(--kind-geopolitical);
+  border-color: var(--color-border-strong);
+}
+
+.tag[data-kind='health'] {
+  --tag-color: var(--kind-health);
+  border-color: var(--glass-accent-border);
+}

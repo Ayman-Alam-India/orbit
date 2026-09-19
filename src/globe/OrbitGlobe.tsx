@@ -10,6 +10,12 @@ import { useEvents } from '../features/event/useEvents'
 import { paths, ROUTE_PATTERNS } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import { cssVar, severityColor } from '../styles/cssVar'
+import { needsRing, pinAltitude, ringColor, ringMaxRadius, tooltipHtml } from './globeStyle'
+import { MINI_GLOBE_ALTITUDE, MINI_GLOBE_ROTATE_SPEED } from './miniGlobe'
+
+/** Slow idle rotation on the global view, and how long it waits after the user lets go. */
+const GLOBAL_ROTATE_SPEED = 0.35
+const RESUME_ROTATION_MS = 4000
 
 /** One country shape from public/data/countries.geojson (Natural Earth 110m, slimmed to id + name). */
 type CountryFeature = {
@@ -21,8 +27,8 @@ type CountryFeature = {
 type CountryShapes = { type: 'FeatureCollection'; features: CountryFeature[] }
 
 /**
- * BASIC GLOBE (owner: Arham). Proves the stack works end to end: country shapes, event markers,
- * click → URL, fly-to on selection. The cinematic look is task ORB-ARH-03 in tasks.json.
+ * Cinematic globe (decision owner: Arham): an orange dark-hologram globe with thin severity-coloured pins,
+ * ripple rings on severe events (4-5), hover tooltips, and a slow idle rotation. All colours come from tokens.
  */
 export default function OrbitGlobe() {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
@@ -44,16 +50,46 @@ export default function OrbitGlobe() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Fly to the selected country, or back out to the whole globe.
+  // Detail views (a country is selected): the layout squeezes the globe into the bottom-left mini globe,
+  // so show the whole globe centred on the country. Global view: back out. Each mode has its own rotation speed.
   useEffect(() => {
+    const globe = globeRef.current
+    if (!globe) return
     const country = countries.data?.find((c) => c.id === selectedCountryId)
-    globeRef.current?.pointOfView(
-      country ? { ...country.centroid, altitude: 1.4 } : { altitude: 2.5 },
+    globe.pointOfView(
+      country ? { ...country.centroid, altitude: MINI_GLOBE_ALTITUDE } : { altitude: 2.5 },
       1000,
     )
+    globe.controls().autoRotateSpeed = selectedCountryId
+      ? MINI_GLOBE_ROTATE_SPEED
+      : GLOBAL_ROTATE_SPEED
   }, [selectedCountryId, countries.data])
 
+  // Idle auto-rotation: pause while the user drags, resume a few seconds after they let go.
+  useEffect(() => {
+    const controls = globeRef.current?.controls()
+    if (!controls) return
+    let timer: ReturnType<typeof setTimeout> | undefined
+    controls.autoRotate = true
+    const pause = () => {
+      clearTimeout(timer)
+      controls.autoRotate = false
+    }
+    const resume = () => {
+      timer = setTimeout(() => (controls.autoRotate = true), RESUME_ROTATION_MS)
+    }
+    controls.addEventListener('start', pause)
+    controls.addEventListener('end', resume)
+    return () => {
+      clearTimeout(timer)
+      controls.removeEventListener('start', pause)
+      controls.removeEventListener('end', resume)
+    }
+  }, [])
+
   const material = useMemo(() => new MeshPhongMaterial({ color: cssVar('--globe-ocean') }), [])
+  const severeEvents = useMemo(() => (events.data ?? []).filter(needsRing), [events.data])
+  const fadeRing = useMemo(() => ringColor(cssVar('--globe-ring')), [])
 
   return (
     <Globe
@@ -64,6 +100,7 @@ export default function OrbitGlobe() {
       globeMaterial={material}
       showAtmosphere
       atmosphereColor={cssVar('--globe-atmosphere')}
+      atmosphereAltitude={0.18}
       polygonsData={shapes.data?.features ?? []}
       polygonCapColor={(f) => {
         const id = (f as CountryFeature).properties.id
@@ -73,20 +110,32 @@ export default function OrbitGlobe() {
       polygonSideColor={() => cssVar('--globe-land-side')}
       polygonStrokeColor={() => cssVar('--globe-border')}
       polygonAltitude={0.006}
-      polygonLabel={(f) => (f as CountryFeature).properties.name}
+      polygonLabel={(f) => tooltipHtml((f as CountryFeature).properties.name)}
       onPolygonHover={(f) => setHoveredCountry((f as CountryFeature | null)?.properties.id)}
       onPolygonClick={(f) => navigate(paths.country((f as CountryFeature).properties.id))}
       pointsData={events.data ?? []}
       pointLat={(e) => (e as OrbitEvent).location.lat}
       pointLng={(e) => (e as OrbitEvent).location.lng}
       pointColor={(e) => severityColor((e as OrbitEvent).severity)}
-      pointAltitude={(e) => 0.02 * (e as OrbitEvent).severity}
-      pointRadius={0.35}
-      pointLabel={(e) => (e as OrbitEvent).title}
+      pointAltitude={(e) => pinAltitude((e as OrbitEvent).severity)}
+      pointRadius={0.15}
+      pointResolution={12}
+      pointLabel={(e) => {
+        const event = e as OrbitEvent
+        return tooltipHtml(event.title, `Severity ${event.severity}/5`)
+      }}
       onPointClick={(p) => {
         const e = p as OrbitEvent
         navigate(paths.event(e.countryIds[0], e.id))
       }}
+      ringsData={severeEvents}
+      ringLat={(e) => (e as OrbitEvent).location.lat}
+      ringLng={(e) => (e as OrbitEvent).location.lng}
+      ringColor={() => fadeRing}
+      ringMaxRadius={(e) => ringMaxRadius((e as OrbitEvent).severity)}
+      ringPropagationSpeed={1.2}
+      ringRepeatPeriod={1800}
+      ringAltitude={0.002}
     />
   )
 }

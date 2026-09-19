@@ -1,7 +1,11 @@
 .shell {
   position: relative;
   height: 100%;
+  /* clip (not hidden): the shell can never be scrolled, even by scrollIntoView on off-screen content */
+  overflow: clip;
 }
+
+/* ---------- Globe: full screen (global) → mini globe bottom-left (detail) ---------- */
 
 .globe {
   position: absolute;
@@ -9,64 +13,108 @@
   z-index: var(--z-globe);
   display: grid;
   place-items: center;
+  transform-origin: center;
+  clip-path: circle(150% at 50% 50%);
+  transition:
+    transform var(--duration-layout) var(--ease-inout),
+    clip-path var(--duration-layout) var(--ease-inout);
 }
 
-.topbar {
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: var(--z-overlay);
-  height: var(--topbar-height);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--space-5);
+/* Global view: centre the globe in the space left of the right-hand panel column. */
+.shell[data-mode='global'] .globe {
+  transform: translateX(calc(-1 * (var(--panel-width) + var(--space-5)) / 2));
+}
+
+.shell[data-mode='detail'] .globe {
+  transform: translate(var(--mini-x), var(--mini-y)) scale(var(--mini-scale));
+  clip-path: circle(var(--mini-clip) at 50% 50%);
   pointer-events: none;
 }
 
-.topbar > * {
-  pointer-events: auto;
-}
-
-.brand {
-  font-family: var(--font-display);
-  font-size: var(--text-xl);
-  font-weight: var(--weight-bold);
-  letter-spacing: var(--tracking-label);
-  color: var(--color-text);
-  text-shadow: var(--glow-primary);
-}
-
-.askButton {
-  padding: var(--space-2) var(--space-4);
-  background: var(--color-surface);
-  border: var(--border-width) solid var(--color-accent);
+.miniGlobeButton {
+  position: absolute;
+  left: var(--space-5);
+  bottom: var(--space-5);
+  z-index: var(--z-overlay);
+  width: var(--mini-globe-size);
+  height: var(--mini-globe-size);
+  padding: 0;
+  border: var(--border-width) solid transparent;
   border-radius: var(--radius-pill);
-  color: var(--color-accent);
+  background: transparent;
   cursor: pointer;
-  transition: box-shadow var(--duration-fast) var(--ease-out);
+  transition:
+    border-color var(--duration-base) var(--ease-out),
+    box-shadow var(--duration-base) var(--ease-out);
 }
 
-.askButton:hover {
-  box-shadow: var(--glow-accent);
+.miniGlobeButton:hover,
+.miniGlobeButton:focus-visible {
+  border-color: var(--color-border-strong);
+  box-shadow: var(--glow-soft);
 }
+
+/* ---------- Content column: right column (global) → centred column (detail) ---------- */
 
 .overlay {
   position: absolute;
   top: var(--topbar-height);
-  right: var(--space-5);
   bottom: var(--space-5);
   z-index: var(--z-panel);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.shell[data-mode='global'] .overlay {
+  right: var(--space-5);
   width: min(var(--panel-width), calc(100% - 2 * var(--space-5)));
+}
+
+.shell[data-mode='detail'] .overlay {
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(var(--center-width), calc(100% - 2 * var(--mini-globe-size) - 4 * var(--space-5)));
+  min-width: min(var(--panel-width), calc(100% - 2 * var(--space-5)));
+}
+
+.view {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  overflow-y: auto;
+  padding-top: var(--space-3);
+  animation: view-enter var(--duration-slow) var(--ease-out) both;
 }
 
-.ask {
+.shell[data-mode='detail'] .view {
+  animation-delay: calc(var(--duration-layout) / 3);
+}
+
+@keyframes view-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* ---------- Ask ORBIT drawer ---------- */
+
+.drawer {
   position: absolute;
-  left: var(--space-5);
-  bottom: var(--space-5);
+  top: var(--topbar-height);
+  right: 0;
+  bottom: 0;
   z-index: var(--z-modal);
-  width: min(var(--panel-width), calc(100% - 2 * var(--space-5)));
+  width: min(var(--drawer-width), 100%);
+  padding: var(--space-3) var(--space-5) var(--space-5);
+  overflow-y: auto;
+  transform: translateX(100%);
+  opacity: 0;
+  transition:
+    transform var(--duration-slow) var(--ease-out),
+    opacity var(--duration-slow) var(--ease-out);
+}
+
+.drawer[data-open='true'] {
+  transform: translateX(0);
+  opacity: 1;
 }
