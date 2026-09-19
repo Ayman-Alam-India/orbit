@@ -62,18 +62,17 @@ variant). Panels are dark glass: translucent, blurred, thin cyan hairline, 14px 
 
 ## Primitives (`src/ui`, import from `../../ui`)
 
-| Component       | Use                                                                                                                     |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `Panel`         | Every overlay section (glass). Props: `eyebrow`, `title`, `actions`, `tone` (`default`                                  | `accent` for AI content), `children` |
-| `QueryState`    | Renders loading / error / data for a TanStack query: `<QueryState query={q} label="country">{(data) => …}</QueryState>` |
-| `Loader`        | Loading state (`role="status"`)                                                                                         |
-| `ErrorState`    | Error state with optional retry (`role="alert"`)                                                                        |
-| `ErrorBoundary` | Wrap each feature section so a crash stays contained                                                                    |
-| `ItemList`      | Vertical list with dividers and a required empty state                                                                  |
-| `SeverityBadge` | Shows severity 1–5 with its colour and label (severity 5 pulses slowly)                                                 |
-
-| `Button` | Variants `primary` (cyan), `accent` (amber: Ask ORBIT, AI), `ghost`. Sizes `sm`, `md`. `iconOnly` requires `aria-label` |
-| `Tag` | Small uppercase pill. `kind` (`geopolitical` / `health`) colours it; without `kind` it is neutral |
+| Component       | Use                                                                                                                            |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `Panel`         | Every overlay section (glass). Props: `eyebrow`, `title`, `actions`, `tone` (`default` or `accent` for AI content), `children` |
+| `QueryState`    | Renders loading / error / data for a TanStack query: `<QueryState query={q} label="country">{(data) => …}</QueryState>`        |
+| `Loader`        | Loading state (`role="status"`)                                                                                                |
+| `ErrorState`    | Error state with optional retry (`role="alert"`)                                                                               |
+| `ErrorBoundary` | Wrap each feature section so a crash stays contained                                                                           |
+| `ItemList`      | Vertical list with dividers and a required empty state                                                                         |
+| `SeverityBadge` | Shows severity 1–5 with its colour and label (severity 5 pulses slowly)                                                        |
+| `Button`        | Variants `primary` (cyan), `accent` (amber: Ask ORBIT, AI), `ghost`. Sizes `sm`, `md`. `iconOnly` requires `aria-label`        |
+| `Tag`           | Small uppercase pill. `kind` (`geopolitical` / `health`) colours it; without `kind` it is neutral                              |
 
 New primitives are decided with Arham (the design decision owner).
 
