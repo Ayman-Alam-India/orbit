@@ -10,6 +10,7 @@ import { useEvents } from '../features/event/useEvents'
 import { paths, ROUTE_PATTERNS } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import { cssVar, severityColor } from '../styles/cssVar'
+import { MINI_GLOBE_ALTITUDE, MINI_GLOBE_ROTATE_SPEED } from './miniGlobe'
 
 /** One country shape from public/data/countries.geojson (Natural Earth 110m, slimmed to id + name). */
 type CountryFeature = {
@@ -44,13 +45,19 @@ export default function OrbitGlobe() {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Fly to the selected country, or back out to the whole globe.
+  // Detail views (a country is selected): the layout squeezes the globe into the bottom-left mini globe,
+  // so show the whole globe centred on the country and rotate slowly. Global view: back out, no rotation.
   useEffect(() => {
+    const globe = globeRef.current
+    if (!globe) return
     const country = countries.data?.find((c) => c.id === selectedCountryId)
-    globeRef.current?.pointOfView(
-      country ? { ...country.centroid, altitude: 1.4 } : { altitude: 2.5 },
+    globe.pointOfView(
+      country ? { ...country.centroid, altitude: MINI_GLOBE_ALTITUDE } : { altitude: 2.5 },
       1000,
     )
+    const controls = globe.controls()
+    controls.autoRotate = Boolean(selectedCountryId)
+    controls.autoRotateSpeed = MINI_GLOBE_ROTATE_SPEED
   }, [selectedCountryId, countries.data])
 
   const material = useMemo(() => new MeshPhongMaterial({ color: cssVar('--globe-ocean') }), [])
