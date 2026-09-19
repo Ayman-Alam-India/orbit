@@ -9,19 +9,20 @@ intelligence centre. The globe is the hero, and panels float over it as dark gla
 
 ### Colour
 
-| Token                                                      | Use                                                   |
-| ---------------------------------------------------------- | ----------------------------------------------------- |
-| `--color-bg`, `--color-bg-elevated`                        | Page background, raised areas                         |
-| `--color-surface`, `--color-surface-hover`                 | Glass panels (semi-transparent over the globe)        |
-| `--color-border`, `--color-border-strong`                  | Hairlines, focused/active outlines                    |
-| `--color-text`, `--color-text-muted`, `--color-text-faint` | Primary, secondary, tertiary text                     |
-| `--color-primary`, `--color-primary-dim`                   | Electric cyan: links, focus, geopolitical             |
-| `--color-accent`                                           | Amber: Ask ORBIT, health, highlights                  |
-| `--color-alert`                                            | Orange: critical, errors                              |
-| `--color-success`, `--color-danger`                        | Status only                                           |
-| `--severity-1` … `--severity-5`                            | The shared 1–5 severity scale (cyan → amber → orange) |
-| `--kind-geopolitical`, `--kind-health`                     | Event kind colours                                    |
-| `--globe-*`                                                | Ocean, land, hover, selected, borders, atmosphere     |
+| Token                                                      | Use                                                                   |
+| ---------------------------------------------------------- | --------------------------------------------------------------------- |
+| `--color-bg`, `--color-bg-elevated`                        | Page background, raised areas                                         |
+| `--color-surface`, `--color-surface-hover`                 | Glass panels (semi-transparent over the globe)                        |
+| `--color-border`, `--color-border-strong`                  | Hairlines, focused/active outlines                                    |
+| `--color-text`, `--color-text-muted`, `--color-text-faint` | Primary, secondary, tertiary text                                     |
+| `--color-primary`, `--color-primary-dim`                   | Electric cyan: links, focus, geopolitical                             |
+| `--color-accent`                                           | Amber: Ask ORBIT, health, highlights                                  |
+| `--color-alert`                                            | Orange: critical, errors                                              |
+| `--color-highlight`                                        | Orange: panel titles, selected items                                  |
+| `--color-success`, `--color-danger`                        | Status only                                                           |
+| `--severity-1` … `--severity-5`                            | The shared 1–5 severity scale (cyan → amber → orange)                 |
+| `--kind-geopolitical`, `--kind-health`                     | Event kind colours                                                    |
+| `--globe-*`                                                | Orange globe: ocean, land, hover, selected, borders, atmosphere, ring |
 
 ### Typography
 
@@ -59,6 +60,17 @@ variant). Panels are dark glass: translucent, blurred, thin cyan hairline, 14px 
 - `--z-globe` < `--z-overlay` < `--z-panel` < `--z-modal`.
 - Layout sizes: `--panel-width` (420px, right column), `--center-width` (760px, detail view), `--mini-globe-size` (220px),
   `--drawer-width` (420px, Ask ORBIT drawer), `--topbar-height` (56px).
+
+## Globe
+
+Dark hologram in orange (decided 2026-09-19): near-black ocean, faint orange country fills, orange border hairlines and a
+warm atmosphere. Cyan stays the UI colour (links, focus, buttons). Orange is used for the globe and key highlights.
+
+- **Pins:** every event gets a thin pin coloured by severity (`--severity-N`). More severe events get taller pins, but pins always stay short.
+- **Rings:** only severity 4–5 events get a small ripple ring that fades as it grows (`src/globe/globeStyle.ts`, `--globe-ring`).
+- **Motion:** the global view rotates slowly when idle. Rotation pauses while the user drags and resumes after 4 s. In detail views
+  the globe becomes the bottom-left mini globe (see Motion and layers). In the global view it is centred left of the panel column.
+- **Tooltips:** `.globe-tooltip` in `global.css` (the globe library renders labels as HTML strings, and the text is escaped).
 
 ## Primitives (`src/ui`, import from `../../ui`)
 

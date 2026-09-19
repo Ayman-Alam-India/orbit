@@ -52,7 +52,12 @@
   cursor: pointer;
 }
 
+.result {
+  border-left: 2px solid transparent;
+}
+
 .result[aria-selected='true'] {
+  border-left-color: var(--color-highlight);
   background: var(--color-surface-hover);
 }
 

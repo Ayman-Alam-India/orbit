@@ -24,6 +24,7 @@
   --color-primary-dim: #0091a8;
   --color-accent: #ffb300;
   --color-alert: #ff6a00;
+  --color-highlight: #ff8a2a;
   --color-success: #2ee6a6;
   --color-danger: #ff4d4d;
 
@@ -38,14 +39,16 @@
   --kind-geopolitical: var(--color-primary);
   --kind-health: var(--color-accent);
 
-  /* Globe */
-  --globe-ocean: #050a14;
-  --globe-land: rgba(0, 229, 255, 0.06);
-  --globe-land-hover: rgba(0, 229, 255, 0.22);
-  --globe-land-selected: rgba(255, 179, 0, 0.3);
+  /* Globe: dark hologram in orange */
+  --globe-ocean: #07070a;
+  --globe-land: rgba(255, 122, 26, 0.05);
+  --globe-land-hover: rgba(255, 122, 26, 0.2);
+  --globe-land-selected: rgba(255, 150, 40, 0.45);
   --globe-land-side: rgba(0, 0, 0, 0);
-  --globe-border: rgba(0, 229, 255, 0.35);
-  --globe-atmosphere: #00b8d4;
+  --globe-border: rgba(255, 138, 42, 0.45);
+  --globe-atmosphere: #ff7a1a;
+  /* Ripple rings around severe events: an r, g, b triplet (alpha is animated in code) */
+  --globe-ring: 255, 106, 0;
 
   /* Typography */
   --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;

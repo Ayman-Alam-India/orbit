@@ -19,6 +19,11 @@
     clip-path var(--duration-layout) var(--ease-inout);
 }
 
+/* Global view: centre the globe in the space left of the right-hand panel column. */
+.shell[data-mode='global'] .globe {
+  transform: translateX(calc(-1 * (var(--panel-width) + var(--space-5)) / 2));
+}
+
 .shell[data-mode='detail'] .globe {
   transform: translate(var(--mini-x), var(--mini-y)) scale(var(--mini-scale));
   clip-path: circle(var(--mini-clip) at 50% 50%);
