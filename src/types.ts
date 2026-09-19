@@ -12,5 +12,16 @@ export interface Incident {
   updatedAt: string
 }
 
-export interface Service { name: string; owner: string; health: 'healthy' | 'degraded' | 'critical'; uptime: number; latency: number }
-export interface IncidentPage { incidents: Incident[]; page: number; totalPages: number }
+export interface Service {
+  name: string
+  owner: string
+  health: 'healthy' | 'degraded' | 'critical'
+  uptime: number
+  latency: number
+}
+
+export interface IncidentPage {
+  incidents: Incident[]
+  page: number
+  totalPages: number
+}
