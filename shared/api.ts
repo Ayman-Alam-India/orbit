@@ -18,6 +18,8 @@ export const API_ROUTES = {
   insight: (subjectType: InsightSubjectType, subjectId: string) =>
     `/api/insights/${subjectType}/${subjectId}`,
   ask: '/api/ask',
+  verify: (subjectType: InsightSubjectType, subjectId: string) =>
+    `/api/verify/${subjectType}/${subjectId}`,
 } as const
 
 /** Successful responses always look like `{ "data": ... }`. */

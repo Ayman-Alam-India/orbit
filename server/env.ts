@@ -17,6 +17,9 @@ const EnvSchema = z.object({
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
   /** Gemini model used when AI_PROVIDER=google (check Google AI Studio for free-tier models). */
   GOOGLE_MODEL: z.string().default('gemini-2.5-flash'),
+  /** Groq (free tier): the second, independent model used for claim verification. */
+  GROQ_API_KEY: z.string().optional(),
+  GROQ_MODEL: z.string().default('llama-3.3-70b-versatile'),
 })
 
 // Treat empty values (e.g. `GOOGLE_GENERATIVE_AI_API_KEY=`) as "not set".
