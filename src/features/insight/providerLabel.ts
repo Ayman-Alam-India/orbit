@@ -4,7 +4,7 @@ export const providerLabel = (provider: string) =>
 
 const MODEL_LABEL: Record<string, string> = {
   gemini: 'Gemini',
-  groq: 'Groq · Llama',
+  groq: 'Groq · GPT-OSS',
   rules: 'Rule check',
 }
 

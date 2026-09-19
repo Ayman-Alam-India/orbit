@@ -100,16 +100,28 @@ function safeValidate<T>(validate: (value: unknown) => T, value: unknown): T | u
   }
 }
 
-export function generateInsight(
+/** A real-model insight is reused for this long: the same text is shown and verified, and quota is saved. */
+const INSIGHT_FRESH_MS = 30 * 60_000
+
+export async function generateInsight(
   subjectType: InsightSubjectType,
   subjectId: string,
 ): Promise<AIInsight> {
   const context = buildContext(subjectType, subjectId)
+  const cacheKey = `ai-insight-${subjectType}-${subjectId.toLowerCase()}`
+  const provider = selectedProvider()
+  if (provider !== mockProvider) {
+    const cached = AIInsightSchema.safeParse(await readCache(cacheKey))
+    const age = cached.success ? Date.now() - Date.parse(cached.data.generatedAt) : Infinity
+    if (cached.success && cached.data.provider === provider.name && age < INSIGHT_FRESH_MS) {
+      return cached.data
+    }
+  }
   return withFallback(
     'insight',
     (p) => p.generateInsight({ subjectType, subjectId, context }),
     (v) => AIInsightSchema.parse(v),
-    `ai-insight-${subjectType}-${subjectId.toLowerCase()}`,
+    cacheKey,
   )
 }
 

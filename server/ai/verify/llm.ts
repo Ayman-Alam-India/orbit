@@ -1,10 +1,10 @@
-import { createGoogleGenerativeAI } from '@ai-sdk/google'
 import { createGroq } from '@ai-sdk/groq'
 import { VerdictSchema } from '@shared'
 import { generateText, Output, type LanguageModel } from 'ai'
 import { z } from 'zod'
 import { env } from '../../env'
 import { contextJson } from '../prompt'
+import { withGoogleModels } from '../providers/googleModels'
 import type { AiContext } from '../types'
 import type { ClaimJudgement, Verifier } from './types'
 
@@ -28,18 +28,27 @@ const OutputSchema = z.object({
   ),
 })
 
-/** An LLM-backed verifier; `model` is only created when a check runs (keys are read then). */
-export function llmVerifier(name: string, model: () => LanguageModel): Verifier {
+/**
+ * An LLM-backed verifier. `withModel` runs a call with the provider's model (created only when a check
+ * runs, so keys are read then) and may try several models in turn.
+ */
+export function llmVerifier(
+  name: string,
+  withModel: <T>(task: (model: LanguageModel) => Promise<T>) => Promise<T>,
+): Verifier {
   return {
     name,
     async verify(claims: string[], context: AiContext): Promise<ClaimJudgement[]> {
-      const { output } = await generateText({
-        model: model(),
-        system: FACT_CHECK_SYSTEM,
-        prompt: `CLAIMS:\n${claims.map((c, i) => `${i + 1}. ${c}`).join('\n')}\n\nCONTEXT:\n${contextJson(context)}`,
-        output: Output.object({ schema: OutputSchema, name: 'fact_check' }),
-        abortSignal: AbortSignal.timeout(TIMEOUT_MS),
-      })
+      const { output } = await withModel((model) =>
+        generateText({
+          model,
+          maxRetries: 1,
+          system: FACT_CHECK_SYSTEM,
+          prompt: `CLAIMS:\n${claims.map((c, i) => `${i + 1}. ${c}`).join('\n')}\n\nCONTEXT:\n${contextJson(context)}`,
+          output: Output.object({ schema: OutputSchema, name: 'fact_check' }),
+          abortSignal: AbortSignal.timeout(TIMEOUT_MS),
+        }),
+      )
       const known = new Set(context.sources.map((s) => s.id))
       return claims.map((_, i) => {
         const r = output.results.find((x) => x.claim === i + 1)
@@ -60,11 +69,9 @@ export function llmVerifier(name: string, model: () => LanguageModel): Verifier 
 }
 
 /** Gemini (Google AI Studio free tier). */
-export const geminiVerifier = llmVerifier('gemini', () =>
-  createGoogleGenerativeAI({ apiKey: env.GOOGLE_GENERATIVE_AI_API_KEY })(env.GOOGLE_MODEL),
-)
+export const geminiVerifier = llmVerifier('gemini', withGoogleModels)
 
 /** Groq (free tier): a different model family from Gemini, for an independent second opinion. */
-export const groqVerifier = llmVerifier('groq', () =>
-  createGroq({ apiKey: env.GROQ_API_KEY })(env.GROQ_MODEL),
+export const groqVerifier = llmVerifier('groq', (task) =>
+  task(createGroq({ apiKey: env.GROQ_API_KEY })(env.GROQ_MODEL)),
 )

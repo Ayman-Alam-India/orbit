@@ -12,7 +12,14 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
     // Tests use the small, stable fixture data set, not the curated seed (see server/data/store.ts).
-    env: { ORBIT_SEED_DIR: 'server/data/fixtures' },
+    // Offline, deterministic tests: fixture data, mock AI, no API keys (even if the shell has some).
+    env: {
+      ORBIT_SEED_DIR: 'server/data/fixtures',
+      DATA_MODE: 'mock',
+      AI_PROVIDER: 'mock',
+      GOOGLE_GENERATIVE_AI_API_KEY: '',
+      GROQ_API_KEY: '',
+    },
     include: [
       'src/**/*.test.{ts,tsx}',
       'server/**/*.test.ts',
