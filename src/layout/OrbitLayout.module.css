@@ -1,7 +1,8 @@
 .shell {
   position: relative;
   height: 100%;
-  overflow: hidden;
+  /* clip (not hidden): the shell can never be scrolled, even by scrollIntoView on off-screen content */
+  overflow: clip;
 }
 
 /* ---------- Globe: full screen (global) → mini globe bottom-left (detail) ---------- */

@@ -1,0 +1,110 @@
+.context {
+  margin: 0 0 var(--space-3);
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+}
+
+.context strong {
+  color: var(--color-highlight);
+  font-weight: var(--weight-medium);
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-height: 55vh;
+  overflow-y: auto;
+  margin-bottom: var(--space-3);
+}
+
+.suggestions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.suggestion {
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--glass-accent-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+.suggestion:hover {
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+
+.turn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.question {
+  align-self: flex-end;
+  max-width: 85%;
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-hover);
+  font-size: var(--text-sm);
+}
+
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-3);
+  border-left: 2px solid var(--color-accent);
+  font-size: var(--text-sm);
+}
+
+.answer p {
+  margin: 0;
+}
+
+.answerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.provider {
+  margin-left: auto;
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+.form {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width) solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--text-sm);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--glow-accent);
+}
