@@ -154,9 +154,21 @@ Rule: CSS Modules + tokens only, no raw colours. Details: `docs/DESIGN_SYSTEM.md
 
 ## 9. Team ownership
 
-Only **Arham's** strength (frontend) was established during planning. The other roles follow the workload split the team
-chose (Hardik and Affan heavier, Ayman medium, Shrey lighter), not assumed skills. If a role doesn't fit someone,
-swap owners in `tasks.json` and `AGENTS.md` together (Hardik).
+**Build model:** Claude, running in Ayman's session, writes all the code. Each person below is the **decision owner**
+for their area: Claude asks them the customization questions (layout, content, wording, interactions, data choices)
+in plan mode before building, and they review and test the result. Teammates don't commit code. Full rule: `AGENTS.md` section 0.
+
+Current roles (`tasks.json` → `team`):
+
+| Person     | Role now                                                                                            |
+| ---------- | --------------------------------------------------------------------------------------------------- |
+| **Hardik** | Reviews and merges every PR, runs sync points and the demo laptop                                   |
+| **Affan**  | Decides AI behaviour and tone, provides the AI key, reviews AI output                               |
+| **Arham**  | Decides visual direction, layout and globe look, reviews all UI                                     |
+| **Ayman**  | Drives the Claude build session and relays decisions, decides the country, event and timeline views |
+| **Shrey**  | Decides which countries and events feature, verifies researched facts, runs the demo rehearsal      |
+
+The table below maps each area to its decision owner (the "Owns" column is the code area they decide on and review).
 
 | Person                   | Primary responsibility                                               | Owns                                                                                                                                                      | Depends on                                            | Hands off to                                          |
 | ------------------------ | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------- |
@@ -175,7 +187,8 @@ Shared files that need coordination: see `AGENTS.md` section 3 ("Shared hot file
 | Field          | Meaning                                                                                       |
 | -------------- | --------------------------------------------------------------------------------------------- |
 | `id`           | `ORB-<PERSON>-<NN>` (e.g. `ORB-ARH-03`). `ORB-000` = foundation                               |
-| `owner`        | The one person responsible                                                                    |
+| `owner`        | The one person responsible: decides and reviews if there is a `builder`, does the task if not |
+| `builder`      | Present when Claude builds the task (in Ayman's session)                                      |
 | `status`       | `todo`, `in_progress` or `done`. Hardik updates it on merge (tasks.json is a shared hot file) |
 | `priority`     | `P0` demo breaks without it · `P1` should have · `P2` nice to have                            |
 | `targetWindow` | Hours from the start (H0) when it should happen                                               |
@@ -186,7 +199,7 @@ Shared files that need coordination: see `AGENTS.md` section 3 ("Shared hot file
 | `tests`        | Tests to add or keep green                                                                    |
 | `handoff`      | Who to tell what when you finish                                                              |
 
-Work order for each person: P0 before P1 before P2, and within a priority, the earliest `targetWindow` whose
+Work order (Claude for built tasks, each person for their own tasks): P0 before P1 before P2, and within a priority, the earliest `targetWindow` whose
 `dependsOn` tasks are done. `npm test` checks that `tasks.json` has valid IDs, owners and dependencies, with no cycles.
 
 ## 11. Dependency graph
@@ -258,21 +271,21 @@ To start an agent session with the right context, use `docs/ALLOCATOR.md`.
 
 ## 17. Common mistakes to avoid
 
-| Mistake                                                | Instead                                                            |
-| ------------------------------------------------------ | ------------------------------------------------------------------ |
-| Writing `interface Country {...}` in a component       | `import { type Country } from '@shared'`                           |
-| Naming a type `Event`                                  | `OrbitEvent`                                                       |
-| `fetch('/api/countries')` inside a component           | A hook in your feature folder using `apiGet(API_ROUTES.countries)` |
-| Hard-coding `'/country/' + id`                         | `paths.country(id)` from `src/routes.ts`                           |
-| `color: #00e5ff`                                       | `color: var(--color-primary)`                                      |
-| `npm install some-lib` on your branch                  | Ask Hardik                                                         |
-| Putting the AI key in code or a `VITE_` variable       | Local `.env` only                                                  |
-| Editing another person's folder "to fix a small thing" | Tell the owner                                                     |
-| Country ID `in`, `India` or `ind`                      | `IND`                                                              |
-| Dates like `19/09/2026`                                | `2026-09-19T00:00:00Z`                                             |
-| Deleting a failing test                                | Fix the code, or ask                                               |
-| Working inside OneDrive                                | `C:\dev\orbit`                                                     |
-| A long-lived branch                                    | PR every 2–4 hours                                                 |
+| Mistake                                           | Instead                                                                |
+| ------------------------------------------------- | ---------------------------------------------------------------------- |
+| Writing `interface Country {...}` in a component  | `import { type Country } from '@shared'`                               |
+| Naming a type `Event`                             | `OrbitEvent`                                                           |
+| `fetch('/api/countries')` inside a component      | A hook in your feature folder using `apiGet(API_ROUTES.countries)`     |
+| Hard-coding `'/country/' + id`                    | `paths.country(id)` from `src/routes.ts`                               |
+| `color: #00e5ff`                                  | `color: var(--color-primary)`                                          |
+| Installing a package without a plan               | State it in the plan, get Hardik's OK, install in the PR that needs it |
+| Putting the AI key in code or a `VITE_` variable  | Local `.env` only                                                      |
+| A teammate committing code "to fix a small thing" | Post it in the chat or a PR comment; Claude makes the change           |
+| Country ID `in`, `India` or `ind`                 | `IND`                                                                  |
+| Dates like `19/09/2026`                           | `2026-09-19T00:00:00Z`                                                 |
+| Deleting a failing test                           | Fix the code, or ask                                                   |
+| Working inside OneDrive                           | `C:\dev\orbit`                                                         |
+| A long-lived branch                               | PR every 2–4 hours                                                     |
 
 ## 18. Definition of done
 
@@ -281,6 +294,7 @@ A task is done when:
 - [ ] Every acceptance criterion in `tasks.json` is met
 - [ ] The tests listed in the task exist and pass, and `npm run check` passes
 - [ ] Only the task's `paths` changed
+- [ ] The owner's customization decisions were asked in plan mode and are listed in the PR
 - [ ] Loading, error and empty states are handled, using tokens and primitives only
 - [ ] The PR is merged into `main` by Hardik, who sets `status` to `done` in `tasks.json`
 - [ ] The handoff message is posted in the team chat
