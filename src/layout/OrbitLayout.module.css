@@ -73,6 +73,7 @@
 }
 
 .shell[data-mode='detail'] .overlay {
+  bottom: calc(40px + 2 * var(--space-5));
   left: 50%;
   transform: translateX(-50%);
   width: min(var(--center-width), calc(100% - 2 * var(--mini-globe-size) - 4 * var(--space-5)));
@@ -96,6 +97,32 @@
     opacity: 0;
     transform: translateY(8px);
   }
+}
+
+/* ---------- Headline ticker: a floating pill at the bottom ---------- */
+
+.ticker {
+  position: absolute;
+  bottom: var(--space-5);
+  z-index: var(--z-overlay);
+  display: flex;
+  justify-content: center;
+}
+
+.ticker > * {
+  width: min(560px, 100%);
+}
+
+/* Global view: centred under the globe, left of the panel column. */
+.shell[data-mode='global'] .ticker {
+  left: var(--space-5);
+  right: calc(var(--panel-width) + 2 * var(--space-5));
+}
+
+/* Detail view: centred under the content column, clear of the mini globe. */
+.shell[data-mode='detail'] .ticker {
+  left: calc(var(--mini-globe-size) + 2 * var(--space-5));
+  right: calc(var(--mini-globe-size) + 2 * var(--space-5));
 }
 
 /* ---------- Ask ORBIT drawer ---------- */

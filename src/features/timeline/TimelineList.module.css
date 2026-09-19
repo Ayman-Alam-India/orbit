@@ -40,7 +40,7 @@
 .date {
   padding-top: 1px;
   color: var(--color-text-muted);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--text-xs);
   text-align: right;
   white-space: nowrap;

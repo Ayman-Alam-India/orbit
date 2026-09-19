@@ -7,7 +7,7 @@
   border: var(--border-width) solid var(--glass-border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-panel), var(--glass-highlight);
-  backdrop-filter: blur(var(--blur-panel));
+  backdrop-filter: var(--backdrop);
 }
 
 .top {
@@ -37,7 +37,7 @@
 .whenWhere {
   margin: 0;
   color: var(--color-text-faint);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--text-xs);
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -58,8 +58,9 @@
 
 .factsLabel {
   margin: 0;
-  color: var(--color-primary);
-  font-family: var(--font-mono);
+  color: var(--color-text-faint);
+  font-weight: var(--weight-semibold);
+  font-family: var(--font-label);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
@@ -86,6 +87,6 @@
 .headlineDate {
   flex: none;
   color: var(--color-text-faint);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--text-xs);
 }

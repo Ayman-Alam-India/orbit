@@ -2,23 +2,21 @@
   --tag-color: var(--color-text-muted);
   display: inline-flex;
   align-items: center;
-  padding: 2px var(--space-2);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-sm);
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--tag-color) 16%, transparent);
   color: var(--tag-color);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--text-xs);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: var(--weight-semibold);
+  text-transform: capitalize;
   white-space: nowrap;
 }
 
 .tag[data-kind='geopolitical'] {
   --tag-color: var(--kind-geopolitical);
-  border-color: var(--color-border-strong);
 }
 
 .tag[data-kind='health'] {
   --tag-color: var(--kind-health);
-  border-color: var(--glass-accent-border);
 }

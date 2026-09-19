@@ -2,7 +2,10 @@
 
 Owner: Arham. The tokens live in `src/styles/tokens.css` (the only place raw values may appear). The primitives live in `src/ui/`.
 
-**Direction:** deep black, electric cyan, amber/orange accents. Effects sit between subtle and cinematic: sleek, not busy. Futuristic, cinematic, clean, like an
+**Direction (updated 2026-09-19): Apple-style shapes and layout.** Frosted translucent materials, hairline borders, large rounded
+corners, capsule controls with tinted fills, San Francisco typography, soft depth instead of neon glow. Colours stay ORBIT's:
+orange highlights, cyan accents, in Apple system tints. A floating toolbar capsule sits at the top, and headlines run in a floating
+"Live" pill at the bottom. Effects stay sleek, not busy. Futuristic, cinematic, clean, like an
 intelligence centre. The globe is the hero, and panels float over it as dark glass.
 
 ## Tokens
@@ -28,20 +31,20 @@ intelligence centre. The globe is the hero, and panels float over it as dark gla
 
 | Token                               | Value                                       |
 | ----------------------------------- | ------------------------------------------- |
-| `--font-display`                    | Space Grotesk: headings, brand              |
-| `--font-body`                       | Inter: body text                            |
-| `--font-mono`                       | JetBrains Mono: labels, numbers, badges     |
+| `--font-display`                    | SF Pro Display (Apple) → Inter → Segoe UI   |
+| `--font-body`, `--font-label`       | SF Pro Text (Apple) → Inter → Segoe UI      |
+| `--font-mono`                       | SF Mono → JetBrains Mono (code only)        |
 | `--text-xs` … `--text-3xl`          | 0.75rem → 2.75rem scale                     |
 | `--weight-regular/medium/bold`      | 400 / 500 / 700                             |
 | `--tracking-label`                  | Letter spacing for uppercase eyebrow labels |
 | `--leading-tight`, `--leading-body` | Line heights                                |
 
-Fonts load from Google Fonts. Offline, they fall back to Segoe UI / Consolas, so the demo still reads well.
+Apple devices use San Francisco. Elsewhere Inter loads from Google Fonts, and offline it falls back to Segoe UI.
 
 ### Spacing, borders, radii
 
 - Spacing on a 4px grid: `--space-1` (4px) … `--space-8` (64px).
-- `--border-width` (1px). Radii: `--radius-sm` 4px, `--radius-md` 8px, `--radius-lg` 14px (panels), `--radius-pill`.
+- `--border-width` (1px). Radii: `--radius-sm` 8px, `--radius-md` 14px (tiles, rows), `--radius-lg` 22px (panels), `--radius-xl` 28px, `--radius-pill`.
 
 ### Glass panels
 

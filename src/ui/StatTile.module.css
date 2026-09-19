@@ -1,27 +1,27 @@
+/* iOS-widget-style figure: soft filled tile, small label, big number. */
 .tile {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: 2px;
   min-width: 0;
-  padding: var(--space-3);
-  border: var(--border-width) solid var(--color-border);
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
   background: var(--color-surface);
 }
 
 .label {
   color: var(--color-text-faint);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--text-xs);
-  letter-spacing: var(--tracking-label);
-  text-transform: uppercase;
+  font-weight: var(--weight-semibold);
 }
 
 .value {
   color: var(--color-text);
   font-family: var(--font-display);
-  font-size: var(--text-lg);
-  font-weight: var(--weight-medium);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-title);
   overflow-wrap: anywhere;
 }
 
