@@ -70,4 +70,13 @@ describe('app shell', () => {
     await userEvent.keyboard('{Escape}')
     expect(drawer).toHaveAttribute('data-open', 'false')
   })
+
+  it('global view shows the world status strip', async () => {
+    renderWithProviders(<AppRoutes />, { route: '/' })
+    expect(await screen.findByRole('heading', { name: 'World overview' })).toBeInTheDocument()
+    const tile = (label: string) => screen.getByText(label).parentElement!
+    await within(tile('Countries')).findByText('3')
+    await within(tile('Events')).findByText('6')
+    expect(within(tile('Severe')).getByText('1')).toBeInTheDocument()
+  })
 })
