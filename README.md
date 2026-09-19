@@ -91,15 +91,19 @@ Secrets never go in code, commits, chat, or `VITE_` variables.
 
 ## Team and ownership
 
-| Person              | Works in                                                                                                                                |
-| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Hardik (integrator) | `shared/`, server core + routes + live sources, `src/App.tsx`, `src/routes.ts`, `src/api/`, configs, docs, `tasks.json`. Merges all PRs |
-| Affan               | `server/ai/`, `src/features/insight/`, `src/features/ask/`                                                                              |
-| Arham               | `src/styles/`, `src/ui/`, `src/globe/`, `src/layout/`, `src/state/`                                                                     |
-| Ayman               | `src/features/country/`, `src/features/event/`, `src/features/timeline/`                                                                |
-| Shrey               | `server/data/seed/`, `src/features/news/`, `src/features/health/`, `docs/DEMO.md`                                                       |
+**Build model:** Claude, running in Ayman's session, writes all the code. Each teammate is the **decision owner** for an area:
+Claude asks them the customization questions (layout, content, wording, interactions, data) before building, and they review
+and test the result. Teammates don't commit code; they comment on PRs or post in the chat. See [AGENTS.md](AGENTS.md#0-build-model-one-code-writer).
 
-The exact list, and the shared files that need coordination, are in [AGENTS.md](AGENTS.md#3-folder-ownership).
+| Person              | Decides and reviews                                          |
+| ------------------- | ------------------------------------------------------------ |
+| Hardik (integrator) | Reviews and merges every PR, sync points, the demo laptop    |
+| Affan               | AI behaviour and tone (provides the AI key)                  |
+| Arham               | Visual direction, layout, globe look                         |
+| Ayman               | Drives the Claude session; country, event and timeline views |
+| Shrey               | Featured countries and events, fact checks, demo rehearsal   |
+
+The folder-to-owner map and the shared files that need a separate PR are in [AGENTS.md](AGENTS.md#3-folder-ownership-decision-owners).
 
 ## Task system
 

@@ -4,11 +4,24 @@ This file is the single source of rules for Claude Code, Codex, Cursor and peopl
 `.cursor/rules/orbit.mdc` only point here. If another document disagrees with this file, this file wins.
 Tell Hardik so the other document gets fixed.
 
-## 0. Before you change anything
+## 0. Build model: one code writer
 
-1. Know **who you are working for** and **which task** (`tasks.json`, e.g. `ORB-AYM-01`). No task, no code.
-2. Only edit files inside that task's `paths` and the owner's folders (section 3).
-3. Run `npm run check` before every commit you intend to push.
+**Only Claude, running in Ayman's session, commits code.** Teammates do not commit code. Instead they:
+
+- **decide** every customization for their area (layout, content, wording, interactions, data choices). Claude asks
+  them in plan mode at the start of each workstream, and Ayman relays the answers.
+- **review** the PRs for their area, and **test** on their own laptop.
+- propose changes in the team chat or as PR comments, never as commits.
+
+Tasks with a `builder` field in `tasks.json` are built by Claude. Their `owner` is the person who decides and reviews.
+Tasks without `builder` (e.g. getting the AI key, merging, rehearsal) are done by the owner themselves.
+
+## 0.1 Before you change anything
+
+1. Know **which task** you are working on (`tasks.json`, e.g. `ORB-AYM-01`). No task, no code.
+2. Only edit files inside that task's `paths`.
+3. Ask the task owner the customization questions before building (plan mode), and list their decisions in the PR.
+4. Run `npm run check` before every commit you intend to push.
 
 ## 1. What ORBIT is
 
@@ -33,9 +46,10 @@ It's a 24-hour hackathon prototype, demoed live on one laptop, and it must work 
 
 Do not introduce Next.js, Tailwind, Redux, a database, Python services, another package manager, or another app.
 
-## 3. Folder ownership
+## 3. Folder ownership (decision owners)
 
-Only the owner edits these folders. Everyone may **import** from anywhere, but must not **edit** outside their folders.
+Each area has one **decision owner**: the person Claude asks about customization and who reviews changes there.
+Code in every folder is written by Claude (section 0). A task may only change files inside its own `paths`.
 
 | Owner                   | Owns                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -47,7 +61,7 @@ Only the owner edits these folders. Everyone may **import** from anywhere, but m
 
 **Never touch:** `mcp/`, `workshop-data/`, `.vscode/mcp.json` (hackathon organiser tooling).
 
-**Shared hot files** (only change through a small, separate PR that Hardik merges first):
+**Shared hot files** (change them in a small, separate PR that Hardik merges first, before the feature PR that needs it):
 `shared/**`, `package.json`, `package-lock.json`, `src/App.tsx`, `src/routes.ts`, `src/styles/tokens.css`,
 `src/ui/index.ts`, `server/app.ts`, `.env.example`, `tasks.json`, `AGENTS.md`.
 
@@ -79,8 +93,9 @@ Only the owner edits these folders. Everyone may **import** from anywhere, but m
 
 ## 7. Dependencies
 
-- Do not run `npm install <package>`. Ask Hardik in the chat, with the package name and why. Hardik installs, commits the lockfile, and everyone pulls.
-- Everyone else only runs plain `npm install` (after pulling) to sync.
+- A new package needs a reason stated in the approved plan and Hardik's OK in the chat. Claude installs it in the
+  PR that needs it, with the lockfile change in that PR. Nobody else runs `npm install <package>`.
+- Everyone only runs plain `npm install` (after pulling) to sync.
 - Never delete or regenerate `package-lock.json`. Never use yarn, pnpm or bun.
 
 ## 8. Styling rules
@@ -108,7 +123,7 @@ Only the owner edits these folders. Everyone may **import** from anywhere, but m
 ## 11. Git workflow
 
 - `main` must always run. Only Hardik merges (Affan is backup).
-- Branch per task: the `branch` field in `tasks.json` (`<name>/<topic>`, e.g. `arham/globe`).
+- Branch per task: the `branch` field in `tasks.json` (`claude/<topic>` for Claude-built tasks, e.g. `claude/globe`).
 - Commit messages: `<area>: <what changed>` (e.g. `globe: add severity rings`). Small commits.
 - Before opening a PR: `git pull origin main`, fix conflicts in YOUR files only, run `npm run check`.
 - PR title: `[ORB-XXX-NN] short summary`. Squash merge.
@@ -117,6 +132,7 @@ Only the owner edits these folders. Everyone may **import** from anywhere, but m
 ## 12. What agents must NOT do
 
 - Invent tasks, features, routes, fields or packages that are not in `tasks.json` / `docs/API.md`.
+- Make a customization decision (layout, wording, content, interaction, data choice) without asking the task owner.
 - Edit files outside the current task's owner folders "while they're at it".
 - Change the stack, add a framework, or restructure folders.
 - Disable lint rules, delete tests or loosen TypeScript to make `npm run check` pass.

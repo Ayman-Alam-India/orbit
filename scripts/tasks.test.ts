@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 type Task = {
   id: string
   owner: string
+  builder?: string
   status: string
   priority: string
   dependsOn: string[]
@@ -31,6 +32,8 @@ describe('tasks.json', () => {
       expect(['P0', 'P1', 'P2']).toContain(t.priority)
       expect(t.acceptance.length, `${t.id} needs acceptance criteria`).toBeGreaterThan(0)
       expect(t.handoff, `${t.id} needs a handoff note`).not.toBe('')
+      // Claude-built tasks use claude/<topic> branches (AGENTS.md section 11).
+      if (t.builder) expect(t.branch, `${t.id} branch`).toMatch(/^claude\//)
     }
   })
 
