@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { CountryPanel } from './features/country/CountryPanel'
 import { EventPanel } from './features/event/EventPanel'
+import { SimulatorPanel } from './features/simulate/SimulatorPanel'
 import { GlobalOverview } from './layout/GlobalOverview'
 import { NotFound } from './layout/NotFound'
 import { OrbitLayout } from './layout/OrbitLayout'
@@ -14,6 +15,7 @@ export function AppRoutes() {
         <Route path={ROUTE_PATTERNS.global} element={<GlobalOverview />} />
         <Route path={ROUTE_PATTERNS.country} element={<CountryPanel />} />
         <Route path={ROUTE_PATTERNS.event} element={<EventPanel />} />
+        <Route path={ROUTE_PATTERNS.simulate} element={<SimulatorPanel />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

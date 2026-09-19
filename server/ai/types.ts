@@ -8,6 +8,7 @@ import type {
   MarketQuote,
   NewsHeadline,
   OrbitEvent,
+  SimulationResult,
   Source,
 } from '@shared'
 
@@ -20,6 +21,8 @@ export type AiContext = {
   /** Ripple effects touching the subject, and the market figures they point to. */
   impacts: ImpactLink[]
   markets: MarketQuote[]
+  /** Set when the user asks from the what-if simulator. */
+  simulation?: SimulationResult
 }
 
 export type InsightRequest = {

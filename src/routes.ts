@@ -8,10 +8,12 @@ export const ROUTE_PATTERNS = {
   global: '/',
   country: '/country/:countryId',
   event: '/country/:countryId/event/:eventId',
+  simulate: '/simulate',
 } as const
 
 export const paths = {
   global: () => '/',
   country: (countryId: CountryId) => `/country/${countryId}`,
   event: (countryId: CountryId, eventId: EventId) => `/country/${countryId}/event/${eventId}`,
+  simulate: () => '/simulate',
 }

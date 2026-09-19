@@ -14,7 +14,7 @@ import { useUiStore } from '../state/uiStore'
 import { cssVar, severityColor } from '../styles/cssVar'
 import { needsRing, pinAltitude, ringColor, ringMaxRadius, tooltipHtml } from './globeStyle'
 import { MINI_GLOBE_ALTITUDE, MINI_GLOBE_ROTATE_SPEED } from './miniGlobe'
-import { rippleArcs, type RippleArc } from './rippleArcs'
+import { rippleArcs, simulationArcs, type RippleArc } from './rippleArcs'
 
 /** Public-domain NASA imagery (via the globe.gl examples), stored in public/textures so it works offline. */
 const TEXTURES = {
@@ -31,7 +31,7 @@ const RESUME_ROTATION_MS = 4000
 type CountryFeature = {
   type: 'Feature'
   properties: { id: string; name: string }
-  geometry: object
+  geometry: { type: string; coordinates: unknown }
 }
 
 type CountryShapes = { type: 'FeatureCollection'; features: CountryFeature[] }
@@ -44,7 +44,7 @@ type CountryShapes = { type: 'FeatureCollection'; features: CountryFeature[] }
 export default function OrbitGlobe() {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
   const navigate = useNavigate()
-  const { hoveredCountryId, setHoveredCountry } = useUiStore()
+  const { hoveredCountryId, setHoveredCountry, simulation } = useUiStore()
   const selectedCountryId = useMatch(`${ROUTE_PATTERNS.country}/*`)?.params.countryId
   const shapes = useQuery({
     queryKey: ['globe', 'shapes'],
@@ -68,6 +68,13 @@ export default function OrbitGlobe() {
   useEffect(() => {
     const globe = globeRef.current
     if (!globe) return
+    // What-if simulator: hold the camera on the scenario's chokepoint.
+    if (simulation) {
+      globe.pointOfView({ ...simulation.chokepoint.location, altitude: 1.9 }, 1500)
+      globe.controls().autoRotate = false
+      return
+    }
+    globe.controls().autoRotate = true
     const country = countries.data?.find((c) => c.id === selectedCountryId)
     globe.pointOfView(
       country ? { ...country.centroid, altitude: MINI_GLOBE_ALTITUDE } : { altitude: 2.5 },
@@ -76,7 +83,7 @@ export default function OrbitGlobe() {
     globe.controls().autoRotateSpeed = selectedCountryId
       ? MINI_GLOBE_ROTATE_SPEED
       : GLOBAL_ROTATE_SPEED
-  }, [selectedCountryId, countries.data])
+  }, [selectedCountryId, countries.data, simulation])
 
   // Idle auto-rotation: pause while the user drags, resume a few seconds after they let go.
   useEffect(() => {
@@ -113,14 +120,28 @@ export default function OrbitGlobe() {
   // Ripple effects: animated arcs from each event to the countries it affects.
   const arcs = useMemo(
     () =>
-      rippleArcs(
-        impacts.data ?? [],
-        events.data ?? [],
-        countries.data ?? [],
-        markets.data ?? [],
-        selectedCountryId,
-      ),
-    [impacts.data, events.data, countries.data, markets.data, selectedCountryId],
+      simulation
+        ? simulationArcs(
+            simulation.chokepoint.location,
+            simulation.affected,
+            shapes.data?.features ?? [],
+          )
+        : rippleArcs(
+            impacts.data ?? [],
+            events.data ?? [],
+            countries.data ?? [],
+            markets.data ?? [],
+            selectedCountryId,
+          ),
+    [
+      impacts.data,
+      events.data,
+      countries.data,
+      markets.data,
+      selectedCountryId,
+      simulation,
+      shapes.data,
+    ],
   )
   const fadeRing = useMemo(() => ringColor(cssVar('--globe-ring')), [])
 
@@ -139,6 +160,8 @@ export default function OrbitGlobe() {
       polygonsData={shapes.data?.features ?? []}
       polygonCapColor={(f) => {
         const id = (f as CountryFeature).properties.id
+        const role = simulation?.affected.find((a) => a.countryId === id)?.role
+        if (role) return cssVar(`--sim-${role}`)
         if (id === selectedCountryId) return cssVar('--globe-land-selected')
         return id === hoveredCountryId ? cssVar('--globe-land-hover') : cssVar('--globe-land')
       }}

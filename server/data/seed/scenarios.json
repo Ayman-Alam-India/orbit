@@ -1,0 +1,118 @@
+[
+  {
+    "id": "scn_hormuz_closure",
+    "title": "Strait of Hormuz closes",
+    "description": "Tanker traffic through the Strait of Hormuz, the chokepoint at the mouth of the Persian Gulf, stops. Pipelines can reroute only part of the flow.",
+    "chokepoint": {
+      "name": "Strait of Hormuz",
+      "location": {
+        "lat": 26.57,
+        "lng": 56.25
+      }
+    },
+    "defaultBrentPct": 30,
+    "facts": [
+      {
+        "text": "About 20 million barrels per day flowed through the strait in 2024, around 20% of global petroleum liquids consumption and over a quarter of seaborne oil trade.",
+        "sourceIds": ["src_eia_hormuz"]
+      },
+      {
+        "text": "84% of the crude oil and condensate through the strait went to Asia; China, India, Japan and South Korea took a combined 69%.",
+        "sourceIds": ["src_eia_hormuz"]
+      },
+      {
+        "text": "Saudi and UAE pipelines could bypass about 2.6 million barrels per day.",
+        "sourceIds": ["src_eia_hormuz"]
+      },
+      {
+        "text": "India imports 88.7% of its crude oil.",
+        "sourceIds": ["src_theprint_india_crude"]
+      }
+    ],
+    "flow": {
+      "millionBarrelsPerDay": 20,
+      "bypassMillionBarrelsPerDay": 2.6,
+      "shareOfWorldConsumptionPct": 20,
+      "sourceIds": ["src_eia_hormuz"]
+    },
+    "affected": [
+      {
+        "countryId": "SAU",
+        "role": "exporter",
+        "note": "Largest exporter through the strait: 38% of Hormuz crude (5.5 million b/d).",
+        "sourceIds": ["src_eia_hormuz"]
+      },
+      {
+        "countryId": "CHN",
+        "role": "importer",
+        "note": "A top destination for Hormuz crude.",
+        "sourceIds": ["src_eia_hormuz"]
+      },
+      {
+        "countryId": "IND",
+        "role": "importer",
+        "note": "A top destination for Hormuz crude; imports 88.7% of its crude oil.",
+        "sourceIds": ["src_eia_hormuz", "src_theprint_india_crude"]
+      },
+      {
+        "countryId": "JPN",
+        "role": "importer",
+        "note": "A top destination for Hormuz crude.",
+        "sourceIds": ["src_eia_hormuz"]
+      },
+      {
+        "countryId": "KOR",
+        "role": "importer",
+        "note": "A top destination for Hormuz crude.",
+        "sourceIds": ["src_eia_hormuz"]
+      }
+    ]
+  },
+  {
+    "id": "scn_bab_el_mandeb",
+    "title": "Bab el-Mandeb shipping halts",
+    "description": "The Red Sea chokepoint between Yemen and the Horn of Africa, the alternative route for Saudi oil to Asia, is closed to tankers.",
+    "chokepoint": {
+      "name": "Bab el-Mandeb Strait",
+      "location": {
+        "lat": 12.58,
+        "lng": 43.33
+      }
+    },
+    "defaultBrentPct": 15,
+    "facts": [
+      {
+        "text": "Houthi forces have seized islands near the strait and struck Saudi oil infrastructure and Red Sea shipping, stepping up pressure on global oil prices.",
+        "sourceIds": ["src_toi_houthis_islands"]
+      },
+      {
+        "text": "The strait is a key passage for Saudi oil shipments to Asia and serves as an alternative to the Strait of Hormuz.",
+        "sourceIds": ["src_toi_houthis_islands"]
+      },
+      {
+        "text": "India imports 88.7% of its crude oil.",
+        "sourceIds": ["src_theprint_india_crude"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "YEM",
+        "role": "transit",
+        "note": "Houthi forces control islands near the strait.",
+        "sourceIds": ["src_toi_houthis_islands"]
+      },
+      {
+        "countryId": "SAU",
+        "role": "exporter",
+        "note": "Uses the strait to ship oil to its Asian markets.",
+        "sourceIds": ["src_toi_houthis_islands"]
+      },
+      {
+        "countryId": "IND",
+        "role": "importer",
+        "note": "An Asian oil importer that depends on imports for 88.7% of its crude.",
+        "sourceIds": ["src_theprint_india_crude"]
+      }
+    ]
+  }
+]

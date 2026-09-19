@@ -45,6 +45,11 @@
   --channel-health: #ff453a;
   --channel-security: #ffd60a;
 
+  /* What-if simulator: countries tinted by their role in the scenario */
+  --sim-importer: rgba(255, 159, 10, 0.5);
+  --sim-exporter: rgba(100, 210, 255, 0.45);
+  --sim-transit: rgba(255, 69, 58, 0.5);
+
   /* Event kinds */
   --kind-geopolitical: var(--color-primary);
   --kind-health: var(--color-accent);

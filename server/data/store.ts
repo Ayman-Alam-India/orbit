@@ -3,6 +3,7 @@ import {
   ImpactLinkSchema,
   MarketQuoteSchema,
   NewsHeadlineSchema,
+  ScenarioSchema,
   OrbitEventSchema,
   SourceSchema,
   TimelineEventSchema,
@@ -14,6 +15,7 @@ import {
   type NewsHeadline,
   type OrbitEvent,
   type OrbitEventKind,
+  type Scenario,
   type Source,
   type TimelineEvent,
 } from '@shared'
@@ -30,6 +32,7 @@ const SEED_FILES = {
   timeline: { file: 'timeline.json', schema: z.array(TimelineEventSchema) },
   markets: { file: 'markets.json', schema: z.array(MarketQuoteSchema) },
   impacts: { file: 'impacts.json', schema: z.array(ImpactLinkSchema) },
+  scenarios: { file: 'scenarios.json', schema: z.array(ScenarioSchema) },
 } as const
 
 /**
@@ -47,6 +50,7 @@ export type SeedData = {
   timeline: TimelineEvent[]
   markets: MarketQuote[]
   impacts: ImpactLink[]
+  scenarios: Scenario[]
 }
 
 export type RawSeed = Record<keyof typeof SEED_FILES, unknown>
@@ -140,6 +144,16 @@ export function validateSeed(raw: RawSeed): SeedData {
       `${where}: a sourced impact needs a source`,
     )
   }
+  for (const s of data.scenarios) {
+    const cited = [
+      ...s.facts.flatMap((f) => f.sourceIds),
+      ...s.affected.flatMap((a) => a.sourceIds),
+      ...(s.flow?.sourceIds ?? []),
+    ]
+    cited.forEach((id) =>
+      check(sourceIds.has(id), `scenarios.json ${s.id}: unknown source "${id}"`),
+    )
+  }
   if (problems.length) throw new SeedValidationError(problems.join('\n'))
   return data
 }
@@ -187,6 +201,8 @@ export const store = {
         market?.countryId === filter.countryId,
       )
     }),
+  getScenarios: () => getSeed().scenarios,
+  getScenario: (id: string) => getSeed().scenarios.find((s) => s.id === id),
   getTimeline: (countryId: CountryId) =>
     getSeed()
       .timeline.filter((t) => t.countryId === countryId)

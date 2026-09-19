@@ -1,6 +1,7 @@
 import type { AskRequest } from '@shared'
 import { useMatch } from 'react-router-dom'
 import { ROUTE_PATTERNS } from '../../routes'
+import { useUiStore } from '../../state/uiStore'
 import { useCountries } from '../country/useCountry'
 import { useEvent } from '../event/useEvents'
 
@@ -15,12 +16,26 @@ export type AskContext = {
 export function useAskContext(): AskContext {
   const countryMatch = useMatch(`${ROUTE_PATTERNS.country}/*`)
   const eventMatch = useMatch(ROUTE_PATTERNS.event)
+  const simulatorMatch = useMatch(ROUTE_PATTERNS.simulate)
+  const simulation = useUiStore((s) => s.simulation)
   const countryId = countryMatch?.params.countryId
   const eventId = eventMatch?.params.eventId
   const countries = useCountries()
   const event = useEvent(eventId ?? '')
   const countryName = countries.data?.find((c) => c.id === countryId)?.name ?? countryId
 
+  if (simulatorMatch && simulation) {
+    const shock = `${simulation.brentPct > 0 ? '+' : ''}${simulation.brentPct}%`
+    return {
+      request: { simulation: { scenarioId: simulation.scenarioId, brentPct: simulation.brentPct } },
+      label: `What if: ${simulation.title} (Brent ${shock})`,
+      suggestions: [
+        'What would this mean for fuel prices in India?',
+        'Which countries are most exposed, and why?',
+        'Explain how these numbers are calculated',
+      ],
+    }
+  }
   if (eventId) {
     return {
       request: { countryId, eventId },

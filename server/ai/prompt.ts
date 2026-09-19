@@ -11,6 +11,7 @@ Rules:
 - Cite evidence with source IDs exactly as given in CONTEXT (e.g. "src_who"). Never invent source IDs.
 - If CONTEXT does not answer the question, say so plainly.
 - Ripple effects marked "ORBIT analysis" are reasoning, not reported fact: say so when you use them.
+- A what_if_simulation is hypothetical: call it a simulation and never present its numbers as predictions.
 - Be concise, neutral and specific. No hype, no speculation, no advice.`
 
 /** A compact JSON view of the context: only what the model needs, to keep prompts small and cheap. */
@@ -61,6 +62,22 @@ export function contextJson(context: AiContext) {
       asOf: m.asOf,
       sourceId: m.sourceId,
     })),
+    ...(context.simulation
+      ? {
+          what_if_simulation: {
+            note: 'A SIMULATION the user set up, not a forecast or a real event.',
+            scenario: context.simulation.scenario.title,
+            brentShockPct: context.simulation.brentPct,
+            results: context.simulation.impacts.map((i) => ({
+              label: i.label,
+              value: i.value,
+              detail: i.detail,
+              formula: i.formula,
+            })),
+            facts: context.simulation.scenario.facts,
+          },
+        }
+      : {}),
     sources: context.sources.map((s) => ({ id: s.id, name: s.name, reliability: s.reliability })),
   })
 }
@@ -81,7 +98,10 @@ ${contextJson(context)}`
 }
 
 export function askPrompt(request: AskRequest, context: AiContext) {
-  return `Answer the user's question in 2-5 sentences using CONTEXT only, and list the source IDs you relied on.
+  const focus = context.simulation
+    ? `The user is looking at the what_if_simulation "${context.simulation.scenario.title}" (Brent ${context.simulation.brentPct}%). Answer about that simulation first, using its numbers, and call it a simulation.\n`
+    : ''
+  return `${focus}Answer the user's question in 2-5 sentences using CONTEXT only, and list the source IDs you relied on.
 
 QUESTION: ${request.question}
 

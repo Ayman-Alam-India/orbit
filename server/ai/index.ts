@@ -12,7 +12,9 @@ import {
 import { store } from '../data/store'
 import { env } from '../env'
 import { notFound } from '../http'
+import { simulate } from '../sim/simulate'
 import { readCache, writeCache } from '../sources/cache'
+import { getMarkets } from '../sources/markets'
 import { googleProvider } from './providers/google'
 import { mockProvider } from './providers/mock'
 import type { AiContext, AiProvider } from './types'
@@ -158,16 +160,30 @@ export async function generateInsight(
   )
 }
 
-export function askOrbit(request: AskRequest): Promise<AskAnswer> {
-  const { countryId, eventId } = request.context ?? {}
+export async function askOrbit(request: AskRequest): Promise<AskAnswer> {
+  const { countryId, eventId, simulation } = request.context ?? {}
   const context = eventId
     ? buildContext('event', eventId)
     : countryId
       ? buildContext('country', countryId)
       : buildContext('global', GLOBAL_SUBJECT_ID)
+  if (simulation)
+    context.simulation = await simulationFor(simulation.scenarioId, simulation.brentPct)
   return withFallback(
     'ask',
     (p) => p.ask(request, context),
     (v) => AskAnswerSchema.parse(v),
   )
+}
+
+/** The what-if result the user is looking at, for Ask ORBIT on the simulator page. */
+async function simulationFor(scenarioId: string, brentPct: number) {
+  const scenario = store.getScenario(scenarioId)
+  if (!scenario) throw notFound(`Scenario "${scenarioId}"`)
+  const markets = await getMarkets()
+  const find = (id: string) => markets.find((m) => m.id === id)
+  const brent = find('mkt_brent')
+  const usdInr = find('mkt_usd_inr')
+  if (!brent || !usdInr) return undefined
+  return simulate({ scenario, brentPct, brent, usdInr, petrol: find('mkt_petrol_delhi') })
 }
