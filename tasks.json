@@ -1,25 +1,25 @@
 {
-  "$comment": "ORBIT task manifest: the single source of truth for who does what. Owner of this file: Hardik. Change it only via a PR. Hours are counted from the start of the hackathon (H0). Priorities: P0 = demo breaks without it, P1 = should have, P2 = nice to have. See docs/PLAYBOOK.md#task-system.",
+  "$comment": "ORBIT task manifest: the single source of truth for who does what. BUILD MODEL: tasks with a \"builder\" field are coded by Claude in Ayman's session; their \"owner\" DECIDES the customization (asked in plan mode) and REVIEWS the result. Tasks without \"builder\" are done by the owner. Owner of this file: Hardik (Claude edits it through PRs). Hours are counted from the start of the hackathon (H0). Priorities: P0 = demo breaks without it, P1 = should have, P2 = nice to have. See docs/PLAYBOOK.md#task-system.",
   "version": 1,
   "team": {
     "Arham": {
-      "role": "Frontend lead: design system, app shell, 3D globe",
+      "role": "Decides visual direction, layout and globe look; reviews all UI",
       "load": "medium-heavy"
     },
     "Ayman": {
-      "role": "Country, event and timeline views",
+      "role": "Drives the Claude build session and relays team decisions; decides the country, event and timeline views",
       "load": "medium"
     },
     "Affan": {
-      "role": "AI: providers, insights, Ask ORBIT",
+      "role": "Decides AI behaviour and tone; provides the AI key; reviews AI output",
       "load": "heavy"
     },
     "Shrey": {
-      "role": "Curated data, news and health panels, demo script",
+      "role": "Decides which countries and events feature; verifies researched facts; runs demo rehearsal",
       "load": "light"
     },
     "Hardik": {
-      "role": "Integrator: contracts, API server, live data, merges",
+      "role": "Integrator: reviews and merges every PR, runs sync points and the demo laptop",
       "load": "heavy"
     }
   },
@@ -51,7 +51,7 @@
     {
       "id": "ORB-HAR-01",
       "owner": "Hardik",
-      "status": "todo",
+      "status": "done",
       "priority": "P0",
       "targetWindow": "H2",
       "branch": "none (review + merge only)",
@@ -87,10 +87,11 @@
     {
       "id": "ORB-HAR-03",
       "owner": "Hardik",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P1",
       "targetWindow": "H4-H14",
-      "branch": "hardik/live-news",
+      "branch": "claude/live-news",
       "title": "Live news enrichment with offline fallback",
       "description": "In server/sources/index.ts, implement DATA_MODE=live for getNewsFeed: fetch headlines from one free news or data API, map them to NewsHeadlineSchema, validate, writeCache, merge with seed. Any failure logs [sources] and returns cache, then seed. Add the API key name (empty) to .env.example if one is needed.",
       "paths": ["server/sources/", ".env.example", "docs/API.md"],
@@ -107,10 +108,11 @@
     {
       "id": "ORB-HAR-04",
       "owner": "Hardik",
+      "builder": "Claude (Ayman's session)",
       "status": "todo",
       "priority": "P1",
       "targetWindow": "H18-H22",
-      "branch": "hardik/demo-hardening",
+      "branch": "claude/demo-hardening",
       "title": "Demo hardening and offline check",
       "description": "On the demo laptop: warm the caches in live mode, then turn wifi off and run the full demo path from docs/DEMO.md. Fix failures in your own folders; report failures in other folders to their owner. Make sure an .env with DATA_MODE and AI_PROVIDER set for the demo exists on that laptop only.",
       "paths": ["server/sources/", "server/env.ts", ".env.example"],
@@ -143,10 +145,11 @@
     {
       "id": "ORB-AFF-02",
       "owner": "Affan",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P0",
       "targetWindow": "H2-H8",
-      "branch": "affan/google-provider",
+      "branch": "claude/google-provider",
       "title": "Real AI provider (Gemini via Vercel AI SDK)",
       "description": "Implement server/ai/providers/google.ts with the installed 'ai' and '@ai-sdk/google' packages. generateInsight and ask must return objects that pass AIInsightSchema / AskAnswerSchema. Use only the AiContext given (no extra fetching). sourceIds may only contain IDs present in the context. Keep the automatic mock fallback in server/ai/index.ts working.",
       "paths": ["server/ai/"],
@@ -164,10 +167,11 @@
     {
       "id": "ORB-AFF-03",
       "owner": "Affan",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P1",
       "targetWindow": "H6-H14",
-      "branch": "affan/insight-ui",
+      "branch": "claude/insight-ui",
       "title": "Explanation (insight) panel",
       "description": "Replace the InsightCard placeholder with the final explanation UI: summary, key points, cited sources (resolved via /api/sources), confidence and provider shown clearly. Use src/ui primitives and tokens only.",
       "paths": ["src/features/insight/"],
@@ -183,10 +187,11 @@
     {
       "id": "ORB-AFF-04",
       "owner": "Affan",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P1",
       "targetWindow": "H8-H16",
-      "branch": "affan/ask-orbit",
+      "branch": "claude/ask-orbit",
       "title": "Ask ORBIT experience",
       "description": "Replace the AskPanel placeholder with the final chat-style panel: question history for the session, context chip showing what ORBIT is looking at, answer with cited sources. Streaming is optional: if you want it, propose the API change first (docs/INTEGRATION.md, contract change).",
       "paths": ["src/features/ask/", "server/routes/ai.ts"],
@@ -202,10 +207,11 @@
     {
       "id": "ORB-AFF-05",
       "owner": "Affan",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P2",
       "targetWindow": "H14-H18",
-      "branch": "affan/ai-cache",
+      "branch": "claude/ai-cache",
       "title": "Cache AI answers for the demo",
       "description": "Save successful real-provider insights to the disk cache (server/sources/cache.ts: readCache/writeCache) keyed by subject, and serve them when the provider fails, before falling back to mock.",
       "paths": ["server/ai/"],
@@ -217,10 +223,11 @@
     {
       "id": "ORB-ARH-01",
       "owner": "Arham",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P0",
       "targetWindow": "H2-H5",
-      "branch": "arham/design-system",
+      "branch": "claude/design-system",
       "title": "Design system pass",
       "description": "Refine src/styles/tokens.css and the src/ui primitives (Panel, Loader, ErrorState, SeverityBadge, ItemList) and add the missing ones the team needs first: Button and Tag. Keep docs/DESIGN_SYSTEM.md in sync.",
       "paths": ["src/styles/", "src/ui/", "docs/DESIGN_SYSTEM.md"],
@@ -236,10 +243,11 @@
     {
       "id": "ORB-ARH-02",
       "owner": "Arham",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P0",
       "targetWindow": "H4-H10",
-      "branch": "arham/app-shell",
+      "branch": "claude/app-shell",
       "title": "App shell and layout",
       "description": "Final layout in src/layout/: top bar, overlay panel column with enter/exit transitions between routes, Ask ORBIT placement, works from 1280px to 1920px wide.",
       "paths": ["src/layout/", "src/state/"],
@@ -255,10 +263,11 @@
     {
       "id": "ORB-ARH-03",
       "owner": "Arham",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P0",
       "targetWindow": "H2-H14",
-      "branch": "arham/globe",
+      "branch": "claude/globe",
       "title": "Cinematic 3D globe",
       "description": "Upgrade src/globe/OrbitGlobe.tsx: glow/atmosphere, country colouring by riskLevel for seeded countries, event markers styled by kind and severity (tokens via cssVar), pulsing rings for severity >= 4, slow auto-rotate on the global view, smooth fly-to on selection.",
       "paths": ["src/globe/", "public/data/"],
@@ -274,10 +283,11 @@
     {
       "id": "ORB-ARH-04",
       "owner": "Arham",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P1",
       "targetWindow": "H10-H16",
-      "branch": "arham/global-view",
+      "branch": "claude/global-view",
       "title": "Global overview view",
       "description": "Replace the GlobalOverview placeholder (route /) with the final global intelligence view, composed from other owners' components (InsightCard, HealthSignalList, NewsList) without editing them.",
       "paths": ["src/layout/GlobalOverview.tsx"],
@@ -292,10 +302,11 @@
     {
       "id": "ORB-AYM-01",
       "owner": "Ayman",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P0",
       "targetWindow": "H2-H10",
-      "branch": "ayman/country-view",
+      "branch": "claude/country-view",
       "title": "Country view",
       "description": "Replace the CountryPanel placeholder (route /country/:countryId) with the final country view: header, key facts, risk level, list of events, and the insight, timeline and news sections.",
       "paths": ["src/features/country/"],
@@ -311,10 +322,11 @@
     {
       "id": "ORB-AYM-02",
       "owner": "Ayman",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P0",
       "targetWindow": "H6-H12",
-      "branch": "ayman/event-view",
+      "branch": "claude/event-view",
       "title": "Event view",
       "description": "Replace the EventPanel placeholder (route /country/:countryId/event/:eventId) with the final event view. Render geopolitical events and health signals differently using the `kind` field; include the event insight and related headlines.",
       "paths": ["src/features/event/"],
@@ -330,10 +342,11 @@
     {
       "id": "ORB-AYM-03",
       "owner": "Ayman",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P1",
       "targetWindow": "H10-H16",
-      "branch": "ayman/timeline",
+      "branch": "claude/timeline",
       "title": "Timeline",
       "description": "Replace the TimelineList placeholder with a visual timeline that respects datePrecision (day / month / year) and links entries with an eventId to that event.",
       "paths": ["src/features/timeline/"],
@@ -348,10 +361,11 @@
     {
       "id": "ORB-SHR-01",
       "owner": "Shrey",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "in_progress",
       "priority": "P0",
       "targetWindow": "H2-H8",
-      "branch": "shrey/seed-countries-events",
+      "branch": "claude/seed-countries-events",
       "title": "Curated countries, sources and events",
       "description": "Grow server/data/seed to 15-25 featured countries, real sources (replace the src_mock_* sources) and about 60-100 events across both kinds. Every fact must come from a source you actually opened; keep the source URL in sources.json. Follow docs/API.md#mock-data-format.",
       "paths": ["server/data/seed/"],
@@ -362,15 +376,16 @@
         "No fabricated facts presented as real"
       ],
       "tests": ["server/data/seed.test.ts (already exists; must stay green)"],
-      "handoff": "Post in the chat once main has the new data, so Arham can check globe density."
+      "handoff": "Post in the chat once main has the new data, so Arham can check globe density. Status: first batch merged (15 countries, 14 events); more events still welcome."
     },
     {
       "id": "ORB-SHR-02",
       "owner": "Shrey",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P1",
       "targetWindow": "H8-H14",
-      "branch": "shrey/seed-news-timeline",
+      "branch": "claude/seed-news-timeline",
       "title": "Curated headlines and timelines",
       "description": "Add headlines (news.json) linked to events and 3-6 timeline entries per featured country (timeline.json), using real, opened sources.",
       "paths": ["server/data/seed/"],
@@ -385,10 +400,11 @@
     {
       "id": "ORB-SHR-03",
       "owner": "Shrey",
-      "status": "todo",
+      "builder": "Claude (Ayman's session)",
+      "status": "done",
       "priority": "P1",
       "targetWindow": "H6-H14",
-      "branch": "shrey/news-health-panels",
+      "branch": "claude/news-health-panels",
       "title": "News and health panels",
       "description": "Replace the NewsList and HealthSignalList placeholders with final panels using src/ui primitives: headline source name and time, health signal metric and severity.",
       "paths": ["src/features/news/", "src/features/health/"],
@@ -403,10 +419,11 @@
     {
       "id": "ORB-SHR-04",
       "owner": "Shrey",
+      "builder": "Claude (Ayman's session)",
       "status": "todo",
       "priority": "P1",
       "targetWindow": "H14-H18",
-      "branch": "shrey/demo-script",
+      "branch": "claude/demo-script",
       "title": "Demo script",
       "description": "Write docs/DEMO.md: the 3-minute demo click path (Global -> Country -> Event -> Explanation -> Ask ORBIT), exact countries/events to show, questions to ask, and what to say at each step.",
       "paths": ["docs/DEMO.md"],
@@ -432,6 +449,89 @@
       "acceptance": ["Two rehearsals done", "Backup video saved outside the repo"],
       "tests": ["none"],
       "handoff": "Share the video location with the team."
+    },
+    {
+      "id": "ORB-AFF-06",
+      "owner": "Affan",
+      "builder": "Claude (Ayman's session)",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H14-H18",
+      "branch": "claude/claim-verification",
+      "title": "Claim-level verification of AI insights",
+      "description": "Split each AI insight into individual claims and check every claim against ORBIT data and its cited sources: supported, unsupported or contradicted, with the evidence used. Works offline with a rule-based verifier.",
+      "paths": [
+        "shared/",
+        "server/ai/",
+        "server/routes/ai.ts",
+        "src/features/insight/",
+        "docs/API.md"
+      ],
+      "dependsOn": ["ORB-AFF-02"],
+      "acceptance": [
+        "GET /api/verify/:subjectType/:subjectId returns one verdict per claim",
+        "Every verdict cites source IDs that exist",
+        "Works with no API key and no network"
+      ],
+      "tests": ["server/ai/verify.test.ts", "src/features/insight/ClaimCheck.test.tsx"],
+      "handoff": "Tell Hardik the new route is in docs/API.md."
+    },
+    {
+      "id": "ORB-AFF-07",
+      "owner": "Affan",
+      "builder": "Claude (Ayman's session)",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H16-H19",
+      "branch": "claude/second-model",
+      "title": "Second free model for independent verification",
+      "description": "Add one additional free-tier model (Groq) as an independent verifier next to Gemini. Each claim is checked by both; any model that fails or has no key falls back to the offline verifier.",
+      "paths": ["server/ai/", "server/env.ts", ".env.example", "package.json", "package-lock.json"],
+      "dependsOn": ["ORB-AFF-06"],
+      "acceptance": [
+        "Two independent verdicts per claim when both keys are set",
+        "No key or no network still returns a result"
+      ],
+      "tests": ["server/ai/verify.test.ts"],
+      "handoff": "Affan adds GROQ_API_KEY to the demo laptop .env."
+    },
+    {
+      "id": "ORB-AFF-08",
+      "owner": "Affan",
+      "builder": "Claude (Ayman's session)",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H16-H19",
+      "branch": "claude/agreement-ui",
+      "title": "Model agreement visualization",
+      "description": "Show per-claim verdicts from each model side by side, an agreement badge per claim, and an overall agreement score on the insight panel.",
+      "paths": ["src/features/insight/"],
+      "dependsOn": ["ORB-AFF-06"],
+      "acceptance": [
+        "Agreement and disagreement are visible at a glance",
+        "Loading, error and empty states handled"
+      ],
+      "tests": ["src/features/insight/ClaimCheck.test.tsx"],
+      "handoff": "Tell Arham to review the visual."
+    },
+    {
+      "id": "ORB-SHR-06",
+      "owner": "Shrey",
+      "builder": "Claude (Ayman's session)",
+      "status": "todo",
+      "priority": "P2",
+      "targetWindow": "H19-H21",
+      "branch": "claude/markets",
+      "title": "Markets & Economy (India) snapshot",
+      "description": "Optional, only if verification is stable: Sensex, NIFTY 50, a few Indian stocks, petrol/diesel prices and USD/INR from free sources, cached with offline fallback. Skip any source that is unreliable or rate-limited.",
+      "paths": ["shared/", "server/", "src/features/markets/"],
+      "dependsOn": ["ORB-AFF-08"],
+      "acceptance": [
+        "Works offline from cache/seed",
+        "Every figure shows its source and as-of time"
+      ],
+      "tests": ["server/sources/markets.test.ts"],
+      "handoff": "Tell Shrey what is shown for the demo."
     }
   ]
 }

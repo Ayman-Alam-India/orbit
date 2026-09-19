@@ -1,6 +1,10 @@
 # ORBIT integration contract
 
-Owner: Hardik. This document describes how five branches become one working ORBIT app without breaking each other.
+Owner: Hardik. This document describes how work becomes one working ORBIT app without breaking it.
+
+**Build model:** Claude (in Ayman's session) is the only code writer (`AGENTS.md` section 0). Before each task, Claude asks the
+task owner the customization questions in plan mode. Teammates review PRs, test, and propose changes as PR comments or in the
+chat, never as commits. The steps below are what Claude follows. Hardik still reviews and merges everything.
 
 ## The flow
 
@@ -8,8 +12,8 @@ Owner: Hardik. This document describes how five branches become one working ORBI
 main ──► your branch (from tasks.json) ──► commits ──► pull main + npm run check ──► PR ──► Hardik merges (squash) ──► main
 ```
 
-1. `git checkout main && git pull` then `git checkout -b <branch from tasks.json>` (e.g. `ayman/country-view`).
-2. Work only inside your task's `paths` (see `tasks.json` and `AGENTS.md` section 3).
+1. `git checkout main && git pull` then `git checkout -b <branch from tasks.json>` (e.g. `claude/country-view`).
+2. Ask the task owner the customization questions (plan mode), then work only inside the task's `paths` (see `tasks.json` and `AGENTS.md` section 3).
 3. Commit small and often.
 4. Before the PR: `git pull origin main` (merge main into your branch), resolve conflicts, `npm run check`.
 5. Open a PR into `main`. Hardik reviews, merges (squash), and posts in the chat.
@@ -17,7 +21,7 @@ main ──► your branch (from tasks.json) ──► commits ──► pull ma
 
 ## Branch naming
 
-`<lowercase name>/<short-topic>`, exactly as in the task's `branch` field. Examples: `arham/globe`, `affan/google-provider`.
+Exactly as in the task's `branch` field: `claude/<short-topic>` for Claude-built tasks. Examples: `claude/globe`, `claude/google-provider`.
 Use one branch per task and delete it after merge. Never commit directly to `main`.
 
 ## Commits
@@ -28,29 +32,30 @@ Use one branch per task and delete it after merge. Never commit directly to `mai
 ## Pull requests
 
 - Title: `[ORB-XXX-NN] short summary`, e.g. `[ORB-AYM-01] Country view`.
-- The description says: what changed, how to test it (the click path), the tests you added, and any contract/API changes
+- The description says: the owner's customization decisions, what changed, how to test it (the click path), the tests you added, and any contract/API changes
   (these should already be merged separately), plus screenshots for UI.
-- Keep PRs small. A PR every 2–4 hours is ideal. A PR that touches another owner's folder is sent back.
+- Keep PRs small: one task per PR. A PR that changes files outside its task's `paths` is sent back.
 - Checklist before requesting a merge:
   - [ ] `npm run check` passes
   - [ ] Only my task's `paths` changed (plus tests)
   - [ ] Loading / error / empty states handled
-  - [ ] No secrets, no `.env`, no new packages (unless Hardik added them)
+  - [ ] Customization decisions came from the task owner and are listed
+  - [ ] No secrets, no `.env`, no new packages (unless stated in the plan and OK'd by Hardik)
 
 ## Shared-file rules
 
 Shared hot files (`AGENTS.md` section 3): `shared/**`, `package.json`, `package-lock.json`, `src/App.tsx`, `src/routes.ts`,
 `src/styles/tokens.css`, `src/ui/index.ts`, `server/app.ts`, `.env.example`, `tasks.json`, `AGENTS.md`.
 
-- Only their owner edits them, in a **separate small PR** that is merged **before** the feature PR that needs it.
-- Everyone else **imports** from them freely.
+- Change them in a **separate small PR** that is merged **before** the feature PR that needs it.
+- Everything else **imports** from them freely.
 
 ## Contract changes
 
 A contract change is any change to `shared/` (a field, schema, enum, ID rule, route or response shape).
 
-1. **Ask** in the team chat: `CONTRACT CHANGE: add optional imageUrl to Country, needed for ORB-AYM-01`.
-2. **Hardik** makes the change in one PR: `shared/` + `docs/API.md` + the server route or seed validation + tests.
+1. **Announce** in the team chat: `CONTRACT CHANGE: add optional imageUrl to Country, needed for ORB-AYM-01`.
+2. **Claude** makes the change in one PR: `shared/` + `docs/API.md` + the server route or seed validation + tests.
    New fields start as `.optional()`, so existing data and code keep working.
 3. Hardik merges it and posts `CONTRACT UPDATED: ... pull main`.
 4. Everyone pulls main. Then the feature PR uses the new field.
@@ -64,14 +69,14 @@ in the same PR as the server code. Frontend code uses a new route only after tha
 
 ## How conflicts are avoided
 
-- Folder ownership (`AGENTS.md` section 3): two people should never edit the same file.
+- One code writer (Claude in Ayman's session), so there are no parallel edits to the same file.
+- One task per branch, and each task only touches its own `paths`.
 - All routes are declared up front in `src/App.tsx`, so features never touch the router.
 - Each feature has its own query hooks and keys. There is no shared query key file.
-- Only Hardik installs packages, so there are no lockfile conflicts.
-- CSS Modules per component, so there are no global CSS conflicts. Only Arham edits `tokens.css`.
-- Seed data: only Shrey edits `server/data/seed/`.
+- Packages are only added in the PR that needs them, so there are no lockfile conflicts.
+- CSS Modules per component, so there are no global CSS conflicts.
 
-If you do hit a conflict in a file you don't own, **don't resolve it yourself**. Ask the owner.
+Teammates never commit, so if a teammate wants a change, they post it as a PR comment or in the chat.
 
 ## Testing before merging
 
@@ -81,8 +86,8 @@ If `main` breaks, fixing it comes before any new work. Revert the PR if it can't
 
 ## Sync points
 
-About every 4 hours (task ORB-HAR-02), everyone pushes what works, Hardik merges in order (`shared/` changes first, then
-server, then UI), and everyone pulls. Keep your branches short-lived between sync points.
+About every 4 hours (task ORB-HAR-02), Hardik merges ready PRs in order (`shared/` changes first, then server, then UI),
+and everyone pulls and tests on their own laptop. Branches stay short-lived.
 
 ## Never commit
 
