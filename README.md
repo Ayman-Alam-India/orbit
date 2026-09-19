@@ -79,12 +79,13 @@ API routes, entity fields and the mock-data format: [docs/API.md](docs/API.md).
 
 Defined in `.env.example` (committed) and parsed in `server/env.ts`. Put real values in a local `.env`, which is never committed.
 
-| Variable                       | Default | Meaning                                                |
-| ------------------------------ | ------- | ------------------------------------------------------ |
-| `PORT`                         | `8787`  | API server port                                        |
-| `DATA_MODE`                    | `mock`  | `mock` = seed data only · `live` = seed + live sources |
-| `AI_PROVIDER`                  | `mock`  | `mock` or `google`                                     |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | empty   | Gemini key, only in your local `.env`                  |
+| Variable                       | Default            | Meaning                                                |
+| ------------------------------ | ------------------ | ------------------------------------------------------ |
+| `PORT`                         | `8787`             | API server port                                        |
+| `DATA_MODE`                    | `mock`             | `mock` = seed data only · `live` = seed + live sources |
+| `AI_PROVIDER`                  | `mock`             | `mock` or `google`                                     |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | empty              | Gemini key, only in your local `.env`                  |
+| `GOOGLE_MODEL`                 | `gemini-2.5-flash` | Gemini model used when `AI_PROVIDER=google`            |
 
 Secrets never go in code, commits, chat, or `VITE_` variables.
 

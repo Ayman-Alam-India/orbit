@@ -139,12 +139,13 @@ npm run dev      # web on http://localhost:5173 + API on :8787
 npm run check    # lint + tests + build: must pass before any PR
 ```
 
-| Variable                       | Default | Meaning                                          |
-| ------------------------------ | ------- | ------------------------------------------------ |
-| `PORT`                         | `8787`  | API server port (Vite proxies `/api` to it)      |
-| `DATA_MODE`                    | `mock`  | `mock` = seed only, `live` = seed + live sources |
-| `AI_PROVIDER`                  | `mock`  | `mock` or `google`                               |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | empty   | Only in your local `.env`, never committed       |
+| Variable                       | Default            | Meaning                                          |
+| ------------------------------ | ------------------ | ------------------------------------------------ |
+| `PORT`                         | `8787`             | API server port (Vite proxies `/api` to it)      |
+| `DATA_MODE`                    | `mock`             | `mock` = seed only, `live` = seed + live sources |
+| `AI_PROVIDER`                  | `mock`             | `mock` or `google`                               |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | empty              | Only in your local `.env`, never committed       |
+| `GOOGLE_MODEL`                 | `gemini-2.5-flash` | Gemini model used when `AI_PROVIDER=google`      |
 
 ## 8. Design system
 

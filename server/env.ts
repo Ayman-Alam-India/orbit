@@ -15,6 +15,8 @@ const EnvSchema = z.object({
   DATA_MODE: DataModeSchema.default('mock'),
   AI_PROVIDER: AiProviderNameSchema.default('mock'),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
+  /** Gemini model used when AI_PROVIDER=google (check Google AI Studio for free-tier models). */
+  GOOGLE_MODEL: z.string().default('gemini-2.5-flash'),
 })
 
 // Treat empty values (e.g. `GOOGLE_GENERATIVE_AI_API_KEY=`) as "not set".
