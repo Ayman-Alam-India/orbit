@@ -1,8 +1,7 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
-import { ErrorBoundary } from './components/ErrorBoundary'
 import { Dashboard } from './pages/Dashboard'
-import { IncidentDetail } from './pages/IncidentDetail'
+import { IncidentDetailPage } from './pages/IncidentDetail'
 import { Incidents } from './pages/Incidents'
 import { Services } from './pages/Services'
 import { Settings } from './pages/Settings'
@@ -14,7 +13,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/incidents" element={<Incidents />} />
-        <Route path="/incidents/:id" element={<ErrorBoundary><IncidentDetail /></ErrorBoundary>} />
+        <Route path="/incidents/:id" element={<IncidentDetailPage />} />
         <Route path="/services" element={<Services />} />
         <Route path="/settings" element={<Settings />} />
       </Route>

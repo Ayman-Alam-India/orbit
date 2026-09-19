@@ -1,7 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { acknowledgeIncident, getIncident } from '../api'
+import { ErrorBoundary } from '../components/ErrorBoundary'
 import { formatIncidentTime } from '../formatters'
+import { incidentKeys } from '../queryKeys'
+import type { Incident } from '../types'
+
+export function IncidentDetailPage() {
+  const { id = '' } = useParams()
+  return (
+    <ErrorBoundary key={id}>
+      <IncidentDetail />
+    </ErrorBoundary>
+  )
+}
+
 export function IncidentDetail() {
   const { id = '' } = useParams()
   const queryClient = useQueryClient()
@@ -9,22 +22,30 @@ export function IncidentDetail() {
     data: incident,
     isLoading,
     isError,
-  } = useQuery({ queryKey: ['incident'], queryFn: () => getIncident(id) })
+  } = useQuery({ queryKey: incidentKeys.detail(id), queryFn: () => getIncident(id) })
   const mutation = useMutation({
-    mutationFn: async () => {
-      if (id === '4') throw new Error('Acknowledgement service unavailable')
-      return acknowledgeIncident(id)
-    },
+    mutationFn: () => acknowledgeIncident(id),
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['incident'] })
-      queryClient.setQueryData(['incident'], (current: typeof incident) =>
+      const key = incidentKeys.detail(id)
+      await queryClient.cancelQueries({ queryKey: key })
+      const previous = queryClient.getQueryData<Incident>(key)
+      queryClient.setQueryData<Incident>(key, (current) =>
         current ? { ...current, status: 'acknowledged' } : current,
       )
+      return { previous }
     },
-    onSuccess: (updated) => queryClient.setQueryData(['incident'], updated),
+    onError: (_error, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(incidentKeys.detail(id), context.previous)
+      }
+    },
+    onSuccess: (updated) => queryClient.setQueryData(incidentKeys.detail(id), updated),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: incidentKeys.all })
+      queryClient.invalidateQueries({ queryKey: incidentKeys.detail(id) })
+    },
   })
   if (isLoading) return <div className="loading">Loading incident...</div>
-  if (id === 'broken' && !isLoading) throw new Error('Malformed incident response')
   if (isError || !incident)
     return (
       <div className="error-panel">
@@ -95,8 +116,6 @@ export function IncidentDetail() {
             <dd>{incident.service}</dd>
             <dt>Started</dt>
             <dd>{formatIncidentTime(incident.createdAt)}</dd>
-            <dt>Owner</dt>
-            <dd>Alex Morgan</dd>
           </dl>
         </aside>
       </div>

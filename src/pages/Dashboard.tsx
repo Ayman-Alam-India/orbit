@@ -1,16 +1,36 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { getIncidents } from '../api'
+import { getAllIncidents, getServices } from '../api'
 import { IncidentRow } from '../components/IncidentRow'
+import {
+  formatDashboardDate,
+  formatGreeting,
+  isActiveStatus,
+  isSameLocalDay,
+} from '../formatters'
+import { incidentKeys, serviceKeys } from '../queryKeys'
+
 export function Dashboard() {
-  const { data } = useQuery({ queryKey: ['dashboard-incidents'], queryFn: () => getIncidents(1) })
-  const active = data?.incidents.filter((incident) => incident.status === 'open').length ?? 0
+  const { data: incidents } = useQuery({ queryKey: incidentKeys.catalog(), queryFn: getAllIncidents })
+  const { data: serviceList } = useQuery({ queryKey: serviceKeys.all, queryFn: getServices })
+  const active = incidents?.filter((incident) => isActiveStatus(incident.status)).length ?? 0
+  const resolvedToday = incidents?.filter(
+    (incident) => incident.status === 'closed' && isSameLocalDay(incident.updatedAt),
+  ).length ?? 0
+  const uptime =
+    serviceList && serviceList.length > 0
+      ? serviceList.reduce((sum, service) => sum + service.uptime, 0) / serviceList.length
+      : 0
+  const recent = [...(incidents ?? [])]
+    .sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))
+    .slice(0, 4)
+
   return (
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">FRIDAY, SEPTEMBER 18, 2026</p>
-          <h1>Good afternoon, Alex</h1>
+          <p className="eyebrow">{formatDashboardDate()}</p>
+          <h1>{formatGreeting()}</h1>
           <p className="lede">Here&apos;s what&apos;s happening across your production systems.</p>
         </div>
         <Link className="button button-primary" to="/incidents">
@@ -25,13 +45,13 @@ export function Dashboard() {
         </div>
         <div className="metric-card">
           <span>Resolved today</span>
-          <strong>7</strong>
-          <small className="positive">↑ 2 from yesterday</small>
+          <strong>{resolvedToday}</strong>
+          <small>Closed incidents updated today</small>
         </div>
         <div className="metric-card">
           <span>Overall uptime</span>
-          <strong>98.2%</strong>
-          <small>Across 14 services</small>
+          <strong>{uptime ? `${uptime.toFixed(2)}%` : '—'}</strong>
+          <small>Across {serviceList?.length ?? 0} services</small>
         </div>
       </section>
       <section className="section-block">
@@ -43,7 +63,7 @@ export function Dashboard() {
           <Link to="/incidents">See all →</Link>
         </div>
         <div className="incident-list">
-          {data?.incidents.map((incident) => (
+          {recent.map((incident) => (
             <IncidentRow key={incident.id} incident={incident} />
           ))}
         </div>
