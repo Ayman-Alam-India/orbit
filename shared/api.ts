@@ -1,0 +1,45 @@
+import { z } from 'zod'
+import type { CountryId, EventId, InsightSubjectType, OrbitEventKind } from './schemas'
+
+/**
+ * Every API path in one place. The frontend and server both use these, so a path
+ * can never be spelled two different ways. See docs/API.md for shapes and examples.
+ */
+export const API_ROUTES = {
+  health: '/api/health',
+  countries: '/api/countries',
+  country: (id: CountryId) => `/api/countries/${id}`,
+  countryEvents: (id: CountryId) => `/api/countries/${id}/events`,
+  countryTimeline: (id: CountryId) => `/api/countries/${id}/timeline`,
+  events: (kind?: OrbitEventKind) => (kind ? `/api/events?kind=${kind}` : '/api/events'),
+  event: (id: EventId) => `/api/events/${id}`,
+  news: (countryId?: CountryId) => (countryId ? `/api/news?countryId=${countryId}` : '/api/news'),
+  sources: '/api/sources',
+  insight: (subjectType: InsightSubjectType, subjectId: string) =>
+    `/api/insights/${subjectType}/${subjectId}`,
+  ask: '/api/ask',
+} as const
+
+/** Successful responses always look like `{ "data": ... }`. */
+export type ApiSuccess<T> = { data: T }
+
+export const ApiErrorCodeSchema = z.enum(['NOT_FOUND', 'VALIDATION', 'UPSTREAM', 'INTERNAL'])
+
+/** Failed responses always look like `{ "error": { "code", "message" } }` with a 4xx/5xx status. */
+export const ApiErrorBodySchema = z.object({
+  error: z.object({ code: ApiErrorCodeSchema, message: z.string() }),
+})
+
+export const DataModeSchema = z.enum(['mock', 'live'])
+
+/** GET /api/health */
+export const HealthStatusSchema = z.object({
+  status: z.literal('ok'),
+  dataMode: DataModeSchema,
+  aiProvider: z.string(),
+})
+
+export type ApiErrorCode = z.infer<typeof ApiErrorCodeSchema>
+export type ApiErrorBody = z.infer<typeof ApiErrorBodySchema>
+export type DataMode = z.infer<typeof DataModeSchema>
+export type HealthStatus = z.infer<typeof HealthStatusSchema>

@@ -1,0 +1,72 @@
+.shell {
+  position: relative;
+  height: 100%;
+}
+
+.globe {
+  position: absolute;
+  inset: 0;
+  z-index: var(--z-globe);
+  display: grid;
+  place-items: center;
+}
+
+.topbar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: var(--z-overlay);
+  height: var(--topbar-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-5);
+  pointer-events: none;
+}
+
+.topbar > * {
+  pointer-events: auto;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-text);
+  text-shadow: var(--glow-primary);
+}
+
+.askButton {
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-accent);
+  border-radius: var(--radius-pill);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: box-shadow var(--duration-fast) var(--ease-out);
+}
+
+.askButton:hover {
+  box-shadow: var(--glow-accent);
+}
+
+.overlay {
+  position: absolute;
+  top: var(--topbar-height);
+  right: var(--space-5);
+  bottom: var(--space-5);
+  z-index: var(--z-panel);
+  width: min(var(--panel-width), calc(100% - 2 * var(--space-5)));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  overflow-y: auto;
+}
+
+.ask {
+  position: absolute;
+  left: var(--space-5);
+  bottom: var(--space-5);
+  z-index: var(--z-modal);
+  width: min(var(--panel-width), calc(100% - 2 * var(--space-5)));
+}

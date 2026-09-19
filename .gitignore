@@ -23,3 +23,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment (real values stay local; only .env.example is committed)
+.env
+.env.*
+!.env.example
+
+# Server disk cache of live API / AI responses
+server/.cache/

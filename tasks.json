@@ -1,0 +1,437 @@
+{
+  "$comment": "ORBIT task manifest: the single source of truth for who does what. Owner of this file: Hardik. Change it only via a PR. Hours are counted from the start of the hackathon (H0). Priorities: P0 = demo breaks without it, P1 = should have, P2 = nice to have. See docs/PLAYBOOK.md#task-system.",
+  "version": 1,
+  "team": {
+    "Arham": {
+      "role": "Frontend lead: design system, app shell, 3D globe",
+      "load": "medium-heavy"
+    },
+    "Ayman": {
+      "role": "Country, event and timeline views",
+      "load": "medium"
+    },
+    "Affan": {
+      "role": "AI: providers, insights, Ask ORBIT",
+      "load": "heavy"
+    },
+    "Shrey": {
+      "role": "Curated data, news and health panels, demo script",
+      "load": "light"
+    },
+    "Hardik": {
+      "role": "Integrator: contracts, API server, live data, merges",
+      "load": "heavy"
+    }
+  },
+  "tasks": [
+    {
+      "id": "ORB-000",
+      "owner": "Ayman",
+      "status": "done",
+      "priority": "P0",
+      "targetWindow": "H0-H2",
+      "branch": "ayman/foundation",
+      "title": "Foundation skeleton",
+      "description": "Contracts, API server, seed data, routes, placeholder features, design tokens, tests, docs, task manifest and agent rules.",
+      "paths": ["*"],
+      "dependsOn": [],
+      "acceptance": [
+        "npm run check passes",
+        "npm run dev shows the globe and the country/event panels with mock data"
+      ],
+      "tests": [
+        "shared/contracts.test.ts",
+        "server/data/seed.test.ts",
+        "server/app.test.ts",
+        "src/api/client.test.ts",
+        "src/App.test.tsx"
+      ],
+      "handoff": "Hardik reviews and merges the PR. After that, everyone branches from main."
+    },
+    {
+      "id": "ORB-HAR-01",
+      "owner": "Hardik",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H2",
+      "branch": "none (review + merge only)",
+      "title": "Merge the foundation and confirm every laptop runs it",
+      "description": "Review and merge the ayman/foundation PR. Ask all five people to pull main, run npm install, npm run check and npm run dev, and to confirm the globe shows.",
+      "paths": [],
+      "dependsOn": ["ORB-000"],
+      "acceptance": [
+        "Foundation PR merged into main",
+        "All five people report npm run check passing on their own laptop"
+      ],
+      "tests": ["npm run check on main"],
+      "handoff": "Post 'main is ready, branch now' in the team chat. Every other task can start."
+    },
+    {
+      "id": "ORB-HAR-02",
+      "owner": "Hardik",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H2-H24 (every ~4h)",
+      "branch": "none (review + merge only)",
+      "title": "Integration sync points",
+      "description": "Every ~4 hours: merge ready PRs (shared/ changes first), then run npm run check and npm run dev on main and click through Global -> Country -> Event -> Ask. Handle contract-change requests (docs/INTEGRATION.md).",
+      "paths": ["shared/", "tasks.json", "docs/"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "main passes npm run check after every sync",
+        "Contract changes land before the features that need them"
+      ],
+      "tests": ["npm run check on main after each merge batch"],
+      "handoff": "After each sync, post in the chat what merged and what everyone should pull."
+    },
+    {
+      "id": "ORB-HAR-03",
+      "owner": "Hardik",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H4-H14",
+      "branch": "hardik/live-news",
+      "title": "Live news enrichment with offline fallback",
+      "description": "In server/sources/index.ts, implement DATA_MODE=live for getNewsFeed: fetch headlines from one free news or data API, map them to NewsHeadlineSchema, validate, writeCache, merge with seed. Any failure logs [sources] and returns cache, then seed. Add the API key name (empty) to .env.example if one is needed.",
+      "paths": ["server/sources/", ".env.example", "docs/API.md"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "DATA_MODE=mock behaves exactly as before",
+        "DATA_MODE=live returns live + seed headlines, all valid NewsHeadline objects",
+        "With wifi off, DATA_MODE=live still returns cached or seed headlines",
+        "No API key in the repository"
+      ],
+      "tests": ["server/sources/news.test.ts: mapping + fallback with fetch mocked"],
+      "handoff": "Tell Shrey (news panel) that live headlines exist and which sourceIds they use."
+    },
+    {
+      "id": "ORB-HAR-04",
+      "owner": "Hardik",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H18-H22",
+      "branch": "hardik/demo-hardening",
+      "title": "Demo hardening and offline check",
+      "description": "On the demo laptop: warm the caches in live mode, then turn wifi off and run the full demo path from docs/DEMO.md. Fix failures in your own folders; report failures in other folders to their owner. Make sure an .env with DATA_MODE and AI_PROVIDER set for the demo exists on that laptop only.",
+      "paths": ["server/sources/", "server/env.ts", ".env.example"],
+      "dependsOn": ["ORB-HAR-03", "ORB-AFF-02", "ORB-SHR-04"],
+      "acceptance": [
+        "Full demo path works with wifi off",
+        "No console errors during the demo path"
+      ],
+      "tests": ["npm run check", "Manual wifi-off run of docs/DEMO.md"],
+      "handoff": "Tell the team the demo laptop is frozen: only fixes for bugs found in rehearsal after this."
+    },
+    {
+      "id": "ORB-AFF-01",
+      "owner": "Affan",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H0-H3",
+      "branch": "none (local setup only)",
+      "title": "Get a free-tier AI key and configure it locally",
+      "description": "Create a Google AI Studio (Gemini) API key on the free tier. Copy .env.example to .env and set AI_PROVIDER=google and GOOGLE_GENERATIVE_AI_API_KEY. The key goes only in your local .env: never in code, commits or chat.",
+      "paths": [".env (local, gitignored)"],
+      "dependsOn": [],
+      "acceptance": [
+        "git status does not show .env",
+        "GET /api/health shows aiProvider 'google' once ORB-AFF-02 lands"
+      ],
+      "tests": ["none (setup)"],
+      "handoff": "If a different free provider is needed, ask Hardik to install its @ai-sdk package and add the key name to .env.example."
+    },
+    {
+      "id": "ORB-AFF-02",
+      "owner": "Affan",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H2-H8",
+      "branch": "affan/google-provider",
+      "title": "Real AI provider (Gemini via Vercel AI SDK)",
+      "description": "Implement server/ai/providers/google.ts with the installed 'ai' and '@ai-sdk/google' packages. generateInsight and ask must return objects that pass AIInsightSchema / AskAnswerSchema. Use only the AiContext given (no extra fetching). sourceIds may only contain IDs present in the context. Keep the automatic mock fallback in server/ai/index.ts working.",
+      "paths": ["server/ai/"],
+      "dependsOn": ["ORB-HAR-01", "ORB-AFF-01"],
+      "acceptance": [
+        "AI_PROVIDER=google returns real answers for global, country and event insights and for /api/ask",
+        "With the key missing or wifi off, responses still arrive from the mock provider",
+        "All output passes the shared schemas"
+      ],
+      "tests": [
+        "server/ai/ai.test.ts: fallback to mock when the provider throws; output validated"
+      ],
+      "handoff": "Tell Hardik and the team which model you used and its free-tier rate limits."
+    },
+    {
+      "id": "ORB-AFF-03",
+      "owner": "Affan",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H6-H14",
+      "branch": "affan/insight-ui",
+      "title": "Explanation (insight) panel",
+      "description": "Replace the InsightCard placeholder with the final explanation UI: summary, key points, cited sources (resolved via /api/sources), confidence and provider shown clearly. Use src/ui primitives and tokens only.",
+      "paths": ["src/features/insight/"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "Works for global, country and event subjects",
+        "Loading, error and empty states shown",
+        "Sources are listed by name"
+      ],
+      "tests": ["src/features/insight/InsightCard.test.tsx"],
+      "handoff": "Tell Ayman and Arham the component API stays <InsightCard subjectType subjectId />."
+    },
+    {
+      "id": "ORB-AFF-04",
+      "owner": "Affan",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H8-H16",
+      "branch": "affan/ask-orbit",
+      "title": "Ask ORBIT experience",
+      "description": "Replace the AskPanel placeholder with the final chat-style panel: question history for the session, context chip showing what ORBIT is looking at, answer with cited sources. Streaming is optional: if you want it, propose the API change first (docs/INTEGRATION.md, contract change).",
+      "paths": ["src/features/ask/", "server/routes/ai.ts"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "Question is sent with the current country/event context",
+        "Loading and error states shown",
+        "Works with the mock provider"
+      ],
+      "tests": ["src/features/ask/AskPanel.test.tsx"],
+      "handoff": "Tell Arham if the panel needs a different size or position in the layout."
+    },
+    {
+      "id": "ORB-AFF-05",
+      "owner": "Affan",
+      "status": "todo",
+      "priority": "P2",
+      "targetWindow": "H14-H18",
+      "branch": "affan/ai-cache",
+      "title": "Cache AI answers for the demo",
+      "description": "Save successful real-provider insights to the disk cache (server/sources/cache.ts: readCache/writeCache) keyed by subject, and serve them when the provider fails, before falling back to mock.",
+      "paths": ["server/ai/"],
+      "dependsOn": ["ORB-AFF-02"],
+      "acceptance": ["With wifi off, previously viewed insights show the real (cached) text"],
+      "tests": ["server/ai/ai.test.ts: serves cached insight when the provider throws"],
+      "handoff": "Tell Hardik so ORB-HAR-04 warms the AI cache before the demo."
+    },
+    {
+      "id": "ORB-ARH-01",
+      "owner": "Arham",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H2-H5",
+      "branch": "arham/design-system",
+      "title": "Design system pass",
+      "description": "Refine src/styles/tokens.css and the src/ui primitives (Panel, Loader, ErrorState, SeverityBadge, ItemList) and add the missing ones the team needs first: Button and Tag. Keep docs/DESIGN_SYSTEM.md in sync.",
+      "paths": ["src/styles/", "src/ui/", "docs/DESIGN_SYSTEM.md"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "No raw colours outside tokens.css",
+        "Every primitive exported from src/ui/index.ts",
+        "DESIGN_SYSTEM.md lists every token group and primitive"
+      ],
+      "tests": ["src/ui/ui.test.tsx: primitives render"],
+      "handoff": "Post the list of primitives in the chat so feature owners switch to them."
+    },
+    {
+      "id": "ORB-ARH-02",
+      "owner": "Arham",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H4-H10",
+      "branch": "arham/app-shell",
+      "title": "App shell and layout",
+      "description": "Final layout in src/layout/: top bar, overlay panel column with enter/exit transitions between routes, Ask ORBIT placement, works from 1280px to 1920px wide.",
+      "paths": ["src/layout/", "src/state/"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "Globe stays mounted across route changes",
+        "Panels scroll independently of the globe",
+        "Back button works"
+      ],
+      "tests": ["src/App.test.tsx keeps passing"],
+      "handoff": "Tell Ayman, Affan and Shrey the maximum panel width to design for."
+    },
+    {
+      "id": "ORB-ARH-03",
+      "owner": "Arham",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H2-H14",
+      "branch": "arham/globe",
+      "title": "Cinematic 3D globe",
+      "description": "Upgrade src/globe/OrbitGlobe.tsx: glow/atmosphere, country colouring by riskLevel for seeded countries, event markers styled by kind and severity (tokens via cssVar), pulsing rings for severity >= 4, slow auto-rotate on the global view, smooth fly-to on selection.",
+      "paths": ["src/globe/", "public/data/"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "Clicking a country opens /country/:id",
+        "Clicking a marker opens its event",
+        "Smooth on the demo laptop"
+      ],
+      "tests": ["Manual: click-through on the demo laptop (WebGL cannot run in jsdom)"],
+      "handoff": "Tell Hardik the globe's minimum hardware needs for the demo laptop."
+    },
+    {
+      "id": "ORB-ARH-04",
+      "owner": "Arham",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H10-H16",
+      "branch": "arham/global-view",
+      "title": "Global overview view",
+      "description": "Replace the GlobalOverview placeholder (route /) with the final global intelligence view, composed from other owners' components (InsightCard, HealthSignalList, NewsList) without editing them.",
+      "paths": ["src/layout/GlobalOverview.tsx"],
+      "dependsOn": ["ORB-ARH-01"],
+      "acceptance": [
+        "Shows global insight, health signals and headlines",
+        "Loading and error states per section"
+      ],
+      "tests": ["src/App.test.tsx global view test keeps passing"],
+      "handoff": "Tell Shrey and Affan how their components are sized on the global view."
+    },
+    {
+      "id": "ORB-AYM-01",
+      "owner": "Ayman",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H2-H10",
+      "branch": "ayman/country-view",
+      "title": "Country view",
+      "description": "Replace the CountryPanel placeholder (route /country/:countryId) with the final country view: header, key facts, risk level, list of events, and the insight, timeline and news sections.",
+      "paths": ["src/features/country/"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "Works for every seeded country",
+        "Unknown country shows the error state",
+        "Events link to the event view"
+      ],
+      "tests": ["src/features/country/CountryPanel.test.tsx"],
+      "handoff": "Tell Hardik if the Country contract needs new fields (contract change, docs/INTEGRATION.md)."
+    },
+    {
+      "id": "ORB-AYM-02",
+      "owner": "Ayman",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H6-H12",
+      "branch": "ayman/event-view",
+      "title": "Event view",
+      "description": "Replace the EventPanel placeholder (route /country/:countryId/event/:eventId) with the final event view. Render geopolitical events and health signals differently using the `kind` field; include the event insight and related headlines.",
+      "paths": ["src/features/event/"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "Both kinds render correctly",
+        "Unknown event shows the error state",
+        "Back to country works"
+      ],
+      "tests": ["src/features/event/EventPanel.test.tsx"],
+      "handoff": "Tell Affan where the insight sits in the event view."
+    },
+    {
+      "id": "ORB-AYM-03",
+      "owner": "Ayman",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H10-H16",
+      "branch": "ayman/timeline",
+      "title": "Timeline",
+      "description": "Replace the TimelineList placeholder with a visual timeline that respects datePrecision (day / month / year) and links entries with an eventId to that event.",
+      "paths": ["src/features/timeline/"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "Dates shown at their precision",
+        "Entries with eventId link to the event view"
+      ],
+      "tests": ["src/features/timeline/TimelineList.test.tsx"],
+      "handoff": "Tell Shrey how many timeline entries per country look good."
+    },
+    {
+      "id": "ORB-SHR-01",
+      "owner": "Shrey",
+      "status": "todo",
+      "priority": "P0",
+      "targetWindow": "H2-H8",
+      "branch": "shrey/seed-countries-events",
+      "title": "Curated countries, sources and events",
+      "description": "Grow server/data/seed to 15-25 featured countries, real sources (replace the src_mock_* sources) and about 60-100 events across both kinds. Every fact must come from a source you actually opened; keep the source URL in sources.json. Follow docs/API.md#mock-data-format.",
+      "paths": ["server/data/seed/"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "npm test passes (seed validation)",
+        "15-25 countries, 60-100 events, both kinds present",
+        "No fabricated facts presented as real"
+      ],
+      "tests": ["server/data/seed.test.ts (already exists; must stay green)"],
+      "handoff": "Post in the chat once main has the new data, so Arham can check globe density."
+    },
+    {
+      "id": "ORB-SHR-02",
+      "owner": "Shrey",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H8-H14",
+      "branch": "shrey/seed-news-timeline",
+      "title": "Curated headlines and timelines",
+      "description": "Add headlines (news.json) linked to events and 3-6 timeline entries per featured country (timeline.json), using real, opened sources.",
+      "paths": ["server/data/seed/"],
+      "dependsOn": ["ORB-SHR-01"],
+      "acceptance": [
+        "npm test passes",
+        "Every featured country has a timeline and at least one headline"
+      ],
+      "tests": ["server/data/seed.test.ts"],
+      "handoff": "Tell Ayman the timelines are ready."
+    },
+    {
+      "id": "ORB-SHR-03",
+      "owner": "Shrey",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H6-H14",
+      "branch": "shrey/news-health-panels",
+      "title": "News and health panels",
+      "description": "Replace the NewsList and HealthSignalList placeholders with final panels using src/ui primitives: headline source name and time, health signal metric and severity.",
+      "paths": ["src/features/news/", "src/features/health/"],
+      "dependsOn": ["ORB-HAR-01"],
+      "acceptance": [
+        "Loading, error and empty states shown",
+        "Component APIs unchanged: <NewsList countryId? /> and <HealthSignalList />"
+      ],
+      "tests": ["src/features/news/NewsList.test.tsx"],
+      "handoff": "Tell Arham the panels are ready for the global view."
+    },
+    {
+      "id": "ORB-SHR-04",
+      "owner": "Shrey",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H14-H18",
+      "branch": "shrey/demo-script",
+      "title": "Demo script",
+      "description": "Write docs/DEMO.md: the 3-minute demo click path (Global -> Country -> Event -> Explanation -> Ask ORBIT), exact countries/events to show, questions to ask, and what to say at each step.",
+      "paths": ["docs/DEMO.md"],
+      "dependsOn": ["ORB-SHR-01"],
+      "acceptance": [
+        "Every step uses data that exists in the seed",
+        "Timed under 3 minutes in a dry run"
+      ],
+      "tests": ["Manual dry run"],
+      "handoff": "Give the script to Hardik for ORB-HAR-04."
+    },
+    {
+      "id": "ORB-SHR-05",
+      "owner": "Shrey",
+      "status": "todo",
+      "priority": "P1",
+      "targetWindow": "H18-H20",
+      "branch": "none (rehearsal)",
+      "title": "Demo rehearsal and backup recording",
+      "description": "Rehearse the demo script with the team twice, then record a backup screen video of the full demo path.",
+      "paths": [],
+      "dependsOn": ["ORB-SHR-04"],
+      "acceptance": ["Two rehearsals done", "Backup video saved outside the repo"],
+      "tests": ["none"],
+      "handoff": "Share the video location with the team."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "src_mock_wire",
+    "name": "ORBIT Mock Wire",
+    "url": "https://example.org/mock-wire",
+    "type": "news",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_mock_health_agency",
+    "name": "Mock Global Health Agency",
+    "url": "https://example.org/mock-health-agency",
+    "type": "international_org",
+    "reliability": "high"
+  },
+  {
+    "id": "src_mock_trade_office",
+    "name": "Mock Trade Office",
+    "url": "https://example.org/mock-trade-office",
+    "type": "government",
+    "reliability": "high"
+  },
+  {
+    "id": "src_mock_climate_institute",
+    "name": "Mock Climate Institute",
+    "url": "https://example.org/mock-climate-institute",
+    "type": "research",
+    "reliability": "high"
+  }
+]

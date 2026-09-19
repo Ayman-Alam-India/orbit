@@ -1,53 +1,131 @@
-# Incident Console
+# ORBIT
 
-React + TypeScript + Vite app for tracking production incidents, services, and workspace settings.
+AI-powered global intelligence on an interactive 3D globe: geopolitical and health signals, news, history and
+explainable AI, in one flow: **Global → Country → Event → Explanation → Ask ORBIT**.
+
+Built in 24 hours by Arham, Ayman, Affan, Shrey and Hardik. This README is the team's starting point, and each section
+links to the document that holds the full detail.
 
 ## Quick start
 
-```bash
+Requirements: **Node 22.12+** (team uses 24; see `.nvmrc`), npm, Git. Keep the repo **outside OneDrive** (e.g. `C:\dev\hackathon`).
+
+```powershell
+git clone https://github.com/hardikpardik/hackathon C:\dev\hackathon
+cd C:\dev\hackathon
 npm install
-npm run dev
+copy .env.example .env    # optional: every value has a safe default
+npm run dev               # open http://localhost:5173
 ```
 
-## Scripts
+`npm run dev` starts two processes, `[web]` (Vite on :5173) and `[server]` (the API on :8787). The browser calls `/api/...`
+and Vite forwards it to the API server. Everything works offline with mock data and a mock AI.
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Start the Vite dev server |
-| `npm run build` | Typecheck and production build |
-| `npm run test` | Run Vitest once |
-| `npm run test:watch` | Run Vitest in watch mode |
-| `npm run lint` | ESLint |
-| `npm run format` | Prettier |
+## Commands
 
-## Project layout
+| Command                               | What it does                                                |
+| ------------------------------------- | ----------------------------------------------------------- |
+| `npm run dev`                         | Web + API servers with hot reload                           |
+| `npm run dev:web` / `npm run dev:api` | Only one of them                                            |
+| `npm test` / `npm run test:watch`     | Vitest: contracts, seed data, API, frontend, tasks.json     |
+| `npm run lint`                        | ESLint                                                      |
+| `npm run build`                       | Typecheck everything (`tsc -b`) + production frontend build |
+| `npm run check`                       | **lint + test + build. Must pass before every PR**          |
+| `npm run format`                      | Prettier                                                    |
+| `npm run docs:pdf`                    | Rebuild `docs/ORBIT-Playbook.pdf` from the Markdown docs    |
+
+## Architecture
 
 ```
-src/
-  api.ts          In-memory API (swap for real HTTP when ready)
-  data.ts         Seed incidents and services
-  queryKeys.ts    TanStack Query key factory
-  pages/          Route screens
-  components/     Shared UI
-  test/           Test helpers and setup
-mcp/              Stdio MCP server for workshop/agent tooling
-workshop-data/    JSON datasets used by the MCP server
+Browser (React + 3D globe) ──/api──► Express API server ──► seed JSON (always) + live sources (cached) + AI (or mock)
+                 └──────────── shared/ Zod contracts used by both sides ────────────┘
 ```
 
-## Routes
+- **Frontend** (`src/`): Vite, React 19, TypeScript, react-globe.gl, TanStack Query, Zustand, CSS Modules + design tokens.
+- **API** (`server/`): Express 5 run with tsx. It validates the seed data at startup, keeps keys server-side, and falls back to cache or seed when live data fails.
+- **Contracts** (`shared/`): one Zod schema per entity (Country, OrbitEvent, NewsHeadline, Source, TimelineEvent, AIInsight).
+- **AI** (`server/ai/`): the mock provider by default. Gemini via the Vercel AI SDK when a key is configured, falling back to mock on any failure.
 
-- `/` — Dashboard
-- `/incidents` — Paginated incident list with search and status filter
-- `/incidents/:id` — Incident detail and acknowledge action
-- `/services` — Service health grid
-- `/settings` — Workspace preferences (static for now)
+Details: [docs/PLAYBOOK.md](docs/PLAYBOOK.md#2-architecture).
 
-## MCP (optional)
+## Repository structure
 
-VS Code / Cursor can attach the local MCP server via `.vscode/mcp.json`. Tools: `list_incidents`, `get_incident`, `list_service_health`, `get_recent_deploys`, `search_logs`.
-
-Run from the repo root so `workshop-data/` resolves correctly:
-
-```bash
-node mcp/server.mjs
 ```
+shared/          Contracts (schemas + API routes)        server/        API server, seed data, AI, live sources
+src/             Frontend (layout, globe, features, ui)  public/data/   Country shapes for the globe
+docs/            Team documentation + PDF                scripts/       Tooling
+tasks.json       Task manifest                           AGENTS.md      Rules for people and coding agents
+mcp/, workshop-data/   Hackathon organiser tooling: do not modify
+```
+
+Full map: [docs/PLAYBOOK.md](docs/PLAYBOOK.md#4-repository-map).
+
+## Shared contracts
+
+Types come only from `@shared` (`import { type Country, API_ROUTES } from '@shared'`).
+
+| Rule        | Value                                                                  |
+| ----------- | ---------------------------------------------------------------------- |
+| Country IDs | ISO alpha-3, uppercase: `IND`                                          |
+| Other IDs   | Prefix + lowercase slug: `evt_`, `hs_`, `news_`, `src_`, `tl_`, `ins_` |
+| Dates       | ISO 8601 UTC: `2026-09-19T10:00:00Z`                                   |
+| Coordinates | `{ lat, lng }`                                                         |
+| Severity    | Integer 1–5                                                            |
+| Responses   | `{ data }` or `{ error: { code, message } }`                           |
+
+API routes, entity fields and the mock-data format: [docs/API.md](docs/API.md).
+
+## Environment variables
+
+Defined in `.env.example` (committed) and parsed in `server/env.ts`. Put real values in a local `.env`, which is never committed.
+
+| Variable                       | Default | Meaning                                                |
+| ------------------------------ | ------- | ------------------------------------------------------ |
+| `PORT`                         | `8787`  | API server port                                        |
+| `DATA_MODE`                    | `mock`  | `mock` = seed data only · `live` = seed + live sources |
+| `AI_PROVIDER`                  | `mock`  | `mock` or `google`                                     |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | empty   | Gemini key, only in your local `.env`                  |
+
+Secrets never go in code, commits, chat, or `VITE_` variables.
+
+## Team and ownership
+
+| Person              | Works in                                                                                                                                |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Hardik (integrator) | `shared/`, server core + routes + live sources, `src/App.tsx`, `src/routes.ts`, `src/api/`, configs, docs, `tasks.json`. Merges all PRs |
+| Affan               | `server/ai/`, `src/features/insight/`, `src/features/ask/`                                                                              |
+| Arham               | `src/styles/`, `src/ui/`, `src/globe/`, `src/layout/`, `src/state/`                                                                     |
+| Ayman               | `src/features/country/`, `src/features/event/`, `src/features/timeline/`                                                                |
+| Shrey               | `server/data/seed/`, `src/features/news/`, `src/features/health/`, `docs/DEMO.md`                                                       |
+
+The exact list, and the shared files that need coordination, are in [AGENTS.md](AGENTS.md#3-folder-ownership).
+
+## Task system
+
+All work is listed in [`tasks.json`](tasks.json): ID, owner, priority, branch, allowed paths, dependencies, acceptance criteria,
+tests and handoff. To find out what to do, paste the prompt from [docs/ALLOCATOR.md](docs/ALLOCATOR.md) into your LLM
+with your name. Explanation of the fields and the dependency graph: [docs/PLAYBOOK.md](docs/PLAYBOOK.md#10-task-system).
+
+## Git workflow
+
+1. `git checkout main && git pull`, then `git checkout -b <branch from tasks.json>`
+2. Small commits: `area: what changed`
+3. `git pull origin main` and `npm run check`
+4. PR titled `[ORB-XXX-NN] summary`. Hardik squash-merges.
+
+Contract changes, conflicts and what never gets committed: [docs/INTEGRATION.md](docs/INTEGRATION.md).
+
+## Documentation
+
+| Document                                           | For                                                         |
+| -------------------------------------------------- | ----------------------------------------------------------- |
+| [AGENTS.md](AGENTS.md)                             | Rules (read by Claude Code via `CLAUDE.md`, Codex, Cursor)  |
+| [docs/PLAYBOOK.md](docs/PLAYBOOK.md)               | Everything in one place                                     |
+| [docs/API.md](docs/API.md)                         | API and data contract                                       |
+| [docs/INTEGRATION.md](docs/INTEGRATION.md)         | Branches, PRs, contract changes                             |
+| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)     | Tokens, primitives, UI conventions                          |
+| [docs/ALLOCATOR.md](docs/ALLOCATOR.md)             | Personal LLM task allocator                                 |
+| [docs/ORBIT-Playbook.pdf](docs/ORBIT-Playbook.pdf) | Printable reference (generated, the Markdown is the source) |
+
+Country shapes: [Natural Earth](https://www.naturalearthdata.com/) 1:110m admin-0 countries (public domain), via the
+globe.gl examples.

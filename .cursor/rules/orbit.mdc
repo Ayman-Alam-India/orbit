@@ -1,0 +1,8 @@
+---
+description: ORBIT project rules
+alwaysApply: true
+---
+
+Read and follow `AGENTS.md` at the repository root before making any change. It is the single source of rules
+(stack, folder ownership, shared contracts, API, styling, testing, Git). Work only on a task from `tasks.json`
+and only inside that task's `paths`.
