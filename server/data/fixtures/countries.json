@@ -1,0 +1,32 @@
+[
+  {
+    "id": "IND",
+    "name": "India",
+    "region": "South Asia",
+    "capital": "New Delhi",
+    "centroid": { "lat": 22.0, "lng": 79.0 },
+    "population": 1450000000,
+    "summary": "Mock profile: the world's most populous country, balancing rapid growth with monsoon-season health and infrastructure pressures.",
+    "riskLevel": 3
+  },
+  {
+    "id": "USA",
+    "name": "United States",
+    "region": "North America",
+    "capital": "Washington, D.C.",
+    "centroid": { "lat": 39.8, "lng": -98.6 },
+    "population": 340000000,
+    "summary": "Mock profile: the largest economy, where trade policy decisions ripple across global supply chains.",
+    "riskLevel": 2
+  },
+  {
+    "id": "BRA",
+    "name": "Brazil",
+    "region": "South America",
+    "capital": "Brasília",
+    "centroid": { "lat": -10.8, "lng": -52.9 },
+    "population": 212000000,
+    "summary": "Mock profile: steward of most of the Amazon, facing climate-driven heat and environmental diplomacy questions.",
+    "riskLevel": 3
+  }
+]

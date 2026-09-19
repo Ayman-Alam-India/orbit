@@ -21,3 +21,6 @@ export const formatPopulation = (value: number) =>
 /** ["IND", "USA"] → "India, United States" (falls back to the ID when a country isn't loaded). */
 export const countryNames = (ids: CountryId[], countries: Country[] = []) =>
   ids.map((id) => countries.find((c) => c.id === id)?.name ?? id).join(', ')
+
+/** "Al Jazeera: Former Kosovo President… (16 Sep 2026)" → "Al Jazeera" (the full name stays available as a tooltip). */
+export const shortSourceName = (name: string) => name.split(':')[0].trim()

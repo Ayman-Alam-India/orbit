@@ -1,0 +1,55 @@
+[
+  {
+    "id": "news_ind_usa_chip_deal",
+    "title": "Mock: New Delhi and Washington sign chip research pact",
+    "url": "https://example.org/mock-wire/ind-usa-chip-pact",
+    "sourceId": "src_mock_wire",
+    "publishedAt": "2026-09-15T11:00:00Z",
+    "countryIds": ["IND", "USA"],
+    "eventId": "evt_ind_usa_tech_partnership"
+  },
+  {
+    "id": "news_usa_tariff_review_opens",
+    "title": "Mock: Electronics importers brace for tariff review",
+    "url": "https://example.org/mock-wire/usa-tariff-review",
+    "sourceId": "src_mock_wire",
+    "publishedAt": "2026-09-10T18:00:00Z",
+    "countryIds": ["USA"],
+    "eventId": "evt_usa_tariff_review"
+  },
+  {
+    "id": "news_bra_amazon_summit",
+    "title": "Mock: Amazon summit ends with shared monitoring plan",
+    "url": "https://example.org/mock-wire/amazon-summit",
+    "sourceId": "src_mock_wire",
+    "publishedAt": "2026-09-06T09:00:00Z",
+    "countryIds": ["BRA"],
+    "eventId": "evt_bra_amazon_protection_talks"
+  },
+  {
+    "id": "news_ind_dengue_hospitals",
+    "title": "Mock: Hospitals in Mumbai add dengue wards",
+    "url": "https://example.org/mock-wire/mumbai-dengue-wards",
+    "sourceId": "src_mock_wire",
+    "publishedAt": "2026-09-18T07:30:00Z",
+    "countryIds": ["IND"],
+    "eventId": "hs_ind_dengue_surge"
+  },
+  {
+    "id": "news_bra_heat_advice",
+    "title": "Mock: Brasília issues heat safety guidance",
+    "url": "https://example.org/mock-wire/brasilia-heat-guidance",
+    "sourceId": "src_mock_wire",
+    "publishedAt": "2026-09-13T08:00:00Z",
+    "countryIds": ["BRA"],
+    "eventId": "hs_bra_heatwave_hospital_load"
+  },
+  {
+    "id": "news_global_supply_chains",
+    "title": "Mock: Shippers reroute as trade uncertainty grows",
+    "url": "https://example.org/mock-wire/supply-chains",
+    "sourceId": "src_mock_wire",
+    "publishedAt": "2026-09-16T12:00:00Z",
+    "countryIds": ["USA", "IND"]
+  }
+]

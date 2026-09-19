@@ -25,8 +25,12 @@ const SEED_FILES = {
   timeline: { file: 'timeline.json', schema: z.array(TimelineEventSchema) },
 } as const
 
-/** npm scripts always run from the repo root (same convention as mcp/server.mjs). */
-const SEED_DIR = resolve(process.cwd(), 'server/data/seed')
+/**
+ * Folder with the seed JSON, relative to the repo root (npm scripts always run from there, same
+ * convention as mcp/server.mjs). The app uses the curated data in server/data/seed; tests set
+ * ORBIT_SEED_DIR=server/data/fixtures (vitest.config.ts) so they never depend on real content.
+ */
+export const SEED_DIR = process.env.ORBIT_SEED_DIR ?? 'server/data/seed'
 
 export type SeedData = {
   countries: Country[]
@@ -40,13 +44,15 @@ export type RawSeed = Record<keyof typeof SEED_FILES, unknown>
 
 export class SeedValidationError extends Error {}
 
-export function readRawSeed(): RawSeed {
+export function readRawSeed(dir: string = SEED_DIR): RawSeed {
   const raw = {} as RawSeed
   for (const [key, { file }] of Object.entries(SEED_FILES)) {
     try {
-      raw[key as keyof RawSeed] = JSON.parse(readFileSync(resolve(SEED_DIR, file), 'utf8'))
+      raw[key as keyof RawSeed] = JSON.parse(
+        readFileSync(resolve(process.cwd(), dir, file), 'utf8'),
+      )
     } catch (err) {
-      throw new SeedValidationError(`server/data/seed/${file}: cannot read JSON (${String(err)})`)
+      throw new SeedValidationError(`${dir}/${file}: cannot read JSON (${String(err)})`)
     }
   }
   return raw
@@ -63,7 +69,7 @@ export function validateSeed(raw: RawSeed): SeedData {
       Object.assign(parsed, { [key]: result.data })
     } else {
       for (const issue of result.error.issues) {
-        problems.push(`server/data/seed/${file} at [${issue.path.join('.')}]: ${issue.message}`)
+        problems.push(`${file} at [${issue.path.join('.')}]: ${issue.message}`)
       }
     }
   }

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { paths } from '../../routes'
 import { SeverityBadge, StatTile, Tag } from '../../ui'
 import { useCountries } from '../country/useCountry'
-import { countryNames, formatDate } from './format'
+import { countryNames, formatDate, shortSourceName } from './format'
 import styles from './EventView.module.css'
 import { useSources } from './useSources'
 
@@ -55,8 +55,8 @@ export function EventBriefing({ event, countryId }: { event: OrbitEvent; country
             ? sourceList.map((s, i) => (
                 <span key={s.id}>
                   {i > 0 && ', '}
-                  <a href={s.url} target="_blank" rel="noreferrer">
-                    {s.name}
+                  <a href={s.url} target="_blank" rel="noreferrer" title={s.name}>
+                    {shortSourceName(s.name)}
                   </a>
                 </span>
               ))

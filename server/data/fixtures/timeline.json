@@ -1,0 +1,53 @@
+[
+  {
+    "id": "tl_ind_independence",
+    "countryId": "IND",
+    "date": "1947-08-15T00:00:00Z",
+    "datePrecision": "day",
+    "title": "Independence",
+    "description": "India becomes an independent nation."
+  },
+  {
+    "id": "tl_ind_dengue_2026_onset",
+    "countryId": "IND",
+    "date": "2026-08-01T00:00:00Z",
+    "datePrecision": "month",
+    "title": "Mock: Late monsoon begins",
+    "description": "Mock entry: heavy late rainfall creates breeding conditions for mosquitoes.",
+    "eventId": "hs_ind_dengue_surge"
+  },
+  {
+    "id": "tl_usa_independence",
+    "countryId": "USA",
+    "date": "1776-07-04T00:00:00Z",
+    "datePrecision": "day",
+    "title": "Declaration of Independence",
+    "description": "The United States declares independence."
+  },
+  {
+    "id": "tl_usa_tariff_review_announced",
+    "countryId": "USA",
+    "date": "2026-09-01T00:00:00Z",
+    "datePrecision": "month",
+    "title": "Mock: Tariff review announced",
+    "description": "Mock entry: officials signal an upcoming review of electronics tariffs.",
+    "eventId": "evt_usa_tariff_review"
+  },
+  {
+    "id": "tl_bra_brasilia_capital",
+    "countryId": "BRA",
+    "date": "1960-04-21T00:00:00Z",
+    "datePrecision": "day",
+    "title": "Brasília becomes capital",
+    "description": "The capital moves from Rio de Janeiro to the newly built Brasília."
+  },
+  {
+    "id": "tl_bra_amazon_pact_1978",
+    "countryId": "BRA",
+    "date": "1978-01-01T00:00:00Z",
+    "datePrecision": "year",
+    "title": "Amazon Cooperation Treaty",
+    "description": "Amazon basin countries sign a treaty on joint development and protection.",
+    "eventId": "evt_bra_amazon_protection_talks"
+  }
+]

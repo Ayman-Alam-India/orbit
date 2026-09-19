@@ -2,7 +2,7 @@ import type { CountryId } from '@shared'
 import { Link } from 'react-router-dom'
 import { paths } from '../../routes'
 import { ItemList, Panel, QueryState } from '../../ui'
-import { formatDate } from '../event/format'
+import { formatDate, shortSourceName } from '../event/format'
 import { useSources } from '../event/useSources'
 import styles from './NewsList.module.css'
 import { useNews } from './useNews'
@@ -21,7 +21,10 @@ type NewsListProps = {
 export function NewsList({ countryId, limit = 6 }: NewsListProps) {
   const query = useNews(countryId)
   const sources = useSources()
-  const sourceName = (id: string) => sources.data?.find((s) => s.id === id)?.name ?? id
+  const sourceName = (id: string) => {
+    const name = sources.data?.find((s) => s.id === id)?.name
+    return name ? shortSourceName(name) : id
+  }
 
   return (
     <Panel eyebrow="Headlines">

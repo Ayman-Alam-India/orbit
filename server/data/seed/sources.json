@@ -1,30 +1,72 @@
 [
   {
-    "id": "src_mock_wire",
-    "name": "ORBIT Mock Wire",
-    "url": "https://example.org/mock-wire",
-    "type": "news",
-    "reliability": "medium"
-  },
-  {
-    "id": "src_mock_health_agency",
-    "name": "Mock Global Health Agency",
-    "url": "https://example.org/mock-health-agency",
+    "id": "src_who_don617",
+    "name": "WHO Disease Outbreak News: Ebola (Bundibugyo virus), DR Congo (10 Sep 2026)",
+    "url": "https://www.who.int/emergencies/disease-outbreak-news/item/2026-DON617",
     "type": "international_org",
     "reliability": "high"
   },
   {
-    "id": "src_mock_trade_office",
-    "name": "Mock Trade Office",
-    "url": "https://example.org/mock-trade-office",
+    "id": "src_nathnac_outbreaks",
+    "name": "NaTHNaC Outbreak Surveillance (UK Health Security Agency)",
+    "url": "https://travelhealthpro.org.uk/outbreaks",
     "type": "government",
     "reliability": "high"
   },
   {
-    "id": "src_mock_climate_institute",
-    "name": "Mock Climate Institute",
-    "url": "https://example.org/mock-climate-institute",
-    "type": "research",
+    "id": "src_fed_fomc_20260916",
+    "name": "Federal Reserve: FOMC statement (16 Sep 2026)",
+    "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260916a.htm",
+    "type": "government",
+    "reliability": "high"
+  },
+  {
+    "id": "src_un_hlw_2026",
+    "name": "United Nations: General Assembly High-level Week 2026",
+    "url": "https://www.un.org/en/high-level-week-2026",
+    "type": "international_org",
+    "reliability": "high"
+  },
+  {
+    "id": "src_aljazeera_thaci",
+    "name": "Al Jazeera: Former Kosovo President Hashim Thaci sentenced to 25 years (16 Sep 2026)",
+    "url": "https://www.aljazeera.com/news/2026/9/16/former-kosovo-president-hashim-thaci-convicted-of-war-crimes",
+    "type": "news",
+    "reliability": "high"
+  },
+  {
+    "id": "src_kyivpost_duma",
+    "name": "Kyiv Post: Russia holds early State Duma voting in occupied Ukraine (17 Sep 2026)",
+    "url": "https://www.kyivpost.com/post/84772",
+    "type": "news",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_euronews_trump_xi",
+    "name": "Euronews: What to expect from the Trump-Xi summit (18 Sep 2026)",
+    "url": "https://www.euronews.com/business/2026/09/18/what-to-expect-from-the-trump-xi-summit-from-tariffs-to-a-possible-30-billion-deal",
+    "type": "news",
+    "reliability": "high"
+  },
+  {
+    "id": "src_ln24_nz_india_fta",
+    "name": "LN24: New Zealand Parliament passes India free trade agreement (16 Sep 2026)",
+    "url": "https://ln24international.com/2026/09/16/new-zealand-parliament-passes-india-free-trade-agreement/",
+    "type": "news",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_toi_houthis_islands",
+    "name": "Times of Israel: Houthis seize more key islands in Red Sea (14 Sep 2026)",
+    "url": "https://www.timesofisrael.com/houthis-seize-more-key-islands-in-red-sea-launch-attacks-into-saudi-arabia/",
+    "type": "news",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_world_bank_wdi",
+    "name": "World Bank: World Development Indicators (population 2024, country metadata)",
+    "url": "https://data.worldbank.org/indicator/SP.POP.TOTL",
+    "type": "dataset",
     "reliability": "high"
   }
 ]
