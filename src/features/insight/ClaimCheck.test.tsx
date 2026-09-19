@@ -18,7 +18,7 @@ describe('claim verification panel', () => {
 
     // Unconfigured models are shown honestly, not hidden.
     expect(screen.getByText('Gemini · no key')).toBeInTheDocument()
-    expect(screen.getByText('Groq · Llama · no key')).toBeInTheDocument()
+    expect(screen.getByText('Groq · GPT-OSS · no key')).toBeInTheDocument()
 
     const claims = screen.getAllByRole('listitem').filter((li) => li.dataset.agreement)
     expect(claims.length).toBeGreaterThan(0)

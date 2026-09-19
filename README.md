@@ -79,15 +79,15 @@ API routes, entity fields and the mock-data format: [docs/API.md](docs/API.md).
 
 Defined in `.env.example` (committed) and parsed in `server/env.ts`. Put real values in a local `.env`, which is never committed.
 
-| Variable                       | Default                   | Meaning                                                       |
-| ------------------------------ | ------------------------- | ------------------------------------------------------------- |
-| `PORT`                         | `8787`                    | API server port                                               |
-| `DATA_MODE`                    | `mock`                    | `mock` = seed data only · `live` = seed + live sources        |
-| `AI_PROVIDER`                  | `mock`                    | `mock` or `google`                                            |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | empty                     | Gemini key, only in your local `.env`                         |
-| `GOOGLE_MODEL`                 | `gemini-2.5-flash`        | Gemini model used when `AI_PROVIDER=google`                   |
-| `GROQ_API_KEY`                 | empty                     | Groq key (free tier): the second model for claim verification |
-| `GROQ_MODEL`                   | `llama-3.3-70b-versatile` | Groq model used for verification                              |
+| Variable                       | Default                                  | Meaning                                                       |
+| ------------------------------ | ---------------------------------------- | ------------------------------------------------------------- |
+| `PORT`                         | `8787`                                   | API server port                                               |
+| `DATA_MODE`                    | `mock`                                   | `mock` = seed data only · `live` = seed + live sources        |
+| `AI_PROVIDER`                  | `mock`                                   | `mock` or `google`                                            |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | empty                                    | Gemini key, only in your local `.env`                         |
+| `GOOGLE_MODEL`                 | `gemini-3.5-flash,gemini-3.5-flash-lite` | Gemini model(s), tried in order                               |
+| `GROQ_API_KEY`                 | empty                                    | Groq key (free tier): the second model for claim verification |
+| `GROQ_MODEL`                   | `openai/gpt-oss-120b`                    | Groq model used for verification                              |
 
 Secrets never go in code, commits, chat, or `VITE_` variables.
 
