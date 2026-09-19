@@ -4,6 +4,7 @@ import { useUiStore } from '../../state/uiStore'
 import { Button, ErrorState, Loader, Panel } from '../../ui'
 import { providerLabel } from '../insight/providerLabel'
 import { SourceChips } from '../insight/SourceChips'
+import { canSpeak, recognitionCtor, speak } from '../tour/speech'
 import styles from './AskPanel.module.css'
 import { useAsk } from './useAsk'
 import { useAskContext } from './useAskContext'
@@ -27,6 +28,14 @@ export function AskPanel() {
   const [question, setQuestion] = useState('')
   const [turns, setTurns] = useState<Turn[]>([])
   const threadRef = useRef<HTMLDivElement>(null)
+  const [listening, setListening] = useState(false)
+  const [speakingId, setSpeakingId] = useState<number>()
+  const [voiceReady, setVoiceReady] = useState(false)
+  const stopSpeaking = useRef<() => void>(undefined)
+  const Recognition = recognitionCtor()
+
+  // Stop reading aloud when the panel goes away.
+  useEffect(() => () => stopSpeaking.current?.(), [])
 
   // Keep the newest answer in view. Scroll only the thread itself: scrollIntoView would also
   // scroll the page towards the (possibly off-screen) drawer and shift the whole layout.
@@ -47,6 +56,39 @@ export function AskPanel() {
     } catch (error) {
       setTurns((t) => t.map((turn) => (turn.id === id ? { ...turn, error } : turn)))
     }
+  }
+
+  // Voice input (Chrome/Edge): words appear in the box as you speak, and the question is sent when you stop.
+  const listen = () => {
+    if (!Recognition || listening) return
+    const recognition = new Recognition()
+    recognition.lang = 'en-US'
+    recognition.interimResults = true
+    recognition.continuous = false
+    let heard = ''
+    recognition.onresult = (e) => {
+      heard = Array.from(e.results, (r) => r[0].transcript).join('')
+      setQuestion(heard)
+    }
+    recognition.onend = () => {
+      setListening(false)
+      if (heard.trim()) void send(heard)
+    }
+    recognition.onerror = () => setListening(false)
+    setListening(true)
+    recognition.start()
+  }
+
+  const readAloud = (turn: Turn) => {
+    stopSpeaking.current?.()
+    if (speakingId === turn.id) return setSpeakingId(undefined)
+    setSpeakingId(turn.id)
+    setVoiceReady(false)
+    stopSpeaking.current = speak(
+      turn.answer?.answer ?? '',
+      () => setSpeakingId(undefined),
+      () => setVoiceReady(true),
+    )
   }
 
   const submit = (e: FormEvent) => {
@@ -92,6 +134,20 @@ export function AskPanel() {
                 <p>{turn.answer.answer}</p>
                 <div className={styles.answerMeta}>
                   <SourceChips ids={turn.answer.sourceIds} />
+                  {canSpeak() && (
+                    <button
+                      type="button"
+                      className={styles.listen}
+                      aria-pressed={speakingId === turn.id}
+                      onClick={() => readAloud(turn)}
+                    >
+                      {speakingId !== turn.id
+                        ? '🔊 Listen'
+                        : voiceReady
+                          ? '◼ Stop'
+                          : 'Preparing voice…'}
+                    </button>
+                  )}
                   <span className={styles.provider}>{providerLabel(turn.answer.provider)}</span>
                 </div>
               </div>
@@ -114,8 +170,20 @@ export function AskPanel() {
           value={question}
           maxLength={500}
           onChange={(e) => setQuestion(e.target.value)}
-          placeholder={`Ask about ${context.label}…`}
+          placeholder={listening ? 'Listening…' : `Ask about ${context.label}…`}
         />
+        {Recognition && (
+          <Button
+            iconOnly
+            variant="ghost"
+            aria-label={listening ? 'Listening' : 'Ask by voice'}
+            aria-pressed={listening}
+            className={listening ? styles.micOn : undefined}
+            onClick={listen}
+          >
+            🎙
+          </Button>
+        )}
         <Button type="submit" variant="accent" disabled={!question.trim() || ask.isPending}>
           Ask
         </Button>
