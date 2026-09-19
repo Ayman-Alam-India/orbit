@@ -6,7 +6,7 @@ import { useMatch, useNavigate } from 'react-router-dom'
 import { Color, MeshPhongMaterial, TextureLoader } from 'three'
 import { getStaticJson } from '../api/client'
 import { useCountries } from '../features/country/useCountry'
-import { useEvents } from '../features/event/useEvents'
+import { useAutoEvents, useEvents } from '../features/event/useEvents'
 import { useMarkets } from '../features/markets/useMarkets'
 import { useImpacts } from '../features/ripple/useImpacts'
 import { paths, ROUTE_PATTERNS } from '../routes'
@@ -53,6 +53,7 @@ export default function OrbitGlobe() {
     staleTime: Infinity,
   })
   const events = useEvents()
+  const autoEvents = useAutoEvents()
   const countries = useCountries()
   const impacts = useImpacts()
   const markets = useMarkets()
@@ -125,6 +126,11 @@ export default function OrbitGlobe() {
       material.needsUpdate = true
     })
   }, [material])
+  // Curated events and the ones ORBIT detected itself share the globe; the styling below tells them apart.
+  const allEvents = useMemo(
+    () => [...(events.data ?? []), ...(autoEvents.data ?? [])],
+    [events.data, autoEvents.data],
+  )
   const severeEvents = useMemo(() => (events.data ?? []).filter(needsRing), [events.data])
   // Ripple effects: animated arcs from each event to the countries it affects.
   const arcs = useMemo(
@@ -181,16 +187,22 @@ export default function OrbitGlobe() {
       polygonLabel={(f) => tooltipHtml((f as CountryFeature).properties.name)}
       onPolygonHover={(f) => setHoveredCountry((f as CountryFeature | null)?.properties.id)}
       onPolygonClick={(f) => navigate(paths.country((f as CountryFeature).properties.id))}
-      pointsData={events.data ?? []}
+      pointsData={allEvents}
       pointLat={(e) => (e as OrbitEvent).location.lat}
       pointLng={(e) => (e as OrbitEvent).location.lng}
-      pointColor={(e) => severityColor((e as OrbitEvent).severity)}
+      pointColor={(e) =>
+        (e as OrbitEvent).origin === 'auto'
+          ? cssVar('--origin-auto')
+          : severityColor((e as OrbitEvent).severity)
+      }
       pointAltitude={(e) => pinAltitude((e as OrbitEvent).severity)}
       pointRadius={0.15}
       pointResolution={12}
       pointLabel={(e) => {
         const event = e as OrbitEvent
-        return tooltipHtml(event.title, `Severity ${event.severity}/5`)
+        const note =
+          event.origin === 'auto' ? 'Auto-detected · unverified' : `Severity ${event.severity}/5`
+        return tooltipHtml(event.title, note)
       }}
       onPointClick={(p) => {
         const e = p as OrbitEvent

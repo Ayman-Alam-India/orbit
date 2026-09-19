@@ -236,7 +236,7 @@ questions a reviewer is likely to ask, with the answers. Figures are from the ru
 
 ## 10. Quality
 
-- **111 automated tests** (25 files): contracts, seed-data integrity, every API route, AI grounding and fallbacks,
+- **123 automated tests** (25 files): contracts, seed-data integrity, every API route, AI grounding and fallbacks,
   verification, the simulator's arithmetic, the tour's stop order, voice UI (mocked), and frontend views.
 - `npm run check` = lint + tests + typecheck + production build, required before every merge.
 - Tests never touch real APIs or keys: they use fixtures, the mock AI and a temporary cache.
@@ -295,6 +295,13 @@ needs no AI and no internet: it proves the numbers are really in the data. Showi
 **Q: Is the simulator a prediction?**
 No, and it says so. The user picks the price shock. ORBIT only does arithmetic on sourced facts (EIA volumes) and live
 prices, and shows every formula. Qualitative effects are labelled as analysis.
+
+**Q: If there is a new headline tomorrow, does ORBIT add it by itself?**
+Yes. Headlines, markets and weather have always refreshed themselves from live APIs. Since Review 2,
+events do too: ORBIT reads the live feed, classifies the headline, writes a one-sentence summary from
+the headline text only, validates it against the event contract and adds it to the globe as
+"auto-detected · unverified", kept separate from the curated events. "Scan now" runs it while you watch.
+Details and guardrails: `docs/AUTO_EVENTS.md`.
 
 **Q: How are ripple effects created? Could it scale?**
 Today they are curated and sourced by the team, which keeps them accurate. The schema (event → target, channel, basis,

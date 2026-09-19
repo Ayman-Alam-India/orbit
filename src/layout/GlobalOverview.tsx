@@ -1,6 +1,7 @@
 import { GLOBAL_SUBJECT_ID } from '@shared'
 import { useCountries } from '../features/country/useCountry'
-import { useEvents } from '../features/event/useEvents'
+import { DetectedEvents } from '../features/event/DetectedEvents'
+import { useAutoEvents, useEvents } from '../features/event/useEvents'
 import { HealthSignalList } from '../features/health/HealthSignalList'
 import { InsightCard } from '../features/insight/InsightCard'
 import { MarketsPanel } from '../features/markets/MarketsPanel'
@@ -25,6 +26,7 @@ const HEADLINE_MARKETS = [
 export function GlobalOverview() {
   const countries = useCountries()
   const events = useEvents()
+  const detected = useAutoEvents()
   const count = (n?: number) => (n === undefined ? '–' : String(n))
   const severe = events.data?.filter((e) => e.severity >= RING_MIN_SEVERITY).length
 
@@ -35,11 +37,15 @@ export function GlobalOverview() {
           <StatTile label="Countries" value={count(countries.data?.length)} hint="monitored" />
           <StatTile label="Events" value={count(events.data?.length)} hint="tracked" />
           <StatTile label="Severe" value={count(severe)} hint="severity 4–5" />
+          <StatTile label="Detected" value={count(detected.data?.length)} hint="found by ORBIT" />
         </div>
         <p className={styles.hint}>Select a country on the globe, or a marker to open an event.</p>
       </Panel>
       <ErrorBoundary title="Insight failed">
         <InsightCard subjectType="global" subjectId={GLOBAL_SUBJECT_ID} />
+      </ErrorBoundary>
+      <ErrorBoundary title="Detected events failed">
+        <DetectedEvents />
       </ErrorBoundary>
       <ErrorBoundary title="Markets failed">
         <MarketsPanel ids={HEADLINE_MARKETS} />

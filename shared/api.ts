@@ -18,6 +18,10 @@ export const API_ROUTES = {
   countryTimeline: (id: CountryId) => `/api/countries/${id}/timeline`,
   events: (kind?: OrbitEventKind) => (kind ? `/api/events?kind=${kind}` : '/api/events'),
   event: (id: EventId) => `/api/events/${id}`,
+  /** Events ORBIT detected in live headlines by itself (origin "auto", unverified). */
+  autoEvents: '/api/events/auto',
+  /** Runs a detection scan now instead of waiting for the background one. */
+  scanEvents: '/api/events/scan',
   news: (countryId?: CountryId) => (countryId ? `/api/news?countryId=${countryId}` : '/api/news'),
   sources: '/api/sources',
   insight: (subjectType: InsightSubjectType, subjectId: string) =>

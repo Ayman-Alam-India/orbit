@@ -4,6 +4,7 @@ import {
   ApiErrorBodySchema,
   ImpactLinkSchema,
   MarketQuoteSchema,
+  OrbitEventSchema,
   WeatherReportSchema,
 } from '@shared'
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
@@ -25,6 +26,20 @@ const get = async (path: string) => {
   const res = await fetch(server.baseUrl + path)
   return { status: res.status, body: (await res.json()) as { data?: unknown; error?: unknown } }
 }
+
+describe('detected events API', () => {
+  it('serves an empty list in mock mode: detection needs the live feed', async () => {
+    const res = await fetch(server.baseUrl + API_ROUTES.autoEvents)
+    expect(res.status).toBe(200)
+    expect(((await res.json()) as { data: unknown[] }).data).toEqual([])
+  })
+
+  it('runs a scan on demand and answers with the events it detected', async () => {
+    const res = await fetch(server.baseUrl + API_ROUTES.scanEvents, { method: 'POST' })
+    expect(res.status).toBe(200)
+    expect(z.array(OrbitEventSchema).safeParse(((await res.json()) as { data: unknown }).data).success).toBe(true)
+  })
+})
 
 describe('ripple effects API', () => {
   it('filters links by event', async () => {
