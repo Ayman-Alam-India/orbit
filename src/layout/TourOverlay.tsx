@@ -5,7 +5,7 @@ import { useEvents } from '../features/event/useEvents'
 import { useMarkets } from '../features/markets/useMarkets'
 import { useImpacts } from '../features/ripple/useImpacts'
 import { buildTourStops } from '../features/tour/buildTourStops'
-import { canSpeak, prefetchSpeech, speak } from '../features/tour/speech'
+import { canSpeak, prefetchSpeech, speak, unlockAudio } from '../features/tour/speech'
 import { paths } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import styles from './TourOverlay.module.css'
@@ -163,7 +163,10 @@ export function TourOverlay() {
             type="button"
             className={styles.play}
             aria-label={playing ? 'Pause tour' : 'Play tour'}
-            onClick={() => setPlaying((p) => !p)}
+            onClick={() => {
+              unlockAudio()
+              setPlaying((p) => !p)
+            }}
           >
             {playing ? '❚❚' : '▶'}
           </button>

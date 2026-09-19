@@ -41,6 +41,25 @@ function browserSpeak(text: string, onEnd?: () => void): () => void {
   }
 }
 
+// One shared player, unlocked during a click: browsers block audio started later (after a fetch) otherwise.
+let player: HTMLAudioElement | undefined
+const SILENT_WAV =
+  'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA='
+
+/** Call from a click handler (Tour, Play, Listen) so later narration is allowed to play. */
+export function unlockAudio() {
+  if (typeof Audio === 'undefined') return
+  player ??= new Audio()
+  if (!player.src || player.src === SILENT_WAV) {
+    player.src = SILENT_WAV
+    try {
+      void player.play()?.catch(() => {})
+    } catch {
+      // No media support (e.g. tests): narration falls back to the browser voice.
+    }
+  }
+}
+
 /** Narrator clips by text, as object URLs (undefined = no narrator voice, use the browser's). */
 const clips = new Map<string, Promise<string | undefined>>()
 
@@ -78,15 +97,21 @@ export function speak(text: string, onEnd?: () => void, onStart?: () => void): (
     onStart?.()
     stopBrowser = browserSpeak(text, onEnd)
   }
+  unlockAudio()
   if (canSpeak()) window.speechSynthesis.cancel()
   void prefetchSpeech(text).then((url) => {
     if (stopped) return
     if (!url) return fallback()
-    audio = new Audio(url)
+    audio = player ?? new Audio()
+    audio.src = url
     audio.onended = () => {
       if (!stopped) onEnd?.()
     }
-    audio.play().then(() => onStart?.(), fallback)
+    try {
+      audio.play().then(() => onStart?.(), fallback)
+    } catch {
+      fallback()
+    }
   })
   return () => {
     stopped = true

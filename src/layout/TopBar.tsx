@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { paths } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import { Button } from '../ui'
+import { unlockAudio } from '../features/tour/speech'
 import { SearchBox } from './SearchBox'
 import styles from './TopBar.module.css'
 
@@ -20,7 +21,10 @@ export function TopBar() {
           type="button"
           className={styles.whatIf}
           aria-pressed={tourActive}
-          onClick={() => setTourActive(!tourActive)}
+          onClick={() => {
+            unlockAudio()
+            setTourActive(!tourActive)
+          }}
         >
           ▶ Tour
         </button>
