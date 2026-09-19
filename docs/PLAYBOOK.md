@@ -128,8 +128,8 @@ Full shapes, errors, relationships and the mock-data format: `docs/API.md`.
 
 ```powershell
 # once
-git clone https://github.com/hardikpardik/hackathon C:\dev\hackathon   # NOT inside OneDrive
-cd C:\dev\hackathon
+git clone https://github.com/Ayman-Alam-India/orbit C:\dev\orbit   # NOT inside OneDrive
+cd C:\dev\orbit
 node -v          # must be 22.12 or newer
 npm install
 copy .env.example .env     # optional: every value has a safe default
@@ -271,7 +271,7 @@ To start an agent session with the right context, use `docs/ALLOCATOR.md`.
 | Country ID `in`, `India` or `ind`                      | `IND`                                                              |
 | Dates like `19/09/2026`                                | `2026-09-19T00:00:00Z`                                             |
 | Deleting a failing test                                | Fix the code, or ask                                               |
-| Working inside OneDrive                                | `C:\dev\hackathon`                                                 |
+| Working inside OneDrive                                | `C:\dev\orbit`                                                     |
 | A long-lived branch                                    | PR every 2–4 hours                                                 |
 
 ## 18. Definition of done

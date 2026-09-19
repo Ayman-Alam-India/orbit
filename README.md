@@ -8,11 +8,11 @@ links to the document that holds the full detail.
 
 ## Quick start
 
-Requirements: **Node 22.12+** (team uses 24; see `.nvmrc`), npm, Git. Keep the repo **outside OneDrive** (e.g. `C:\dev\hackathon`).
+Requirements: **Node 22.12+** (team uses 24; see `.nvmrc`), npm, Git. Keep the repo **outside OneDrive** (e.g. `C:\dev\orbit`).
 
 ```powershell
-git clone https://github.com/hardikpardik/hackathon C:\dev\hackathon
-cd C:\dev\hackathon
+git clone https://github.com/Ayman-Alam-India/orbit C:\dev\orbit
+cd C:\dev\orbit
 npm install
 copy .env.example .env    # optional: every value has a safe default
 npm run dev               # open http://localhost:5173

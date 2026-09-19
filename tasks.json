@@ -46,7 +46,7 @@
         "src/api/client.test.ts",
         "src/App.test.tsx"
       ],
-      "handoff": "Hardik reviews and merges the PR. After that, everyone branches from main."
+      "handoff": "Pushed as main of the orbit repo. Hardik reviews it (ORB-HAR-01). After that, everyone branches from main."
     },
     {
       "id": "ORB-HAR-01",
@@ -55,12 +55,12 @@
       "priority": "P0",
       "targetWindow": "H2",
       "branch": "none (review + merge only)",
-      "title": "Merge the foundation and confirm every laptop runs it",
-      "description": "Review and merge the ayman/foundation PR. Ask all five people to pull main, run npm install, npm run check and npm run dev, and to confirm the globe shows.",
+      "title": "Review the foundation and confirm every laptop runs it",
+      "description": "The foundation is on main of https://github.com/Ayman-Alam-India/orbit. Review it (report problems to Ayman), then ask all five people to clone the repo, run npm install, npm run check and npm run dev, and confirm the globe shows.",
       "paths": [],
       "dependsOn": ["ORB-000"],
       "acceptance": [
-        "Foundation PR merged into main",
+        "Foundation reviewed on main",
         "All five people report npm run check passing on their own laptop"
       ],
       "tests": ["npm run check on main"],
