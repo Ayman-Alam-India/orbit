@@ -75,6 +75,9 @@ selected country is filled orange (`--globe-land-selected`), which keeps orange 
 - **Rings:** only severity 4–5 events get a small ripple ring that fades as it grows (`src/globe/globeStyle.ts`, `--globe-ring`).
 - **Motion:** the global view rotates slowly when idle. Rotation pauses while the user drags and resumes after 4 s. In detail views
   the globe becomes the bottom-left mini globe. In the global view it is centred left of the panel column.
+- **Ripple arcs:** animated dashed arcs from an event to each country it affects, coloured by channel (`--channel-energy`
+  orange, `--channel-finance` cyan, `--channel-health` red, `--channel-trade` green, `--channel-shipping` blue, `--channel-security` yellow).
+  In detail views only the arcs touching the selected country remain.
 - **Tooltips:** `.globe-tooltip` in `global.css` (the globe library renders labels as HTML strings, and the text is escaped).
 
 ## Primitives (`src/ui`, import from `../../ui`)

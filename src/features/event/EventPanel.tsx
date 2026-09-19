@@ -1,13 +1,14 @@
 import { useParams } from 'react-router-dom'
 import { ErrorBoundary, QueryState } from '../../ui'
 import { InsightCard } from '../insight/InsightCard'
+import { RipplePanel } from '../ripple/RippleList'
 import { EventBriefing } from './EventBriefing'
 import { RelatedHeadlines } from './RelatedHeadlines'
 import { useEvent } from './useEvents'
 
 /**
  * Route /country/:countryId/event/:eventId (decision owner: Ayman).
- * Briefing card → ORBIT explains → related headlines.
+ * Briefing card → Ripple effects → ORBIT explains → related headlines.
  */
 export function EventPanel() {
   const { countryId = '', eventId = '' } = useParams()
@@ -18,6 +19,9 @@ export function EventPanel() {
       {(e) => (
         <>
           <EventBriefing event={e} countryId={countryId} />
+          <ErrorBoundary title="Ripple effects failed">
+            <RipplePanel eventId={e.id} />
+          </ErrorBoundary>
           <ErrorBoundary title="Insight failed">
             <InsightCard subjectType="event" subjectId={e.id} />
           </ErrorBoundary>

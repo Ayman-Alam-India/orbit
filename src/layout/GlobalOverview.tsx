@@ -3,14 +3,24 @@ import { useCountries } from '../features/country/useCountry'
 import { useEvents } from '../features/event/useEvents'
 import { HealthSignalList } from '../features/health/HealthSignalList'
 import { InsightCard } from '../features/insight/InsightCard'
+import { MarketsPanel } from '../features/markets/MarketsPanel'
 import { NewsList } from '../features/news/NewsList'
 import { RING_MIN_SEVERITY } from '../globe/globeStyle'
 import { ErrorBoundary, Panel, StatTile } from '../ui'
 import styles from './GlobalOverview.module.css'
 
+/** The figures shown on the global view, in order. */
+const HEADLINE_MARKETS = [
+  'mkt_brent',
+  'mkt_usd_inr',
+  'mkt_nifty50',
+  'mkt_sensex',
+  'mkt_petrol_delhi',
+]
+
 /**
  * Route "/": the global view, in the right-hand column next to the globe (decision owner: Arham).
- * World status strip → ORBIT explains (global) → health signals → headlines.
+ * World status strip → ORBIT explains (global) → markets → health signals → headlines.
  */
 export function GlobalOverview() {
   const countries = useCountries()
@@ -30,6 +40,9 @@ export function GlobalOverview() {
       </Panel>
       <ErrorBoundary title="Insight failed">
         <InsightCard subjectType="global" subjectId={GLOBAL_SUBJECT_ID} />
+      </ErrorBoundary>
+      <ErrorBoundary title="Markets failed">
+        <MarketsPanel ids={HEADLINE_MARKETS} />
       </ErrorBoundary>
       <ErrorBoundary title="Health signals failed">
         <HealthSignalList limit={3} />
