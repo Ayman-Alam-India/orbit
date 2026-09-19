@@ -16,6 +16,9 @@ export function TopBar() {
           ORBIT
         </Link>
         <SearchBox />
+        <Link to={paths.simulate()} className={styles.whatIf}>
+          What if…
+        </Link>
         <Button variant="accent" onClick={() => setAskOpen(!askOpen)} aria-expanded={askOpen}>
           Ask ORBIT
         </Button>

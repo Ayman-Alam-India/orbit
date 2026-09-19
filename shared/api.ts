@@ -29,6 +29,9 @@ export const API_ROUTES = {
   impacts: (filter: { eventId?: EventId; countryId?: CountryId } = {}) =>
     `/api/impacts${query(filter)}`,
   weather: (countryId: CountryId) => `/api/weather/${countryId}`,
+  scenarios: '/api/scenarios',
+  simulate: (scenarioId: string, brentPct: number) =>
+    `/api/simulate${query({ scenario: scenarioId, brentPct: String(brentPct) })}`,
 } as const
 
 /** Successful responses always look like `{ "data": ... }`. */

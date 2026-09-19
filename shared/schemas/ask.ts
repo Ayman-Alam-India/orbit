@@ -8,6 +8,10 @@ export const AskRequestSchema = z.object({
     .object({
       countryId: CountryIdSchema.optional(),
       eventId: EventIdSchema.optional(),
+      /** Set on the what-if page: the scenario and shock the user is looking at. */
+      simulation: z
+        .object({ scenarioId: z.string().regex(/^scn_[a-z0-9_]+$/), brentPct: z.number() })
+        .optional(),
     })
     .optional(),
 })

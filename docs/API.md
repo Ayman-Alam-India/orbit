@@ -47,23 +47,25 @@ In the frontend, `apiGet`/`apiPost` (`src/api/client.ts`) unwrap `data` for you 
 
 Always build paths with `API_ROUTES` from `@shared`. The column "Builder" shows how.
 
-| Method + path                               | Builder                          | Returns (`data`)                                                                                               | Errors                            |
-| ------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| `GET /api/health`                           | `API_ROUTES.health`              | `HealthStatus` `{ status: "ok", dataMode, aiProvider }`                                                        | none                              |
-| `GET /api/countries`                        | `API_ROUTES.countries`           | `Country[]`                                                                                                    | none                              |
-| `GET /api/countries/:id`                    | `API_ROUTES.country(id)`         | `Country`                                                                                                      | 400 bad ID, 404                   |
-| `GET /api/countries/:id/events`             | `API_ROUTES.countryEvents(id)`   | `OrbitEvent[]` newest first, every event whose `countryIds` includes `id`                                      | 400, 404                          |
-| `GET /api/countries/:id/timeline`           | `API_ROUTES.countryTimeline(id)` | `TimelineEvent[]` oldest first                                                                                 | 400, 404                          |
-| `GET /api/events?kind=`                     | `API_ROUTES.events(kind?)`       | `OrbitEvent[]` newest first. `kind` optional: `geopolitical` or `health`                                       | 400 bad kind                      |
-| `GET /api/events/:id`                       | `API_ROUTES.event(id)`           | `OrbitEvent`                                                                                                   | 400 bad ID, 404                   |
-| `GET /api/news?countryId=`                  | `API_ROUTES.news(countryId?)`    | `NewsHeadline[]` newest first. Without `countryId`: all                                                        | 400 bad ID                        |
-| `GET /api/sources`                          | `API_ROUTES.sources`             | `Source[]`                                                                                                     | none                              |
-| `GET /api/insights/:subjectType/:subjectId` | `API_ROUTES.insight(type, id)`   | `AIInsight`. `subjectType` = `global` (id `world`), `country` (country ID) or `event` (event ID)               | 400 bad type, 404 unknown subject |
-| `POST /api/ask`                             | `API_ROUTES.ask`                 | `AskAnswer`                                                                                                    | 400 invalid body                  |
-| `GET /api/verify/:subjectType/:subjectId`   | `API_ROUTES.verify(type, id)`    | `VerificationReport`: every claim of that insight checked by each verifier, with agreement                     | 400 bad type, 404 unknown subject |
-| `GET /api/impacts?eventId=&countryId=`      | `API_ROUTES.impacts(filter)`     | `ImpactLink[]`: ripple effects caused by an event, or touching a country (as cause, target or via its markets) | 400 bad ID                        |
-| `GET /api/markets?countryId=`               | `API_ROUTES.markets(countryId?)` | `MarketQuote[]`: curated snapshot, live Yahoo Finance values in `DATA_MODE=live`                               | 400 bad ID                        |
-| `GET /api/weather/:countryId`               | `API_ROUTES.weather(id)`         | `WeatherReport` for the capital (Open-Meteo). 503 `UPSTREAM` when live data is off and nothing is cached       | 400, 404, 503                     |
+| Method + path                               | Builder                          | Returns (`data`)                                                                                               | Errors                              |
+| ------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| `GET /api/health`                           | `API_ROUTES.health`              | `HealthStatus` `{ status: "ok", dataMode, aiProvider }`                                                        | none                                |
+| `GET /api/countries`                        | `API_ROUTES.countries`           | `Country[]`                                                                                                    | none                                |
+| `GET /api/countries/:id`                    | `API_ROUTES.country(id)`         | `Country`                                                                                                      | 400 bad ID, 404                     |
+| `GET /api/countries/:id/events`             | `API_ROUTES.countryEvents(id)`   | `OrbitEvent[]` newest first, every event whose `countryIds` includes `id`                                      | 400, 404                            |
+| `GET /api/countries/:id/timeline`           | `API_ROUTES.countryTimeline(id)` | `TimelineEvent[]` oldest first                                                                                 | 400, 404                            |
+| `GET /api/events?kind=`                     | `API_ROUTES.events(kind?)`       | `OrbitEvent[]` newest first. `kind` optional: `geopolitical` or `health`                                       | 400 bad kind                        |
+| `GET /api/events/:id`                       | `API_ROUTES.event(id)`           | `OrbitEvent`                                                                                                   | 400 bad ID, 404                     |
+| `GET /api/news?countryId=`                  | `API_ROUTES.news(countryId?)`    | `NewsHeadline[]` newest first. Without `countryId`: all                                                        | 400 bad ID                          |
+| `GET /api/sources`                          | `API_ROUTES.sources`             | `Source[]`                                                                                                     | none                                |
+| `GET /api/insights/:subjectType/:subjectId` | `API_ROUTES.insight(type, id)`   | `AIInsight`. `subjectType` = `global` (id `world`), `country` (country ID) or `event` (event ID)               | 400 bad type, 404 unknown subject   |
+| `POST /api/ask`                             | `API_ROUTES.ask`                 | `AskAnswer`                                                                                                    | 400 invalid body                    |
+| `GET /api/verify/:subjectType/:subjectId`   | `API_ROUTES.verify(type, id)`    | `VerificationReport`: every claim of that insight checked by each verifier, with agreement                     | 400 bad type, 404 unknown subject   |
+| `GET /api/impacts?eventId=&countryId=`      | `API_ROUTES.impacts(filter)`     | `ImpactLink[]`: ripple effects caused by an event, or touching a country (as cause, target or via its markets) | 400 bad ID                          |
+| `GET /api/markets?countryId=`               | `API_ROUTES.markets(countryId?)` | `MarketQuote[]`: curated snapshot, live Yahoo Finance values in `DATA_MODE=live`                               | 400 bad ID                          |
+| `GET /api/weather/:countryId`               | `API_ROUTES.weather(id)`         | `WeatherReport` for the capital (Open-Meteo). 503 `UPSTREAM` when live data is off and nothing is cached       | 400, 404, 503                       |
+| `GET /api/scenarios`                        | `API_ROUTES.scenarios`           | `Scenario[]`: what-if chokepoint scenarios with sourced facts                                                  | none                                |
+| `GET /api/simulate?scenario=&brentPct=`     | `API_ROUTES.simulate(id, pct)`   | `SimulationResult`: knock-on effects of a Brent shock (−30…+100%, clamped), each with formula and sources      | 400 bad input, 404 unknown scenario |
 
 `POST /api/ask` body (`AskRequest`):
 
@@ -181,6 +183,18 @@ curated snapshot is the offline fallback.
 
 `countryId`, `place` (capital), `location`, `current` (temperature, precipitation, wind, WMO code + description), `daily`
 (7 days of max/min/precipitation), `asOf`, `sourceId` (`src_open_meteo`). Live in `DATA_MODE=live`, cached for 30 min and offline.
+
+### Scenario / SimulationResult: what-if simulator (`shared/schemas/simulation.ts`)
+
+A **Scenario** (`scn_...`) is a chokepoint closure: `title`, `description`, `chokepoint` (name + location), `defaultBrentPct`,
+sourced `facts`, optional `flow` (million b/d through the chokepoint, pipeline bypass, share of world consumption), and `affected`
+countries (`exporter` / `importer` / `transit`, with a note and sources). Curated: Strait of Hormuz (EIA) and Bab el-Mandeb.
+
+A **SimulationResult** is transparent arithmetic on the user's chosen Brent shock and live Brent and USD/INR: new Brent price,
+oil stranded after bypass, India's crude bill change (price only), and the upper-bound crude cost per litre
+(ΔBrent × USD/INR ÷ 159 l/bbl). Each impact has a `formula`, `sourceIds` and `basis` (`simulation` or `analysis`).
+**It is a simulation, never a forecast,** and the UI and the AI both say so. `POST /api/ask` accepts
+`context.simulation { scenarioId, brentPct }` so Ask ORBIT can explain the simulation on screen.
 
 ## Relationships
 

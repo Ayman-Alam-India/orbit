@@ -1,0 +1,41 @@
+[
+  {
+    "id": "scn_test_closure",
+    "title": "Mock chokepoint closes",
+    "description": "Mock scenario.",
+    "chokepoint": {
+      "name": "Mock Strait",
+      "location": {
+        "lat": 10,
+        "lng": 50
+      }
+    },
+    "defaultBrentPct": 20,
+    "facts": [
+      {
+        "text": "Mock fact.",
+        "sourceIds": ["src_mock_wire"]
+      }
+    ],
+    "flow": {
+      "millionBarrelsPerDay": 10,
+      "bypassMillionBarrelsPerDay": 2,
+      "shareOfWorldConsumptionPct": 10,
+      "sourceIds": ["src_mock_wire"]
+    },
+    "affected": [
+      {
+        "countryId": "IND",
+        "role": "importer",
+        "note": "Mock importer.",
+        "sourceIds": ["src_mock_wire"]
+      },
+      {
+        "countryId": "USA",
+        "role": "exporter",
+        "note": "Mock exporter.",
+        "sourceIds": ["src_mock_wire"]
+      }
+    ]
+  }
+]

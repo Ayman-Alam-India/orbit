@@ -22,7 +22,10 @@ const OrbitGlobe = lazy(() => import('../globe/OrbitGlobe'))
 export function OrbitLayout() {
   const navigate = useNavigate()
   const location = useLocation()
-  const isGlobal = Boolean(useMatch(ROUTE_PATTERNS.global))
+  // The simulator also uses the big globe (it flies to the chokepoint), with its panel on the right.
+  const onGlobal = Boolean(useMatch(ROUTE_PATTERNS.global))
+  const onSimulator = Boolean(useMatch(ROUTE_PATTERNS.simulate))
+  const isGlobal = onGlobal || onSimulator
   const mode = isGlobal ? 'global' : 'detail'
   const { askOpen, setAskOpen } = useUiStore()
   const miniGlobeStyle = useMiniGlobeTransform()

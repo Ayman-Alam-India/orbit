@@ -110,5 +110,12 @@
     "url": "https://open-meteo.com/",
     "type": "dataset",
     "reliability": "high"
+  },
+  {
+    "id": "src_eia_hormuz",
+    "name": "U.S. EIA: The Strait of Hormuz remains critical oil chokepoint (16 Jun 2025)",
+    "url": "https://eia.gov/todayinenergy/detail.php?id=65504",
+    "type": "government",
+    "reliability": "high"
   }
 ]
