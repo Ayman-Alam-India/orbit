@@ -26,3 +26,15 @@
   --badge-color: var(--severity-5);
   box-shadow: var(--glow-alert);
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .badge[data-severity='5'] {
+    animation: severity-pulse 2.4s var(--ease-inout) infinite;
+  }
+}
+
+@keyframes severity-pulse {
+  50% {
+    box-shadow: none;
+  }
+}

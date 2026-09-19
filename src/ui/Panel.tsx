@@ -6,13 +6,15 @@ type PanelProps = {
   /** Small uppercase label above the title, e.g. "COUNTRY" or "EVENT". */
   eyebrow?: string
   actions?: ReactNode
+  /** "accent" = amber border and label, for AI / Ask ORBIT content. */
+  tone?: 'default' | 'accent'
   children: ReactNode
 }
 
 /** The glass card every overlay section sits in. */
-export function Panel({ title, eyebrow, actions, children }: PanelProps) {
+export function Panel({ title, eyebrow, actions, tone = 'default', children }: PanelProps) {
   return (
-    <section className={styles.panel}>
+    <section className={tone === 'accent' ? `${styles.panel} ${styles.accent}` : styles.panel}>
       {(title || eyebrow || actions) && (
         <header className={styles.header}>
           <div>
