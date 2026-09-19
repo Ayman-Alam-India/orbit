@@ -3,16 +3,22 @@
 AI-powered global intelligence on an interactive 3D globe: geopolitical and health signals, news, history,
 markets, weather and explainable, multi-model-verified AI, in one flow: **Global → Country → Event → Explanation → Ask ORBIT**.
 
-**USP: ripple effects.** ORBIT shows how an event spreads: the Red Sea crisis → Brent crude → India's crude import
-bill → the rupee and pump prices. Every link is sourced or clearly labelled as ORBIT analysis, has a live market figure,
-and is drawn as an arc on the globe.
+![ORBIT global view](docs/img/01-global.png)
 
-**What if…** (`/simulate`): close the Strait of Hormuz or Bab el-Mandeb, pick an oil-price shock, and ORBIT shows the
-knock-on effects with transparent arithmetic on live and sourced numbers. It is labelled as a simulation, not a forecast.
+## What makes ORBIT different
 
-**Guided tour** (`▶ Tour`, or open `/?tour=1` for the demo): the globe flies through the most severe events and the
-strongest ripple chain, and the browser's free speech engine narrates it. Narration uses sourced data only. Keys: ← → to
-move, space to pause, M to mute, Esc to exit. Ask ORBIT also takes voice questions (🎙, Chrome/Edge) and reads answers aloud.
+| Feature                             | What it does                                                                                                                                                                                                                                 |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Ripple effects**                  | Shows how an event spreads: Red Sea crisis → Brent crude → India's crude import bill → the rupee and pump prices. Each link is sourced or labelled "ORBIT analysis", has a live market figure, and is drawn as an animated arc on the globe. |
+| **What if… simulator**              | `/simulate`: close the Strait of Hormuz or Bab el-Mandeb, choose an oil-price shock (−30…+100%), and ORBIT computes the knock-on effects with visible formulas on live and sourced numbers. Labelled "Simulation, not a forecast".           |
+| **Multi-model claim check**         | Every AI explanation is split into claims. Gemini, Groq (gpt-oss-120b) and a deterministic rule checker verify each claim against ORBIT's data independently, and the UI shows where they agree or disagree.                                 |
+| **Guided tour with a narrator**     | `▶ Tour` (or `/?tour=1`): the globe flies through the most severe events and the strongest ripple chain while a Gemini voice narrates. Narration is built from sourced data only. Keys: ← → move, space pause, M mute, Esc exit.             |
+| **Voice in Ask ORBIT**              | 🎙 ask by voice (Chrome/Edge) and 🔊 Listen to any answer.                                                                                                                                                                                    |
+| **Grounded AI**                     | Gemini answers only from ORBIT's data, cites source IDs, flags analysis and simulations, and falls back to cached insights, then to an offline analyser. It never shows a blank screen.                                                      |
+| **Live, free data**                 | GDELT news, Yahoo Finance markets (Brent, USD/INR, NIFTY, Sensex, Indian blue chips), Open-Meteo weather. Every source is free and keyless, and every value is cached and has a seeded fallback for offline demos.                           |
+| **Realistic Earth, Apple-style UI** | NASA Blue Marble textures, terrain, shiny oceans and stars; frosted-glass panels, capsule toolbar, SF typography.                                                                                                                            |
+
+All of it runs on free tiers ($0) and still works with the wifi off.
 
 Built in 24 hours by Arham, Ayman, Affan, Shrey and Hardik. This README is the team's starting point, and each section
 links to the document that holds the full detail.
@@ -34,16 +40,17 @@ and Vite forwards it to the API server. Everything works offline with mock data 
 
 ## Commands
 
-| Command                               | What it does                                                |
-| ------------------------------------- | ----------------------------------------------------------- |
-| `npm run dev`                         | Web + API servers with hot reload                           |
-| `npm run dev:web` / `npm run dev:api` | Only one of them                                            |
-| `npm test` / `npm run test:watch`     | Vitest: contracts, seed data, API, frontend, tasks.json     |
-| `npm run lint`                        | ESLint                                                      |
-| `npm run build`                       | Typecheck everything (`tsc -b`) + production frontend build |
-| `npm run check`                       | **lint + test + build. Must pass before every PR**          |
-| `npm run format`                      | Prettier                                                    |
-| `npm run docs:pdf`                    | Rebuild `docs/ORBIT-Playbook.pdf` from the Markdown docs    |
+| Command                               | What it does                                                                  |
+| ------------------------------------- | ----------------------------------------------------------------------------- |
+| `npm run dev`                         | Web + API servers with hot reload                                             |
+| `npm run dev:web` / `npm run dev:api` | Only one of them                                                              |
+| `npm test` / `npm run test:watch`     | Vitest: contracts, seed data, API, frontend, tasks.json                       |
+| `npm run lint`                        | ESLint                                                                        |
+| `npm run build`                       | Typecheck everything (`tsc -b`) + production frontend build                   |
+| `npm run check`                       | **lint + test + build. Must pass before every PR**                            |
+| `npm run format`                      | Prettier                                                                      |
+| `npm run docs:pdf`                    | Rebuild `docs/ORBIT-Playbook.pdf` and `docs/ORBIT-Review.pdf`                 |
+| `npm run warm:voice`                  | Pre-generate the tour narration (dev server running). **Run before the demo** |
 
 ## Architecture
 
@@ -54,8 +61,14 @@ Browser (React + 3D globe) ──/api──► Express API server ──► seed
 
 - **Frontend** (`src/`): Vite, React 19, TypeScript, react-globe.gl, TanStack Query, Zustand, CSS Modules + design tokens.
 - **API** (`server/`): Express 5 run with tsx. It validates the seed data at startup, keeps keys server-side, and falls back to cache or seed when live data fails.
-- **Contracts** (`shared/`): one Zod schema per entity (Country, OrbitEvent, NewsHeadline, Source, TimelineEvent, AIInsight).
-- **AI** (`server/ai/`): the mock provider by default. Gemini via the Vercel AI SDK when a key is configured, falling back to mock on any failure.
+- **Contracts** (`shared/`): one Zod schema per entity (Country, OrbitEvent, NewsHeadline, Source, TimelineEvent, AIInsight,
+  Ask, VerificationReport, ImpactLink, MarketQuote, WeatherReport, Scenario/SimulationResult).
+- **AI** (`server/ai/`): Gemini via the Vercel AI SDK (model fallback list) with structured output. Insights are cached,
+  and when Gemini fails ORBIT uses the cache, then the offline analyser. Claim verification: Gemini + Groq + rules
+  (`server/ai/verify/`). Narrator voice: Gemini TTS, cached as WAV (`server/ai/tts.ts`).
+- **Live sources** (`server/sources/`): GDELT (throttled queue), Yahoo Finance (refreshed every 15 min), Open-Meteo
+  (cached 30 min). All go through the disk cache in `server/.cache/`.
+- **Simulator** (`server/sim/simulate.ts`): a pure, unit-tested engine. Every output carries its formula and sources.
 
 Details: [docs/PLAYBOOK.md](docs/PLAYBOOK.md#2-architecture).
 
@@ -90,15 +103,17 @@ API routes, entity fields and the mock-data format: [docs/API.md](docs/API.md).
 
 Defined in `.env.example` (committed) and parsed in `server/env.ts`. Put real values in a local `.env`, which is never committed.
 
-| Variable                       | Default                                  | Meaning                                                                                                  |
-| ------------------------------ | ---------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `PORT`                         | `8787`                                   | API server port                                                                                          |
-| `DATA_MODE`                    | `mock`                                   | `mock` = seed data only, offline · `live` = + live news, markets and weather (**use live for the demo**) |
-| `AI_PROVIDER`                  | `mock`                                   | `mock` or `google`                                                                                       |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | empty                                    | Gemini key, only in your local `.env`                                                                    |
-| `GOOGLE_MODEL`                 | `gemini-3.5-flash,gemini-3.5-flash-lite` | Gemini model(s), tried in order                                                                          |
-| `GROQ_API_KEY`                 | empty                                    | Groq key (free tier): the second model for claim verification                                            |
-| `GROQ_MODEL`                   | `openai/gpt-oss-120b`                    | Groq model used for verification                                                                         |
+| Variable                       | Default                                                     | Meaning                                                                                                  |
+| ------------------------------ | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `PORT`                         | `8787`                                                      | API server port                                                                                          |
+| `DATA_MODE`                    | `mock`                                                      | `mock` = seed data only, offline · `live` = + live news, markets and weather (**use live for the demo**) |
+| `AI_PROVIDER`                  | `mock`                                                      | `mock` or `google`                                                                                       |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | empty                                                       | Gemini key, only in your local `.env`                                                                    |
+| `GOOGLE_MODEL`                 | `gemini-3.5-flash,gemini-3.5-flash-lite`                    | Gemini model(s), tried in order                                                                          |
+| `GROQ_API_KEY`                 | empty                                                       | Groq key (free tier): the second model for claim verification                                            |
+| `GROQ_MODEL`                   | `openai/gpt-oss-120b`                                       | Groq model used for verification                                                                         |
+| `GOOGLE_TTS_MODEL`             | `gemini-3.1-flash-tts-preview,gemini-2.5-flash-preview-tts` | Narrator voice model(s), tried in order. No key = the browser's voice                                    |
+| `GOOGLE_TTS_VOICE`             | `Charon`                                                    | Gemini prebuilt voice (Charon, Kore, Puck, Aoede…)                                                       |
 
 Secrets never go in code, commits, chat, or `VITE_` variables.
 
@@ -135,15 +150,25 @@ Contract changes, conflicts and what never gets committed: [docs/INTEGRATION.md]
 
 ## Documentation
 
-| Document                                           | For                                                         |
-| -------------------------------------------------- | ----------------------------------------------------------- |
-| [AGENTS.md](AGENTS.md)                             | Rules (read by Claude Code via `CLAUDE.md`, Codex, Cursor)  |
-| [docs/PLAYBOOK.md](docs/PLAYBOOK.md)               | Everything in one place                                     |
-| [docs/API.md](docs/API.md)                         | API and data contract                                       |
-| [docs/INTEGRATION.md](docs/INTEGRATION.md)         | Branches, PRs, contract changes                             |
-| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)     | Tokens, primitives, UI conventions                          |
-| [docs/ALLOCATOR.md](docs/ALLOCATOR.md)             | Personal LLM task allocator                                 |
-| [docs/ORBIT-Playbook.pdf](docs/ORBIT-Playbook.pdf) | Printable reference (generated, the Markdown is the source) |
+| Document                                                        | For                                                                      |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [AGENTS.md](AGENTS.md)                                          | Rules (read by Claude Code via `CLAUDE.md`, Codex, Cursor)               |
+| [docs/PLAYBOOK.md](docs/PLAYBOOK.md)                            | Everything in one place                                                  |
+| [docs/API.md](docs/API.md)                                      | API and data contract                                                    |
+| [docs/INTEGRATION.md](docs/INTEGRATION.md)                      | Branches, PRs, contract changes                                          |
+| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)                  | Tokens, primitives, UI conventions                                       |
+| [docs/ALLOCATOR.md](docs/ALLOCATOR.md)                          | Personal LLM task allocator                                              |
+| [docs/ORBIT-Playbook.pdf](docs/ORBIT-Playbook.pdf)              | Printable reference (generated, the Markdown is the source)              |
+| [docs/REVIEW.md](docs/REVIEW.md) · [PDF](docs/ORBIT-Review.pdf) | Review and judging prep: pitch, features, architecture, demo script, Q&A |
+
+## Demo checklist
+
+1. `.env` has `DATA_MODE=live`, `AI_PROVIDER=google`, the Gemini and Groq keys.
+2. `npm run dev`, then `npm run warm:voice`. Open each featured country once so insights and claim checks are cached.
+3. Use **Edge** in full screen. Start with `/?tour=1` and press ▶. Then Red Sea event → claim check → What if… Hormuz +30% → Ask ORBIT by voice.
+4. If the wifi dies, keep going: the cached data, AI answers and narration still work.
+
+## Credits
 
 Country shapes: [Natural Earth](https://www.naturalearthdata.com/) 1:110m admin-0 countries (public domain), via the
 globe.gl examples.
