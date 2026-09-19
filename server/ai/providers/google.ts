@@ -1,6 +1,6 @@
 import { AIInsightSchema, AskAnswerSchema } from '@shared'
 import { generateText, Output } from 'ai'
-import { askPrompt, insightPrompt, SYSTEM_PROMPT } from '../prompt'
+import { ASK_SYSTEM_PROMPT, askPrompt, insightPrompt, SYSTEM_PROMPT } from '../prompt'
 import type { AiContext, AiProvider } from '../types'
 import { withGoogleModels } from './googleModels'
 
@@ -54,7 +54,7 @@ export const googleProvider: AiProvider = {
       generateText({
         model,
         maxRetries: 1,
-        system: SYSTEM_PROMPT,
+        system: ASK_SYSTEM_PROMPT,
         prompt: askPrompt(request, context),
         output: Output.object({ schema: AskOutputSchema, name: 'answer' }),
         abortSignal: AbortSignal.timeout(TIMEOUT_MS),

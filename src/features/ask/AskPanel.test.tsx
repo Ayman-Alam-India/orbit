@@ -92,6 +92,7 @@ describe('Ask ORBIT', () => {
       fake('speechSynthesis', {
         getVoices: () => [],
         cancel: () => {},
+        resume: () => {},
         speak: (u: { text: string }) => spoken.push(u.text),
       })
 

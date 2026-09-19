@@ -4,7 +4,7 @@ import { useUiStore } from '../../state/uiStore'
 import { Button, ErrorState, Loader, Panel } from '../../ui'
 import { providerLabel } from '../insight/providerLabel'
 import { SourceChips } from '../insight/SourceChips'
-import { canSpeak, recognitionCtor, speak } from '../tour/speech'
+import { canSpeak, recognitionCtor, speak, unlockAudio } from '../tour/speech'
 import styles from './AskPanel.module.css'
 import { useAsk } from './useAsk'
 import { useAskContext } from './useAskContext'
@@ -82,6 +82,7 @@ export function AskPanel() {
   const readAloud = (turn: Turn) => {
     stopSpeaking.current?.()
     if (speakingId === turn.id) return setSpeakingId(undefined)
+    unlockAudio()
     setSpeakingId(turn.id)
     setVoiceReady(false)
     stopSpeaking.current = speak(
@@ -113,7 +114,7 @@ export function AskPanel() {
       }
     >
       <p className={styles.context}>
-        Asking about <strong>{context.label}</strong>
+        Looking at <strong>{context.label}</strong> — ask about this, or anything else ORBIT tracks.
       </p>
 
       <div ref={threadRef} className={styles.thread} aria-live="polite">
