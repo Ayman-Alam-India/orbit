@@ -1,11 +1,16 @@
 import {
   CountrySchema,
+  ImpactLinkSchema,
+  MarketQuoteSchema,
   NewsHeadlineSchema,
   OrbitEventSchema,
   SourceSchema,
   TimelineEventSchema,
   type Country,
   type CountryId,
+  type EventId,
+  type ImpactLink,
+  type MarketQuote,
   type NewsHeadline,
   type OrbitEvent,
   type OrbitEventKind,
@@ -23,6 +28,8 @@ const SEED_FILES = {
   events: { file: 'events.json', schema: z.array(OrbitEventSchema) },
   news: { file: 'news.json', schema: z.array(NewsHeadlineSchema) },
   timeline: { file: 'timeline.json', schema: z.array(TimelineEventSchema) },
+  markets: { file: 'markets.json', schema: z.array(MarketQuoteSchema) },
+  impacts: { file: 'impacts.json', schema: z.array(ImpactLinkSchema) },
 } as const
 
 /**
@@ -38,6 +45,8 @@ export type SeedData = {
   events: OrbitEvent[]
   news: NewsHeadline[]
   timeline: TimelineEvent[]
+  markets: MarketQuote[]
+  impacts: ImpactLink[]
 }
 
 export type RawSeed = Record<keyof typeof SEED_FILES, unknown>
@@ -108,6 +117,29 @@ export function validateSeed(raw: RawSeed): SeedData {
     if (t.eventId)
       check(eventIds.has(t.eventId), `timeline.json ${t.id}: unknown event "${t.eventId}"`)
   }
+  const marketIds = new Set(data.markets.map((m) => m.id))
+  const impactIds = new Set(data.impacts.map((i) => i.id))
+  for (const m of data.markets) {
+    check(sourceIds.has(m.sourceId), `markets.json ${m.id}: unknown source "${m.sourceId}"`)
+    if (m.countryId)
+      check(countryIds.has(m.countryId), `markets.json ${m.id}: unknown country "${m.countryId}"`)
+  }
+  for (const i of data.impacts) {
+    const where = `impacts.json ${i.id}`
+    check(eventIds.has(i.eventId), `${where}: unknown event "${i.eventId}"`)
+    check(
+      i.target.kind === 'country' ? countryIds.has(i.target.id) : marketIds.has(i.target.id),
+      `${where}: unknown target ${i.target.kind} "${i.target.id}"`,
+    )
+    if (i.marketId) check(marketIds.has(i.marketId), `${where}: unknown market "${i.marketId}"`)
+    if (i.followsImpactId)
+      check(impactIds.has(i.followsImpactId), `${where}: unknown impact "${i.followsImpactId}"`)
+    i.sourceIds.forEach((id) => check(sourceIds.has(id), `${where}: unknown source "${id}"`))
+    check(
+      i.basis !== 'sourced' || i.sourceIds.length > 0,
+      `${where}: a sourced impact needs a source`,
+    )
+  }
   if (problems.length) throw new SeedValidationError(problems.join('\n'))
   return data
 }
@@ -139,6 +171,22 @@ export const store = {
     getSeed()
       .news.filter((n) => !countryId || n.countryIds.includes(countryId))
       .sort(newestFirst((n) => n.publishedAt)),
+  getMarkets: (countryId?: CountryId) =>
+    getSeed().markets.filter((m) => !countryId || m.countryId === countryId),
+  getMarket: (id: string) => getSeed().markets.find((m) => m.id === id),
+  /** Ripple links from an event, or touching a country (as the cause, the target, or via one of its markets). */
+  getImpacts: (filter: { eventId?: EventId; countryId?: CountryId } = {}) =>
+    getSeed().impacts.filter((i) => {
+      if (filter.eventId && i.eventId !== filter.eventId) return false
+      if (!filter.countryId) return true
+      const event = store.getEvent(i.eventId)
+      const market = i.target.kind === 'market' ? store.getMarket(i.target.id) : undefined
+      return Boolean(
+        event?.countryIds.includes(filter.countryId) ||
+        (i.target.kind === 'country' && i.target.id === filter.countryId) ||
+        market?.countryId === filter.countryId,
+      )
+    }),
   getTimeline: (countryId: CountryId) =>
     getSeed()
       .timeline.filter((t) => t.countryId === countryId)

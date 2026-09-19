@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import type { CountryId, EventId, InsightSubjectType, OrbitEventKind } from './schemas'
 
+const query = (params: Record<string, string | undefined>) => {
+  const entries = Object.entries(params).filter((e): e is [string, string] => Boolean(e[1]))
+  return entries.length ? `?${new URLSearchParams(entries)}` : ''
+}
+
 /**
  * Every API path in one place. The frontend and server both use these, so a path
  * can never be spelled two different ways. See docs/API.md for shapes and examples.
@@ -20,6 +25,10 @@ export const API_ROUTES = {
   ask: '/api/ask',
   verify: (subjectType: InsightSubjectType, subjectId: string) =>
     `/api/verify/${subjectType}/${subjectId}`,
+  markets: (countryId?: CountryId) => `/api/markets${query({ countryId })}`,
+  impacts: (filter: { eventId?: EventId; countryId?: CountryId } = {}) =>
+    `/api/impacts${query(filter)}`,
+  weather: (countryId: CountryId) => `/api/weather/${countryId}`,
 } as const
 
 /** Successful responses always look like `{ "data": ... }`. */

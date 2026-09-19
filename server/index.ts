@@ -2,6 +2,7 @@ import { createApp } from './app'
 import { getSeed, SeedValidationError } from './data/store'
 import { env } from './env'
 import { warmLiveNews } from './sources'
+import { refreshMarkets } from './sources/markets'
 
 // Validate all seed data before accepting requests: a broken JSON file fails loudly here, not mid-demo.
 try {
@@ -21,5 +22,6 @@ createApp().listen(env.PORT, () => {
   console.log(
     `[api] listening on http://localhost:${env.PORT} (DATA_MODE=${env.DATA_MODE}, AI_PROVIDER=${env.AI_PROVIDER})`,
   )
+  if (env.DATA_MODE === 'live') void refreshMarkets()
   void warmLiveNews()
 })

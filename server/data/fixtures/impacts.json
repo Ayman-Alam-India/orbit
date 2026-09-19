@@ -1,0 +1,35 @@
+[
+  {
+    "id": "imp_tariff_review_brent",
+    "eventId": "evt_usa_tariff_review",
+    "target": {
+      "kind": "market",
+      "id": "mkt_brent"
+    },
+    "channel": "trade",
+    "direction": "risk",
+    "strength": 1,
+    "effect": "Mock: trade uncertainty",
+    "mechanism": "Mock mechanism.",
+    "basis": "sourced",
+    "sourceIds": ["src_mock_trade_office"],
+    "marketId": "mkt_brent"
+  },
+  {
+    "id": "imp_tariff_review_india",
+    "eventId": "evt_usa_tariff_review",
+    "target": {
+      "kind": "country",
+      "id": "IND"
+    },
+    "channel": "trade",
+    "direction": "risk",
+    "strength": 2,
+    "effect": "Mock: exporters exposed",
+    "mechanism": "Mock mechanism for India.",
+    "basis": "analysis",
+    "sourceIds": ["src_mock_trade_office"],
+    "marketId": "mkt_usd_inr",
+    "followsImpactId": "imp_tariff_review_brent"
+  }
+]

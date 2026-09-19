@@ -10,6 +10,7 @@ Rules:
 - Use ONLY the facts in the CONTEXT JSON. Never add outside knowledge, numbers or events.
 - Cite evidence with source IDs exactly as given in CONTEXT (e.g. "src_who"). Never invent source IDs.
 - If CONTEXT does not answer the question, say so plainly.
+- Ripple effects marked "ORBIT analysis" are reasoning, not reported fact: say so when you use them.
 - Be concise, neutral and specific. No hype, no speculation, no advice.`
 
 /** A compact JSON view of the context: only what the model needs, to keep prompts small and cheap. */
@@ -39,6 +40,26 @@ export function contextJson(context: AiContext) {
       title: n.title,
       sourceId: n.sourceId,
       eventId: n.eventId,
+    })),
+    ripple_effects: context.impacts.map((i) => ({
+      causedBy: i.eventId,
+      affects: i.target.id,
+      channel: i.channel,
+      direction: i.direction,
+      effect: i.effect,
+      mechanism: i.mechanism,
+      basis: i.basis === 'sourced' ? 'stated by source' : 'ORBIT analysis',
+      sourceIds: i.sourceIds,
+    })),
+    markets: context.markets.map((m) => ({
+      id: m.id,
+      name: m.name,
+      value: m.value,
+      currency: m.currency,
+      unit: m.unit,
+      previousClose: m.previousClose,
+      asOf: m.asOf,
+      sourceId: m.sourceId,
     })),
     sources: context.sources.map((s) => ({ id: s.id, name: s.name, reliability: s.reliability })),
   })

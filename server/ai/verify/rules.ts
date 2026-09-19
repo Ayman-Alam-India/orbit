@@ -49,6 +49,16 @@ function evidenceFor(context: AiContext): Evidence[] {
   for (const n of context.news) {
     evidence.push({ label: n.title, text: n.title, sourceIds: [n.sourceId] })
   }
+  for (const i of context.impacts) {
+    evidence.push({ label: i.effect, text: `${i.effect} ${i.mechanism}`, sourceIds: i.sourceIds })
+  }
+  for (const m of context.markets) {
+    evidence.push({
+      label: m.name,
+      text: `${m.name} ${m.value} ${m.currency} ${m.unit ?? ''}`,
+      sourceIds: [m.sourceId],
+    })
+  }
   // ORBIT's own register: the counts an insight may quote ("tracking 14 events across 15 countries").
   const severe = context.events.filter((e) => e.severity >= 4).length
   evidence.push({
