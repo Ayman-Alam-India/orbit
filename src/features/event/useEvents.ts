@@ -21,3 +21,12 @@ export const useEvent = (id: EventId) =>
     // An empty id means "no event selected" (e.g. Ask ORBIT on the global view): don't fetch.
     enabled: Boolean(id),
   })
+
+/** Events ORBIT detected by itself in today's live headlines (empty in mock mode). */
+export const useAutoEvents = () =>
+  useQuery({
+    queryKey: ['event', 'auto'],
+    queryFn: () => apiGet<OrbitEvent[]>(API_ROUTES.autoEvents),
+    // A background scan may be running on the server: pick its results up without a reload.
+    refetchInterval: 60_000,
+  })

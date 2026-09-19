@@ -19,6 +19,9 @@ export function EventBriefing({ event, countryId }: { event: OrbitEvent; country
         <span className={styles.badges}>
           <Tag kind={event.kind}>{event.kind === 'health' ? 'Health signal' : 'Geopolitical'}</Tag>
           <SeverityBadge severity={event.severity} />
+          {event.origin === 'auto' && (
+            <span className={styles.autoFlag}>Auto-detected · unverified</span>
+          )}
         </span>
         <Link to={paths.country(countryId)} className={styles.back}>
           ← Back to country

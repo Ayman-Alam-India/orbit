@@ -25,6 +25,8 @@
   --color-primary: #64d2ff;
   --color-primary-dim: #0a84ff;
   --color-accent: #ff9f0a;
+  /* Events ORBIT detected by itself: deliberately paler than a curated, severity-coloured pin. */
+  --origin-auto: #c8a2ff;
   --color-alert: #ff6b3d;
   --color-highlight: #ff9f0a;
   --color-success: #30d158;

@@ -24,6 +24,14 @@ const OrbitEventBaseSchema = z.object({
   severity: SeveritySchema,
   sourceIds: z.array(SourceIdSchema),
   tags: z.array(z.string()),
+  /**
+   * `curated` = written and fact-checked by the team (the seed files).
+   * `auto` = detected by ORBIT from today's live headlines, and shown as unverified until a human confirms it.
+   */
+  origin: z.enum(['curated', 'auto']).default('curated'),
+  /** Auto-detected events only: when ORBIT found it, and the headlines it was built from. */
+  detectedAt: IsoDateTimeSchema.optional(),
+  headlineUrls: z.array(z.url()).optional(),
 })
 
 export const GeopoliticalEventSchema = OrbitEventBaseSchema.extend({

@@ -18,10 +18,14 @@ try {
   throw err
 }
 
-createApp().listen(env.PORT, () => {
+const server = createApp().listen(env.PORT, () => {
   console.log(
     `[api] listening on http://localhost:${env.PORT} (DATA_MODE=${env.DATA_MODE}, AI_PROVIDER=${env.AI_PROVIDER})`,
   )
   if (env.DATA_MODE === 'live') void refreshMarkets()
   void warmLiveNews()
 })
+// Keep idle connections open longer than the dev proxy does, so a reused socket is never closed mid-request
+// (that showed up as ECONNRESET on /api/speech and silent narration).
+server.keepAliveTimeout = 65_000
+server.headersTimeout = 66_000

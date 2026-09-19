@@ -15,6 +15,7 @@ markets, weather and explainable, multi-model-verified AI, in one flow: **Global
 | **Guided tour with a narrator**     | `▶ Tour` (or `/?tour=1`): the globe flies through the most severe events and the strongest ripple chain while a Gemini voice narrates. Narration is built from sourced data only. Keys: ← → move, space pause, M mute, Esc exit.             |
 | **Voice in Ask ORBIT**              | 🎙 ask by voice (Chrome/Edge) and 🔊 Listen to any answer.                                                                                                                                                                                    |
 | **Grounded AI**                     | Gemini answers only from ORBIT's data, cites source IDs, flags analysis and simulations, and falls back to cached insights, then to an offline analyser. It never shows a blank screen.                                                      |
+| **Automatic event detection**       | ORBIT reads today's live headlines, proposes new events itself and marks them auto-detected and unverified, separate from the curated ones. See [docs/AUTO_EVENTS.md](docs/AUTO_EVENTS.md).                                                  |
 | **Live, free data**                 | GDELT news, Yahoo Finance markets (Brent, USD/INR, NIFTY, Sensex, Indian blue chips), Open-Meteo weather. Every source is free and keyless, and every value is cached and has a seeded fallback for offline demos.                           |
 | **Realistic Earth, Apple-style UI** | NASA Blue Marble textures, terrain, shiny oceans and stars; frosted-glass panels, capsule toolbar, SF typography.                                                                                                                            |
 
@@ -150,16 +151,17 @@ Contract changes, conflicts and what never gets committed: [docs/INTEGRATION.md]
 
 ## Documentation
 
-| Document                                                        | For                                                                      |
-| --------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [AGENTS.md](AGENTS.md)                                          | Rules (read by Claude Code via `CLAUDE.md`, Codex, Cursor)               |
-| [docs/PLAYBOOK.md](docs/PLAYBOOK.md)                            | Everything in one place                                                  |
-| [docs/API.md](docs/API.md)                                      | API and data contract                                                    |
-| [docs/INTEGRATION.md](docs/INTEGRATION.md)                      | Branches, PRs, contract changes                                          |
-| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)                  | Tokens, primitives, UI conventions                                       |
-| [docs/ALLOCATOR.md](docs/ALLOCATOR.md)                          | Personal LLM task allocator                                              |
-| [docs/ORBIT-Playbook.pdf](docs/ORBIT-Playbook.pdf)              | Printable reference (generated, the Markdown is the source)              |
-| [docs/REVIEW.md](docs/REVIEW.md) · [PDF](docs/ORBIT-Review.pdf) | Review and judging prep: pitch, features, architecture, demo script, Q&A |
+| Document                                                                                | For                                                                      |
+| --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| [AGENTS.md](AGENTS.md)                                                                  | Rules (read by Claude Code via `CLAUDE.md`, Codex, Cursor)               |
+| [docs/PLAYBOOK.md](docs/PLAYBOOK.md)                                                    | Everything in one place                                                  |
+| [docs/API.md](docs/API.md)                                                              | API and data contract                                                    |
+| [docs/INTEGRATION.md](docs/INTEGRATION.md)                                              | Branches, PRs, contract changes                                          |
+| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)                                          | Tokens, primitives, UI conventions                                       |
+| [docs/ALLOCATOR.md](docs/ALLOCATOR.md)                                                  | Personal LLM task allocator                                              |
+| [docs/ORBIT-Playbook.pdf](docs/ORBIT-Playbook.pdf)                                      | Printable reference (generated, the Markdown is the source)              |
+| [docs/WALKTHROUGH.md](docs/WALKTHROUGH.md) · [docs/AUTO_EVENTS.md](docs/AUTO_EVENTS.md) | Explaining the code in a review, and how automatic detection works       |
+| [docs/REVIEW.md](docs/REVIEW.md) · [PDF](docs/ORBIT-Review.pdf)                         | Review and judging prep: pitch, features, architecture, demo script, Q&A |
 
 ## Demo checklist
 
