@@ -1,5 +1,7 @@
 import type { Confidence, InsightSubjectType } from '@shared'
-import { Panel, QueryState } from '../../ui'
+import { useState } from 'react'
+import { Button, Panel, QueryState } from '../../ui'
+import { ClaimCheck } from './ClaimCheck'
 import styles from './Insight.module.css'
 import { providerLabel } from './providerLabel'
 import { SourceChips } from './SourceChips'
@@ -19,8 +21,24 @@ export function InsightCard({
   subjectId: string
 }) {
   const query = useInsight(subjectType, subjectId)
+  const [checking, setChecking] = useState(false)
   return (
-    <Panel eyebrow="ORBIT explains" tone="accent">
+    <Panel
+      eyebrow="ORBIT explains"
+      tone="accent"
+      actions={
+        query.isSuccess && (
+          <Button
+            variant="accent"
+            size="sm"
+            aria-expanded={checking}
+            onClick={() => setChecking(!checking)}
+          >
+            {checking ? 'Hide check' : 'Verify claims'}
+          </Button>
+        )
+      }
+    >
       <QueryState query={query} label="insight">
         {(insight) => (
           <div className={styles.insight}>
@@ -51,6 +69,7 @@ export function InsightCard({
               </span>
               <span className={styles.provider}>{providerLabel(insight.provider)}</span>
             </div>
+            {checking && <ClaimCheck subjectType={subjectType} subjectId={subjectId} />}
           </div>
         )}
       </QueryState>

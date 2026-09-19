@@ -60,6 +60,7 @@ Always build paths with `API_ROUTES` from `@shared`. The column "Builder" shows 
 | `GET /api/sources`                          | `API_ROUTES.sources`             | `Source[]`                                                                                       | none                              |
 | `GET /api/insights/:subjectType/:subjectId` | `API_ROUTES.insight(type, id)`   | `AIInsight`. `subjectType` = `global` (id `world`), `country` (country ID) or `event` (event ID) | 400 bad type, 404 unknown subject |
 | `POST /api/ask`                             | `API_ROUTES.ask`                 | `AskAnswer`                                                                                      | 400 invalid body                  |
+| `GET /api/verify/:subjectType/:subjectId`   | `API_ROUTES.verify(type, id)`    | `VerificationReport`: every claim of that insight checked by each verifier, with agreement       | 400 bad type, 404 unknown subject |
 
 `POST /api/ask` body (`AskRequest`):
 
@@ -143,6 +144,18 @@ It is explainable because it always says which sources it used, how sure it is, 
 ### AskRequest / AskAnswer (`shared/schemas/ask.ts`)
 
 Request: `question`, optional `context { countryId?, eventId? }`. Answer: `answer`, `sourceIds`, `provider`, `generatedAt`.
+
+### VerificationReport (`shared/schemas/verification.ts`)
+
+The insight for a subject is split into claims (summary sentences + key points, max 6). Each claim is checked
+**independently** by every verifier against ORBIT's data: `gemini` and `groq` (LLMs, when their key is set) and `rules`
+(deterministic: every figure and most key terms must appear in the data; always runs, works offline).
+
+Fields: `subjectType`, `subjectId`, `insightProvider`, `models` (verifiers that answered), `unavailable` (`{ model, reason }`
+for missing keys or failures), `claims[]` (`id` `clm_N`, `text`, `verdicts[]` of `{ model, verdict, sourceIds, reason }`,
+`agreement`: `agree` / `disagree` / `single`), `agreementScore` (share of multi-verifier claims where all agree, 0–1),
+`generatedAt`. Verdicts: `supported`, `unsupported` (not in the data), `contradicted`. A complete report is cached; if a
+model fails later (e.g. no wifi), the cached report is served.
 
 ## Relationships
 
