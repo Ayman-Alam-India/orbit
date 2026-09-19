@@ -58,6 +58,23 @@ describe('AI module with the Google provider', () => {
     })
     const answer = await askOrbit({ question: 'Why?', context: { countryId: 'BRA' } })
     expect(AskAnswerSchema.parse(answer).answer).toBe('Heat is driving admissions.')
+    const { prompt } = generateText.mock.calls[0][0] as { prompt: string }
+    expect(prompt).toContain('"id":"BRA"')
+    expect(prompt).toContain('"id":"IND"')
+  })
+
+  it('still includes other countries when Ask is opened on an event', async () => {
+    generateText.mockResolvedValue({
+      output: { answer: 'ORBIT is not tracking pollution; India dengue is the closest health signal.', sourceIds: [] },
+    })
+    await askOrbit({
+      question: 'pollution level in india',
+      context: { countryId: 'USA', eventId: 'evt_usa_tariff_review' },
+    })
+    const { prompt, system } = generateText.mock.calls[0][0] as { prompt: string; system: string }
+    expect(prompt).toContain('evt_usa_tariff_review')
+    expect(prompt).toContain('"id":"IND"')
+    expect(system).toContain('not a limit')
   })
 
   it('serves the cached real insight when the model later fails', async () => {

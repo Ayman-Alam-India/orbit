@@ -161,12 +161,11 @@ export async function generateInsight(
 }
 
 export async function askOrbit(request: AskRequest): Promise<AskAnswer> {
-  const { countryId, eventId, simulation } = request.context ?? {}
-  const context = eventId
-    ? buildContext('event', eventId)
-    : countryId
-      ? buildContext('country', countryId)
-      : buildContext('global', GLOBAL_SUBJECT_ID)
+  const { eventId, simulation } = request.context ?? {}
+  // Full briefing so "pollution in India" still works while the globe is on another event.
+  // Unknown event ids still 404 (the open card must be real).
+  if (eventId && !store.getEvent(eventId)) throw notFound(`Event "${eventId}"`)
+  const context = buildContext('global', GLOBAL_SUBJECT_ID)
   if (simulation)
     context.simulation = await simulationFor(simulation.scenarioId, simulation.brentPct)
   return withFallback(

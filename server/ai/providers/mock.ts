@@ -1,4 +1,4 @@
-import type { OrbitEvent } from '@shared'
+import type { AskRequest, CountryId, OrbitEvent } from '@shared'
 import type { AiContext, AiProvider } from '../types'
 
 const bySeverity = (events: OrbitEvent[]) => [...events].sort((a, b) => b.severity - a.severity)
@@ -14,10 +14,32 @@ function eventPoint(e: OrbitEvent) {
   return `${e.title} (${detail})`
 }
 
-function focusName(context: AiContext) {
-  if (context.events.length === 1) return context.events[0].title
-  if (context.countries.length === 1) return context.countries[0].name
+function focusName(request: AskRequest, context: AiContext) {
+  const eventId = request.context?.eventId
+  if (eventId) return context.events.find((e) => e.id === eventId)?.title ?? 'this event'
+  const countryId = request.context?.countryId
+  if (countryId) return context.countries.find((c) => c.id === countryId)?.name ?? countryId
   return 'the world'
+}
+
+/** Prefer events the question names; otherwise the open country/event. */
+function eventsForQuestion(request: AskRequest, context: AiContext): OrbitEvent[] {
+  const q = request.question.toLowerCase()
+  const named = context.countries.filter(
+    (c) => q.includes(c.name.toLowerCase()) || q.includes(c.id.toLowerCase()),
+  )
+  if (named.length) {
+    const ids = new Set(named.map((c) => c.id))
+    return bySeverity(context.events.filter((e) => e.countryIds.some((id) => ids.has(id))))
+  }
+  const eventId = request.context?.eventId
+  if (eventId) {
+    const open = context.events.find((e) => e.id === eventId)
+    return open ? [open] : []
+  }
+  const countryId = request.context?.countryId as CountryId | undefined
+  if (countryId) return bySeverity(context.events.filter((e) => e.countryIds.includes(countryId)))
+  return bySeverity(context.events)
 }
 
 /**
@@ -55,13 +77,14 @@ export const mockProvider: AiProvider = {
     }
   },
 
-  async ask(_request, context) {
-    const top = bySeverity(context.events).slice(0, 2)
+  async ask(request, context) {
+    const top = eventsForQuestion(request, context).slice(0, 2)
     const facts = top.map((e) => `${e.title}: ${e.summary}`).join(' ')
+    const focus = focusName(request, context)
     return {
       answer: top.length
-        ? `Offline analysis for ${focusName(context)} (the AI model is not connected, so this is a summary of ORBIT's data rather than a direct answer). ${facts}`
-        : `Offline analysis for ${focusName(context)}: ORBIT has no tracked events here yet.`,
+        ? `Offline analysis for ${focus} (the AI model is not connected, so this is a summary of ORBIT's data rather than a direct answer). ${facts}`
+        : `Offline analysis for ${focus}: ORBIT has no tracked events here yet.`,
       sourceIds: sourcesOf(top),
       provider: 'mock',
       generatedAt: new Date().toISOString(),

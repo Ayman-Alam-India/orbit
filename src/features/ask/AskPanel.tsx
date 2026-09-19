@@ -114,7 +114,7 @@ export function AskPanel() {
       }
     >
       <p className={styles.context}>
-        Asking about <strong>{context.label}</strong>
+        Looking at <strong>{context.label}</strong> — ask about this, or anything else ORBIT tracks.
       </p>
 
       <div ref={threadRef} className={styles.thread} aria-live="polite">
