@@ -47,20 +47,23 @@ In the frontend, `apiGet`/`apiPost` (`src/api/client.ts`) unwrap `data` for you 
 
 Always build paths with `API_ROUTES` from `@shared`. The column "Builder" shows how.
 
-| Method + path                               | Builder                          | Returns (`data`)                                                                                 | Errors                            |
-| ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------- |
-| `GET /api/health`                           | `API_ROUTES.health`              | `HealthStatus` `{ status: "ok", dataMode, aiProvider }`                                          | none                              |
-| `GET /api/countries`                        | `API_ROUTES.countries`           | `Country[]`                                                                                      | none                              |
-| `GET /api/countries/:id`                    | `API_ROUTES.country(id)`         | `Country`                                                                                        | 400 bad ID, 404                   |
-| `GET /api/countries/:id/events`             | `API_ROUTES.countryEvents(id)`   | `OrbitEvent[]` newest first, every event whose `countryIds` includes `id`                        | 400, 404                          |
-| `GET /api/countries/:id/timeline`           | `API_ROUTES.countryTimeline(id)` | `TimelineEvent[]` oldest first                                                                   | 400, 404                          |
-| `GET /api/events?kind=`                     | `API_ROUTES.events(kind?)`       | `OrbitEvent[]` newest first. `kind` optional: `geopolitical` or `health`                         | 400 bad kind                      |
-| `GET /api/events/:id`                       | `API_ROUTES.event(id)`           | `OrbitEvent`                                                                                     | 400 bad ID, 404                   |
-| `GET /api/news?countryId=`                  | `API_ROUTES.news(countryId?)`    | `NewsHeadline[]` newest first. Without `countryId`: all                                          | 400 bad ID                        |
-| `GET /api/sources`                          | `API_ROUTES.sources`             | `Source[]`                                                                                       | none                              |
-| `GET /api/insights/:subjectType/:subjectId` | `API_ROUTES.insight(type, id)`   | `AIInsight`. `subjectType` = `global` (id `world`), `country` (country ID) or `event` (event ID) | 400 bad type, 404 unknown subject |
-| `POST /api/ask`                             | `API_ROUTES.ask`                 | `AskAnswer`                                                                                      | 400 invalid body                  |
-| `GET /api/verify/:subjectType/:subjectId`   | `API_ROUTES.verify(type, id)`    | `VerificationReport`: every claim of that insight checked by each verifier, with agreement       | 400 bad type, 404 unknown subject |
+| Method + path                               | Builder                          | Returns (`data`)                                                                                               | Errors                            |
+| ------------------------------------------- | -------------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `GET /api/health`                           | `API_ROUTES.health`              | `HealthStatus` `{ status: "ok", dataMode, aiProvider }`                                                        | none                              |
+| `GET /api/countries`                        | `API_ROUTES.countries`           | `Country[]`                                                                                                    | none                              |
+| `GET /api/countries/:id`                    | `API_ROUTES.country(id)`         | `Country`                                                                                                      | 400 bad ID, 404                   |
+| `GET /api/countries/:id/events`             | `API_ROUTES.countryEvents(id)`   | `OrbitEvent[]` newest first, every event whose `countryIds` includes `id`                                      | 400, 404                          |
+| `GET /api/countries/:id/timeline`           | `API_ROUTES.countryTimeline(id)` | `TimelineEvent[]` oldest first                                                                                 | 400, 404                          |
+| `GET /api/events?kind=`                     | `API_ROUTES.events(kind?)`       | `OrbitEvent[]` newest first. `kind` optional: `geopolitical` or `health`                                       | 400 bad kind                      |
+| `GET /api/events/:id`                       | `API_ROUTES.event(id)`           | `OrbitEvent`                                                                                                   | 400 bad ID, 404                   |
+| `GET /api/news?countryId=`                  | `API_ROUTES.news(countryId?)`    | `NewsHeadline[]` newest first. Without `countryId`: all                                                        | 400 bad ID                        |
+| `GET /api/sources`                          | `API_ROUTES.sources`             | `Source[]`                                                                                                     | none                              |
+| `GET /api/insights/:subjectType/:subjectId` | `API_ROUTES.insight(type, id)`   | `AIInsight`. `subjectType` = `global` (id `world`), `country` (country ID) or `event` (event ID)               | 400 bad type, 404 unknown subject |
+| `POST /api/ask`                             | `API_ROUTES.ask`                 | `AskAnswer`                                                                                                    | 400 invalid body                  |
+| `GET /api/verify/:subjectType/:subjectId`   | `API_ROUTES.verify(type, id)`    | `VerificationReport`: every claim of that insight checked by each verifier, with agreement                     | 400 bad type, 404 unknown subject |
+| `GET /api/impacts?eventId=&countryId=`      | `API_ROUTES.impacts(filter)`     | `ImpactLink[]`: ripple effects caused by an event, or touching a country (as cause, target or via its markets) | 400 bad ID                        |
+| `GET /api/markets?countryId=`               | `API_ROUTES.markets(countryId?)` | `MarketQuote[]`: curated snapshot, live Yahoo Finance values in `DATA_MODE=live`                               | 400 bad ID                        |
+| `GET /api/weather/:countryId`               | `API_ROUTES.weather(id)`         | `WeatherReport` for the capital (Open-Meteo). 503 `UPSTREAM` when live data is off and nothing is cached       | 400, 404, 503                     |
 
 `POST /api/ask` body (`AskRequest`):
 
@@ -156,6 +159,28 @@ for missing keys or failures), `claims[]` (`id` `clm_N`, `text`, `verdicts[]` of
 `agreement`: `agree` / `disagree` / `single`), `agreementScore` (share of multi-verifier claims where all agree, 0–1),
 `generatedAt`. Verdicts: `supported`, `unsupported` (not in the data), `contradicted`. A complete report is cached; if a
 model fails later (e.g. no wifi), the cached report is served.
+
+### ImpactLink: ripple effects (`shared/schemas/impact.ts`)
+
+ORBIT's USP: how an event spreads to other countries and markets. `id` (`imp_...`), `eventId` (the cause),
+`target` (`{ kind: 'country', id }` or `{ kind: 'market', id }`), `channel` (energy, shipping, trade, finance, health, security),
+`direction` (up, down, risk), `strength` (1–3), `effect` (a few words), `mechanism` (how), `basis`, `sourceIds`,
+optional `marketId` (a live figure that shows it) and `followsImpactId` (chains, e.g. Brent → India's crude bill → rupee).
+**`basis: sourced`** means a cited, opened source states the link. **`basis: analysis`** means ORBIT's reasoning from sourced facts.
+The UI and the AI always say which it is. The globe draws one arc per event → affected country.
+
+### MarketQuote (`shared/schemas/market.ts`)
+
+`id` (`mkt_...`), `name`, `kind` (index, stock, commodity, fx, fuel), `symbol` (Yahoo ticker, if live-updatable), `countryId`,
+`value`, `currency`, `unit`, `previousClose`, `history` (1 month of daily closes), `asOf`, `sourceId`, `live`.
+Tracked: Brent, USD/INR, NIFTY 50, Sensex, Reliance, TCS, HDFC Bank, Infosys (Yahoo Finance) and Delhi petrol/diesel (curated from
+Business Today / Goodreturns, updated by hand). Live quotes refresh in the background every 15 min in `DATA_MODE=live`, and the
+curated snapshot is the offline fallback.
+
+### WeatherReport (`shared/schemas/weather.ts`)
+
+`countryId`, `place` (capital), `location`, `current` (temperature, precipitation, wind, WMO code + description), `daily`
+(7 days of max/min/precipitation), `asOf`, `sourceId` (`src_open_meteo`). Live in `DATA_MODE=live`, cached for 30 min and offline.
 
 ## Relationships
 

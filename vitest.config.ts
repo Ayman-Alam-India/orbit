@@ -1,4 +1,6 @@
 import react from '@vitejs/plugin-react'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
 
@@ -19,6 +21,8 @@ export default defineConfig({
       AI_PROVIDER: 'mock',
       GOOGLE_GENERATIVE_AI_API_KEY: '',
       GROQ_API_KEY: '',
+      // A fresh, empty disk cache per run: never the real server/.cache the dev server writes.
+      ORBIT_CACHE_DIR: join(tmpdir(), `orbit-test-cache-${Date.now()}`),
     },
     include: [
       'src/**/*.test.{ts,tsx}',

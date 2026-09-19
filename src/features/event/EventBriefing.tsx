@@ -41,8 +41,9 @@ export function EventBriefing({ event, countryId }: { event: OrbitEvent; country
             />
           ) : (
             <>
-              <StatTile label="Category" value={event.category} />
+              <StatTile label="Category" value={event.category} compact />
               <StatTile
+                compact
                 label="Actors"
                 value={event.actors.length ? event.actors.join(', ') : 'Not specified'}
               />

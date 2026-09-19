@@ -37,6 +37,14 @@
   --severity-4: #ff9f0a;
   --severity-5: #ff453a;
 
+  /* Ripple-effect channels (globe arcs and tags); hex so arcs can fade them */
+  --channel-energy: #ff9f0a;
+  --channel-shipping: #0a84ff;
+  --channel-trade: #30d158;
+  --channel-finance: #64d2ff;
+  --channel-health: #ff453a;
+  --channel-security: #ffd60a;
+
   /* Event kinds */
   --kind-geopolitical: var(--color-primary);
   --kind-health: var(--color-accent);

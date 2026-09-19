@@ -7,11 +7,14 @@ import { Color, MeshPhongMaterial, TextureLoader } from 'three'
 import { getStaticJson } from '../api/client'
 import { useCountries } from '../features/country/useCountry'
 import { useEvents } from '../features/event/useEvents'
+import { useMarkets } from '../features/markets/useMarkets'
+import { useImpacts } from '../features/ripple/useImpacts'
 import { paths, ROUTE_PATTERNS } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import { cssVar, severityColor } from '../styles/cssVar'
 import { needsRing, pinAltitude, ringColor, ringMaxRadius, tooltipHtml } from './globeStyle'
 import { MINI_GLOBE_ALTITUDE, MINI_GLOBE_ROTATE_SPEED } from './miniGlobe'
+import { rippleArcs, type RippleArc } from './rippleArcs'
 
 /** Public-domain NASA imagery (via the globe.gl examples), stored in public/textures so it works offline. */
 const TEXTURES = {
@@ -50,6 +53,8 @@ export default function OrbitGlobe() {
   })
   const events = useEvents()
   const countries = useCountries()
+  const impacts = useImpacts()
+  const markets = useMarkets()
   const [size, setSize] = useState({ width: window.innerWidth, height: window.innerHeight })
 
   useEffect(() => {
@@ -105,6 +110,18 @@ export default function OrbitGlobe() {
     })
   }, [material])
   const severeEvents = useMemo(() => (events.data ?? []).filter(needsRing), [events.data])
+  // Ripple effects: animated arcs from each event to the countries it affects.
+  const arcs = useMemo(
+    () =>
+      rippleArcs(
+        impacts.data ?? [],
+        events.data ?? [],
+        countries.data ?? [],
+        markets.data ?? [],
+        selectedCountryId,
+      ),
+    [impacts.data, events.data, countries.data, markets.data, selectedCountryId],
+  )
   const fadeRing = useMemo(() => ringColor(cssVar('--globe-ring')), [])
 
   return (
@@ -154,6 +171,18 @@ export default function OrbitGlobe() {
       ringPropagationSpeed={1.2}
       ringRepeatPeriod={1800}
       ringAltitude={0.002}
+      arcsData={arcs}
+      arcColor={(a: object) => {
+        const color = cssVar(`--channel-${(a as RippleArc).channel}` as `--${string}`)
+        return [`${color}00`, color, color]
+      }}
+      arcStroke={(a) => 0.25 + 0.2 * (a as RippleArc).strength}
+      arcAltitudeAutoScale={0.45}
+      arcDashLength={0.35}
+      arcDashGap={0.15}
+      arcDashInitialGap={() => Math.random()}
+      arcDashAnimateTime={2600}
+      arcLabel={(a) => tooltipHtml((a as RippleArc).label, 'Ripple effect')}
     />
   )
 }

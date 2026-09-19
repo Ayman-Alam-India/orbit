@@ -1,7 +1,11 @@
 # ORBIT
 
-AI-powered global intelligence on an interactive 3D globe: geopolitical and health signals, news, history and
-explainable AI, in one flow: **Global → Country → Event → Explanation → Ask ORBIT**.
+AI-powered global intelligence on an interactive 3D globe: geopolitical and health signals, news, history,
+markets, weather and explainable, multi-model-verified AI, in one flow: **Global → Country → Event → Explanation → Ask ORBIT**.
+
+**USP: ripple effects.** ORBIT shows how an event spreads: the Red Sea crisis → Brent crude → India's crude import
+bill → the rupee and pump prices. Every link is sourced or clearly labelled as ORBIT analysis, has a live market figure,
+and is drawn as an arc on the globe.
 
 Built in 24 hours by Arham, Ayman, Affan, Shrey and Hardik. This README is the team's starting point, and each section
 links to the document that holds the full detail.
@@ -79,15 +83,15 @@ API routes, entity fields and the mock-data format: [docs/API.md](docs/API.md).
 
 Defined in `.env.example` (committed) and parsed in `server/env.ts`. Put real values in a local `.env`, which is never committed.
 
-| Variable                       | Default                                  | Meaning                                                       |
-| ------------------------------ | ---------------------------------------- | ------------------------------------------------------------- |
-| `PORT`                         | `8787`                                   | API server port                                               |
-| `DATA_MODE`                    | `mock`                                   | `mock` = seed data only · `live` = seed + live sources        |
-| `AI_PROVIDER`                  | `mock`                                   | `mock` or `google`                                            |
-| `GOOGLE_GENERATIVE_AI_API_KEY` | empty                                    | Gemini key, only in your local `.env`                         |
-| `GOOGLE_MODEL`                 | `gemini-3.5-flash,gemini-3.5-flash-lite` | Gemini model(s), tried in order                               |
-| `GROQ_API_KEY`                 | empty                                    | Groq key (free tier): the second model for claim verification |
-| `GROQ_MODEL`                   | `openai/gpt-oss-120b`                    | Groq model used for verification                              |
+| Variable                       | Default                                  | Meaning                                                                                                  |
+| ------------------------------ | ---------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `PORT`                         | `8787`                                   | API server port                                                                                          |
+| `DATA_MODE`                    | `mock`                                   | `mock` = seed data only, offline · `live` = + live news, markets and weather (**use live for the demo**) |
+| `AI_PROVIDER`                  | `mock`                                   | `mock` or `google`                                                                                       |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | empty                                    | Gemini key, only in your local `.env`                                                                    |
+| `GOOGLE_MODEL`                 | `gemini-3.5-flash,gemini-3.5-flash-lite` | Gemini model(s), tried in order                                                                          |
+| `GROQ_API_KEY`                 | empty                                    | Groq key (free tier): the second model for claim verification                                            |
+| `GROQ_MODEL`                   | `openai/gpt-oss-120b`                    | Groq model used for verification                                                                         |
 
 Secrets never go in code, commits, chat, or `VITE_` variables.
 

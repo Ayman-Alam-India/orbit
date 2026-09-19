@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
  * A tiny disk cache (server/.cache/<key>.json, gitignored). Live sources save every good
  * response here, so the demo still works if the wifi dies.
  */
-const CACHE_DIR = resolve(process.cwd(), 'server/.cache')
+const CACHE_DIR = resolve(process.cwd(), process.env.ORBIT_CACHE_DIR ?? 'server/.cache')
 
 export async function readCache<T>(key: string): Promise<T | undefined> {
   try {
