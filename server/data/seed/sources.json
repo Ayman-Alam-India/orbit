@@ -75,5 +75,40 @@
     "url": "https://www.gdeltproject.org/",
     "type": "dataset",
     "reliability": "medium"
+  },
+  {
+    "id": "src_theprint_india_crude",
+    "name": "ThePrint: India’s crude import dependence rises to record 88.7% (27 Jul 2026)",
+    "url": "https://theprint.in/economy/indias-crude-import-dependence-rises-to-record-88-7-as-domestic-output-continues-to-decline/2998114/",
+    "type": "news",
+    "reliability": "high"
+  },
+  {
+    "id": "src_businesstoday_fuel",
+    "name": "Business Today: Petrol price in Delhi today (19 Sep 2026)",
+    "url": "https://www.businesstoday.in/fuel-price/petrol-price-in-delhi-today",
+    "type": "news",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_goodreturns_fuel",
+    "name": "Goodreturns: Diesel price in New Delhi (19 Sep 2026)",
+    "url": "https://www.goodreturns.in/diesel-price-in-new-delhi.html",
+    "type": "news",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_yahoo_finance",
+    "name": "Yahoo Finance: market data (indices, stocks, Brent, USD/INR)",
+    "url": "https://finance.yahoo.com/",
+    "type": "dataset",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_open_meteo",
+    "name": "Open-Meteo: weather forecast API",
+    "url": "https://open-meteo.com/",
+    "type": "dataset",
+    "reliability": "high"
   }
 ]

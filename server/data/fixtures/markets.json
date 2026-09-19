@@ -1,0 +1,39 @@
+[
+  {
+    "id": "mkt_brent",
+    "name": "Brent crude",
+    "kind": "commodity",
+    "symbol": "BZ=F",
+    "value": 80,
+    "currency": "USD",
+    "unit": "per barrel",
+    "previousClose": 82,
+    "history": [
+      {
+        "date": "2026-09-17T00:00:00Z",
+        "value": 82
+      },
+      {
+        "date": "2026-09-18T00:00:00Z",
+        "value": 80
+      }
+    ],
+    "asOf": "2026-09-18T00:00:00Z",
+    "sourceId": "src_mock_wire",
+    "live": false
+  },
+  {
+    "id": "mkt_usd_inr",
+    "name": "USD/INR",
+    "kind": "fx",
+    "symbol": "INR=X",
+    "countryId": "IND",
+    "value": 84,
+    "currency": "INR",
+    "unit": "INR per USD",
+    "previousClose": 83.5,
+    "asOf": "2026-09-18T00:00:00Z",
+    "sourceId": "src_mock_wire",
+    "live": false
+  }
+]

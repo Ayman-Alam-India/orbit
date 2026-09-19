@@ -3,7 +3,9 @@ import type {
   AskAnswer,
   AskRequest,
   Country,
+  ImpactLink,
   InsightSubjectType,
+  MarketQuote,
   NewsHeadline,
   OrbitEvent,
   Source,
@@ -15,6 +17,9 @@ export type AiContext = {
   events: OrbitEvent[]
   news: NewsHeadline[]
   sources: Source[]
+  /** Ripple effects touching the subject, and the market figures they point to. */
+  impacts: ImpactLink[]
+  markets: MarketQuote[]
 }
 
 export type InsightRequest = {

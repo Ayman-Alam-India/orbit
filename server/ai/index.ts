@@ -5,7 +5,9 @@ import {
   type AIInsight,
   type AskAnswer,
   type AskRequest,
+  type ImpactLink,
   type InsightSubjectType,
+  type OrbitEvent,
 } from '@shared'
 import { store } from '../data/store'
 import { env } from '../env'
@@ -31,30 +33,61 @@ export function buildContext(subjectType: InsightSubjectType, subjectId: string)
   const sources = store.getSources()
   if (subjectType === 'global') {
     if (subjectId !== GLOBAL_SUBJECT_ID) throw notFound(`Global subject "${subjectId}"`)
-    return {
-      countries: store.getCountries(),
-      events: store.getEvents(),
-      news: store.getNews(),
-      sources,
-    }
+    return withRipples(
+      {
+        countries: store.getCountries(),
+        events: store.getEvents(),
+        news: store.getNews(),
+        sources,
+      },
+      store.getImpacts(),
+    )
   }
   if (subjectType === 'country') {
     const country = store.getCountries().find((c) => c.id === subjectId)
     if (!country) throw notFound(`Country "${subjectId}"`)
-    return {
-      countries: [country],
-      events: store.getEventsByCountry(country.id),
-      news: store.getNews(country.id),
-      sources,
-    }
+    return withRipples(
+      {
+        countries: [country],
+        events: store.getEventsByCountry(country.id),
+        news: store.getNews(country.id),
+        sources,
+      },
+      store.getImpacts({ countryId: country.id }),
+    )
   }
   const event = store.getEvent(subjectId)
   if (!event) throw notFound(`Event "${subjectId}"`)
+  return withRipples(
+    {
+      countries: store.getCountries().filter((c) => event.countryIds.includes(c.id)),
+      events: [event],
+      news: store.getNews().filter((n) => n.eventId === event.id),
+      sources,
+    },
+    store.getImpacts({ eventId: event.id }),
+  )
+}
+
+/**
+ * Adds ripple effects to a context: the links themselves, the market figures they point to, and the
+ * events that cause them (so a question about India also sees the Red Sea crisis that affects it).
+ */
+function withRipples(
+  base: Omit<AiContext, 'impacts' | 'markets'>,
+  impacts: ImpactLink[],
+): AiContext {
+  const marketIds = new Set(
+    impacts.flatMap((i) => [i.marketId, i.target.kind === 'market' ? i.target.id : undefined]),
+  )
+  const causes = impacts
+    .map((i) => store.getEvent(i.eventId))
+    .filter((e): e is OrbitEvent => Boolean(e) && !base.events.some((b) => b.id === e?.id))
   return {
-    countries: store.getCountries().filter((c) => event.countryIds.includes(c.id)),
-    events: [event],
-    news: store.getNews().filter((n) => n.eventId === event.id),
-    sources,
+    ...base,
+    events: [...base.events, ...new Map(causes.map((e) => [e.id, e])).values()],
+    impacts,
+    markets: store.getMarkets().filter((m) => marketIds.has(m.id)),
   }
 }
 

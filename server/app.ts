@@ -5,6 +5,7 @@ import { countriesRouter } from './routes/countries'
 import { eventsRouter } from './routes/events'
 import { metaRouter } from './routes/meta'
 import { newsRouter } from './routes/news'
+import { worldRouter } from './routes/world'
 
 /** Builds the Express app. Exported separately from index.ts so tests can start it on a random port. */
 export function createApp() {
@@ -17,6 +18,7 @@ export function createApp() {
   app.use('/api/countries', countriesRouter)
   app.use('/api/events', eventsRouter)
   app.use('/api/news', newsRouter)
+  app.use('/api', worldRouter)
 
   app.use(notFoundHandler)
   app.use(errorHandler)
