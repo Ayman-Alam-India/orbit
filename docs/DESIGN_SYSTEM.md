@@ -63,13 +63,15 @@ variant). Panels are dark glass: translucent, blurred, thin cyan hairline, 14px 
 
 ## Globe
 
-Dark hologram in orange (decided 2026-09-19): near-black ocean, faint orange country fills, orange border hairlines and a
-warm atmosphere. Cyan stays the UI colour (links, focus, buttons). Orange is used for the globe and key highlights.
+Realistic Earth (decided 2026-09-19): NASA Blue Marble day texture, terrain bump map, shiny oceans (specular water
+map) and a starfield page background. Textures are public domain (via the globe.gl examples) and live in
+`public/textures/` so the demo works offline. Countries are faint white hairlines. Hover lightens a country, and the
+selected country is filled orange (`--globe-land-selected`), which keeps orange as the highlight colour.
 
 - **Pins:** every event gets a thin pin coloured by severity (`--severity-N`). More severe events get taller pins, but pins always stay short.
 - **Rings:** only severity 4–5 events get a small ripple ring that fades as it grows (`src/globe/globeStyle.ts`, `--globe-ring`).
 - **Motion:** the global view rotates slowly when idle. Rotation pauses while the user drags and resumes after 4 s. In detail views
-  the globe becomes the bottom-left mini globe (see Motion and layers). In the global view it is centred left of the panel column.
+  the globe becomes the bottom-left mini globe. In the global view it is centred left of the panel column.
 - **Tooltips:** `.globe-tooltip` in `global.css` (the globe library renders labels as HTML strings, and the text is escaped).
 
 ## Primitives (`src/ui`, import from `../../ui`)
