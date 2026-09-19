@@ -4,36 +4,38 @@
  * the same tokens with cssVar() from src/styles/cssVar.ts. See docs/DESIGN_SYSTEM.md.
  */
 :root {
-  /* Surfaces: deep black to near-black */
-  --color-bg: #03050a;
-  --color-bg-elevated: #0a0f1a;
-  --color-surface: rgba(10, 16, 28, 0.72);
-  --color-surface-hover: rgba(18, 28, 46, 0.85);
+  /* Surfaces (Apple dark materials): true black page, translucent frosted surfaces */
+  --color-bg: #000000;
+  --color-bg-elevated: #1c1c1e;
+  --color-surface: rgba(44, 44, 46, 0.42);
+  --color-surface-hover: rgba(58, 58, 60, 0.6);
+  /* Fill for inputs and search fields (Apple tertiary system fill) */
+  --color-fill: rgba(118, 118, 128, 0.24);
 
-  /* Lines */
-  --color-border: rgba(0, 229, 255, 0.16);
-  --color-border-strong: rgba(0, 229, 255, 0.45);
+  /* Lines: hairlines, not outlines */
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.18);
 
-  /* Text */
-  --color-text: #e6f1ff;
-  --color-text-muted: #8aa0b8;
-  --color-text-faint: #52657a;
+  /* Text (Apple label colours) */
+  --color-text: #f5f5f7;
+  --color-text-muted: rgba(235, 235, 245, 0.62);
+  --color-text-faint: rgba(235, 235, 245, 0.38);
 
-  /* Brand: electric cyan (primary), amber (accent), orange (alert) */
-  --color-primary: #00e5ff;
-  --color-primary-dim: #0091a8;
-  --color-accent: #ffb300;
-  --color-alert: #ff6a00;
-  --color-highlight: #ff8a2a;
-  --color-success: #2ee6a6;
-  --color-danger: #ff4d4d;
+  /* Brand, in Apple system tints: cyan (primary), orange (accent + highlight) */
+  --color-primary: #64d2ff;
+  --color-primary-dim: #0a84ff;
+  --color-accent: #ff9f0a;
+  --color-alert: #ff6b3d;
+  --color-highlight: #ff9f0a;
+  --color-success: #30d158;
+  --color-danger: #ff453a;
 
-  /* Shared severity scale 1–5 (matches SeveritySchema): cyan → amber → orange */
-  --severity-1: #00e5ff;
-  --severity-2: #7ae8f5;
-  --severity-3: #ffd23f;
-  --severity-4: #ffb300;
-  --severity-5: #ff6a00;
+  /* Shared severity scale 1–5 (matches SeveritySchema): cyan → yellow → orange → red */
+  --severity-1: #64d2ff;
+  --severity-2: #40c8e0;
+  --severity-3: #ffd60a;
+  --severity-4: #ff9f0a;
+  --severity-5: #ff453a;
 
   /* Event kinds */
   --kind-geopolitical: var(--color-primary);
@@ -48,12 +50,17 @@
   --globe-border: rgba(255, 255, 255, 0.22);
   --globe-atmosphere: #6ab7ff;
   /* Ripple rings around severe events: an r, g, b triplet (alpha is animated in code) */
-  --globe-ring: 255, 106, 0;
+  --globe-ring: 255, 159, 10;
 
   /* Typography */
-  --font-display: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
-  --font-body: 'Inter', 'Segoe UI', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', Consolas, monospace;
+  /* San Francisco on Apple devices; Inter / Segoe UI elsewhere */
+  --font-display:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-body:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Consolas, monospace;
+  /* Section labels and small metadata: the body font, not monospace */
+  --font-label: var(--font-body);
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-md: 1rem;
@@ -63,9 +70,11 @@
   --text-3xl: 2.75rem;
   --weight-regular: 400;
   --weight-medium: 500;
+  --weight-semibold: 600;
   --weight-bold: 700;
-  --tracking-label: 0.12em;
-  --leading-tight: 1.2;
+  --tracking-label: 0.04em;
+  --tracking-title: -0.02em;
+  --leading-tight: 1.15;
   --leading-body: 1.55;
 
   /* Spacing (4px grid) */
@@ -80,24 +89,27 @@
 
   /* Borders and radii */
   --border-width: 1px;
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 14px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
   --radius-pill: 999px;
 
   /* Shadows and glows */
-  --shadow-panel: 0 12px 40px rgba(0, 0, 0, 0.55);
-  --glow-primary: 0 0 24px rgba(0, 229, 255, 0.35);
-  --glow-accent: 0 0 24px rgba(255, 179, 0, 0.35);
-  --glow-alert: 0 0 24px rgba(255, 106, 0, 0.45);
-  --glow-soft: 0 0 18px rgba(0, 229, 255, 0.16);
-  --blur-panel: 14px;
+  /* Soft depth instead of neon glow */
+  --shadow-panel: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --glow-primary: 0 0 0 3px rgba(100, 210, 255, 0.22);
+  --glow-accent: 0 0 0 3px rgba(255, 159, 10, 0.22);
+  --glow-alert: 0 0 14px rgba(255, 69, 58, 0.3);
+  --glow-soft: 0 16px 40px rgba(0, 0, 0, 0.35);
+  --blur-panel: 40px;
+  --backdrop: blur(40px) saturate(180%);
 
-  /* Glass panels */
-  --glass-bg: linear-gradient(160deg, rgba(14, 24, 42, 0.78) 0%, rgba(6, 11, 22, 0.7) 100%);
-  --glass-border: rgba(0, 229, 255, 0.16);
-  --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --glass-accent-border: rgba(255, 179, 0, 0.35);
+  /* Frosted material (Apple 'thin material', dark) */
+  --glass-bg: rgba(30, 30, 32, 0.56);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-highlight: inset 0 0.5px 0 rgba(255, 255, 255, 0.14);
+  --glass-accent-border: rgba(255, 159, 10, 0.3);
 
   /* Motion */
   --duration-fast: 150ms;
@@ -115,7 +127,7 @@
 
   /* Layout */
   --panel-width: 420px;
-  --topbar-height: 56px;
+  --topbar-height: 72px;
   --center-width: 760px;
   --mini-globe-size: 220px;
   --drawer-width: 420px;

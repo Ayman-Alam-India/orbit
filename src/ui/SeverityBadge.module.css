@@ -1,12 +1,13 @@
 .badge {
   --badge-color: var(--severity-1);
   display: inline-block;
-  padding: 2px var(--space-2);
-  border: var(--border-width) solid var(--badge-color);
+  padding: 3px var(--space-2);
   border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--badge-color) 18%, transparent);
   color: var(--badge-color);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
   white-space: nowrap;
 }
 
@@ -24,7 +25,6 @@
 
 .badge[data-severity='5'] {
   --badge-color: var(--severity-5);
-  box-shadow: var(--glow-alert);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -35,6 +35,6 @@
 
 @keyframes severity-pulse {
   50% {
-    box-shadow: none;
+    background: color-mix(in srgb, var(--badge-color) 32%, transparent);
   }
 }

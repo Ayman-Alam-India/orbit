@@ -47,7 +47,7 @@
 
 .label {
   color: var(--color-text-faint);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--text-xs);
   letter-spacing: var(--tracking-label);
   text-transform: uppercase;
@@ -97,6 +97,6 @@ a.chip:hover {
 .provider {
   margin-left: auto;
   color: var(--color-accent);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
   font-size: var(--text-xs);
 }

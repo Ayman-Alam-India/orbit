@@ -20,6 +20,7 @@ body {
   font-size: var(--text-md);
   line-height: var(--leading-body);
   -webkit-font-smoothing: antialiased;
+  font-variant-numeric: tabular-nums;
   overflow: hidden;
 }
 
@@ -27,6 +28,8 @@ h1,
 h2,
 h3 {
   font-family: var(--font-display);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-title);
   line-height: var(--leading-tight);
   margin: 0;
 }
@@ -77,7 +80,7 @@ button {
   border: var(--border-width) solid var(--globe-border);
   border-radius: var(--radius-sm);
   background: var(--glass-bg);
-  backdrop-filter: blur(var(--blur-panel));
+  backdrop-filter: var(--backdrop);
   font-family: var(--font-body);
   font-size: var(--text-xs);
   color: var(--color-text);
@@ -85,5 +88,5 @@ button {
 
 .globe-tooltip span {
   color: var(--color-text-muted);
-  font-family: var(--font-mono);
+  font-family: var(--font-label);
 }

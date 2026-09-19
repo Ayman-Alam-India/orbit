@@ -5,6 +5,7 @@ import { paths, ROUTE_PATTERNS } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import { ErrorBoundary, Loader } from '../ui'
 import styles from './OrbitLayout.module.css'
+import { HeadlineTicker } from './HeadlineTicker'
 import { TopBar } from './TopBar'
 import { useMiniGlobeTransform } from './useMiniGlobeTransform'
 
@@ -53,6 +54,10 @@ export function OrbitLayout() {
       )}
 
       <TopBar />
+
+      <div className={styles.ticker}>
+        <HeadlineTicker />
+      </div>
 
       <main className={styles.overlay}>
         <div key={location.pathname} className={styles.view}>
