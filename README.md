@@ -1,25 +1,53 @@
 # Incident Console
 
-A React + TypeScript + Vite workshop playground for moving from chat to agent workflows, tests, tools, and MCP.
+React + TypeScript + Vite app for tracking production incidents, services, and workspace settings.
 
-## Run it
+## Quick start
 
 ```bash
 npm install
 npm run dev
 ```
 
-Useful checks: `npm run test`, `npm run build`, and `npm run lint`.
+## Scripts
 
-The app contains intentionally seeded behavioral bugs. The baseline test suite passes while those bugs remain. See [solutions.md](solutions.md) for facilitator notes and repair guidance.
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite dev server |
+| `npm run build` | Typecheck and production build |
+| `npm run test` | Run Vitest once |
+| `npm run test:watch` | Run Vitest in watch mode |
+| `npm run lint` | ESLint |
+| `npm run format` | Prettier |
 
-## Workshop map
+## Project layout
 
-- Dashboard, incident list, detail, services, and settings routes
-- TanStack Query data flow with seeded pagination and mutation exercises
-- Testing Library/Vitest baseline, including a deliberately weak test
-- MSW handlers in `src/mocks`
-- Local MCP data under `workshop-data/` and a stdio server in `mcp/server.mjs`
-- VS Code MCP registration in `.vscode/mcp.json`
+```
+src/
+  api.ts          In-memory API (swap for real HTTP when ready)
+  data.ts         Seed incidents and services
+  queryKeys.ts    TanStack Query key factory
+  pages/          Route screens
+  components/     Shared UI
+  test/           Test helpers and setup
+mcp/              Stdio MCP server for workshop/agent tooling
+workshop-data/    JSON datasets used by the MCP server
+```
 
-MCP tools: `list_incidents`, `get_incident`, `list_service_health`, `get_recent_deploys`, and `search_logs`.
+## Routes
+
+- `/` — Dashboard
+- `/incidents` — Paginated incident list with search and status filter
+- `/incidents/:id` — Incident detail and acknowledge action
+- `/services` — Service health grid
+- `/settings` — Workspace preferences (static for now)
+
+## MCP (optional)
+
+VS Code / Cursor can attach the local MCP server via `.vscode/mcp.json`. Tools: `list_incidents`, `get_incident`, `list_service_health`, `get_recent_deploys`, `search_logs`.
+
+Run from the repo root so `workshop-data/` resolves correctly:
+
+```bash
+node mcp/server.mjs
+```
