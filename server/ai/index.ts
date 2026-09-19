@@ -27,7 +27,7 @@ function selectedProvider(): AiProvider {
 export const activeProviderName = () => selectedProvider().name
 
 /** Collects the seed data an answer should be based on. Unknown IDs become 404s. */
-function buildContext(subjectType: InsightSubjectType, subjectId: string): AiContext {
+export function buildContext(subjectType: InsightSubjectType, subjectId: string): AiContext {
   const sources = store.getSources()
   if (subjectType === 'global') {
     if (subjectId !== GLOBAL_SUBJECT_ID) throw notFound(`Global subject "${subjectId}"`)
