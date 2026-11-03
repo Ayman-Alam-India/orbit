@@ -19,6 +19,7 @@ const gdeltArticle = {
 }
 
 const { getNewsFeed, refreshNews, refreshNewsFeed, refreshTimeout } = await import('.')
+const { googleNewsUrl, parseGoogleNews } = await import('./googleNews')
 
 beforeEach(() => {
   gdeltThrottle.minGapMs = 0
@@ -44,66 +45,129 @@ describe('GDELT mapping', () => {
   })
 })
 
+const rss = (items: string) =>
+  `<?xml version="1.0"?><rss version="2.0"><channel>${items}</channel></rss>`
+const rssItem = (title: string, link: string, date = 'Tue, 03 Nov 2026 09:00:00 GMT') =>
+  `<item><title>${title} - Reuters</title><link>${link}</link><pubDate>${date}</pubDate><source url="https://www.reuters.com">Reuters</source></item>`
+const googleOk = () =>
+  new Response(
+    rss(rssItem('Brazil &amp; Chile sign deal', 'https://news.google.com/rss/articles/abc')),
+  )
+const gdeltOk = () => new Response(JSON.stringify({ articles: [gdeltArticle] }), { status: 200 })
+/** fetch stub that answers per host, so a test can fail one source and not the other. */
+const byHost =
+  (google: () => Promise<Response> | Response, gdelt: () => Promise<Response> | Response) =>
+  async (url: string | URL) => (String(url).includes('news.google.com') ? google() : gdelt())
+
+describe('Google News mapping', () => {
+  it('turns RSS items into valid headlines with the outlet split off the title', () => {
+    const [h] = parseGoogleNews(
+      rss(rssItem('Brazil &amp; Chile sign deal', 'https://news.google.com/rss/articles/abc')),
+      ['BRA'],
+    )
+    expect(NewsHeadlineSchema.parse(h)).toMatchObject({
+      title: 'Brazil & Chile sign deal',
+      publishedAt: '2026-11-03T09:00:00.000Z',
+      sourceId: 'src_google_news',
+      publisher: 'reuters.com',
+      countryIds: ['BRA'],
+    })
+    expect(h.id).toMatch(/^news_gnews_[0-9a-f]+$/)
+  })
+
+  it('drops broken items and keeps the newest first', () => {
+    const items = parseGoogleNews(
+      rss(
+        rssItem('Older', 'https://example.org/1', 'Mon, 02 Nov 2026 09:00:00 GMT') +
+          '<item><title>No link</title></item>' +
+          rssItem('Newer', 'https://example.org/2'),
+      ),
+      [],
+    )
+    expect(items.map((n) => n.title)).toEqual(['Newer', 'Older'])
+  })
+
+  it('searches by country name, or uses world top stories', () => {
+    expect(googleNewsUrl('Brazil')).toContain('q=%22Brazil%22')
+    expect(googleNewsUrl()).toContain('/topic/WORLD')
+  })
+})
+
 describe('live news feed', () => {
-  it('merges live headlines after the curated ones and caches them', async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(JSON.stringify({ articles: [gdeltArticle] }), { status: 200 }),
-      )
+  it('merges Google headlines after the curated ones and caches them', async () => {
+    const fetchMock = vi.fn(byHost(googleOk, gdeltOk))
     vi.stubGlobal('fetch', fetchMock)
     // First call answers at once with curated headlines and starts a background refresh.
     const first = await getNewsFeed('BRA')
-    expect(first.every((n) => n.sourceId !== 'src_gdelt')).toBe(true)
+    expect(first.every((n) => n.sourceId !== 'src_google_news')).toBe(true)
     await refreshNewsFeed('BRA')
     const feed = await getNewsFeed('BRA')
-    expect(feed.some((n) => n.publisher === 'example.net')).toBe(true)
-    expect(feed.some((n) => n.sourceId !== 'src_gdelt')).toBe(true)
-    expect(String(fetchMock.mock.calls[0][0])).toContain('%22Brazil%22')
+    expect(feed.some((n) => n.title === 'Brazil & Chile sign deal')).toBe(true)
+    expect(String(fetchMock.mock.calls[0][0])).toContain('news.google.com')
     expect(cache.has('news-BRA')).toBe(true)
 
-    // Within 30 minutes the cache is fresh: no new request.
+    // Within 10 minutes the cache is fresh: no new request, and GDELT was never needed.
     await getNewsFeed('BRA')
     expect(fetchMock).toHaveBeenCalledOnce()
   })
 
-  it('falls back to curated headlines when GDELT fails (e.g. no wifi)', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
-    await refreshNewsFeed('IND')
-    const feed = await getNewsFeed('IND')
-    expect(feed.length).toBeGreaterThan(0)
-    expect(feed.every((n) => n.sourceId !== 'src_gdelt')).toBe(true)
+  it('falls back to GDELT when Google News fails', async () => {
+    vi.stubGlobal('fetch', vi.fn(byHost(() => new Response('nope', { status: 503 }), gdeltOk)))
+    expect(await refreshNewsFeed('BRA')).toBe(true)
+    const feed = await getNewsFeed('BRA')
+    expect(feed.some((n) => n.publisher === 'example.net')).toBe(true)
   })
 
-  it('treats a rate-limit text reply as a failure', async () => {
+  it('falls back to curated headlines when both fail (e.g. no wifi)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
+    expect(await refreshNewsFeed('IND')).toBe(false)
+    const feed = await getNewsFeed('IND')
+    expect(feed.length).toBeGreaterThan(0)
+    expect(feed.every((n) => n.sourceId !== 'src_google_news' && n.sourceId !== 'src_gdelt')).toBe(
+      true,
+    )
+  })
+
+  it('keeps the saved headlines when a quiet country returns none', async () => {
+    vi.stubGlobal('fetch', vi.fn(byHost(googleOk, gdeltOk)))
+    await refreshNewsFeed('BRA')
+    vi.stubGlobal('fetch', vi.fn(byHost(() => new Response(rss('')), gdeltOk)))
+    expect(await refreshNewsFeed('BRA')).toBe(false)
+    expect((await getNewsFeed('BRA')).some((n) => n.title === 'Brazil & Chile sign deal')).toBe(
+      true,
+    )
+  })
+
+  it('treats a GDELT rate-limit text reply as a failure', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(new Response('Please limit requests to one every 5 seconds')),
+      vi.fn(
+        byHost(
+          () => new Response('nope', { status: 503 }),
+          () => new Response('Please limit requests to one every 5 seconds'),
+        ),
+      ),
     )
-    await refreshNewsFeed('USA')
-    const feed = await getNewsFeed('USA')
-    expect(feed.every((n) => n.sourceId !== 'src_gdelt')).toBe(true)
+    expect(await refreshNewsFeed('USA')).toBe(false)
   })
 })
 
 describe('refresh button (refreshNews)', () => {
-  const ok = () => new Response(JSON.stringify({ articles: [gdeltArticle] }), { status: 200 })
-
-  it('waits for GDELT and answers with the fresh headlines', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(ok()))
+  it('waits for the live source and answers with the fresh headlines', async () => {
+    vi.stubGlobal('fetch', vi.fn(byHost(googleOk, gdeltOk)))
     const result = NewsRefreshResultSchema.parse(await refreshNews('BRA'))
     expect(result.refreshed).toBe(true)
     expect(result.fetchedAt).toBeDefined()
-    expect(result.headlines.some((n) => n.publisher === 'example.net')).toBe(true)
+    expect(result.headlines.some((n) => n.publisher === 'reuters.com')).toBe(true)
   })
 
-  it('answers with the saved headlines when GDELT fails', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(ok()))
+  it('answers with the saved headlines when every source fails', async () => {
+    vi.stubGlobal('fetch', vi.fn(byHost(googleOk, gdeltOk)))
     await refreshNewsFeed('BRA')
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
     const result = await refreshNews('BRA')
     expect(result.refreshed).toBe(false)
-    expect(result.headlines.some((n) => n.publisher === 'example.net')).toBe(true)
+    expect(result.headlines.some((n) => n.publisher === 'reuters.com')).toBe(true)
   })
 
   it('gives up after the timeout instead of hanging the click', async () => {

@@ -6,6 +6,7 @@ import { formatDate, shortSourceName } from '../event/format'
 import { useSources } from '../event/useSources'
 import styles from './NewsList.module.css'
 import { RefreshNews } from './RefreshNews'
+import { recentAgo, useNow } from './updatedAgo'
 import { useNews } from './useNews'
 
 type NewsListProps = {
@@ -16,11 +17,12 @@ type NewsListProps = {
 }
 
 /**
- * Latest headlines (decision owner: Shrey). Each row: title (opens the source), source name and date,
- * plus a link to the ORBIT event when the headline is about one.
+ * Latest headlines (decision owner: Shrey). Each row: title (opens the source), source name and
+ * time ("12 min ago" today, the date before that), plus a link to the ORBIT event when there is one.
  */
 export function NewsList({ countryId, limit = 6 }: NewsListProps) {
   const query = useNews(countryId)
+  const now = useNow()
   const sources = useSources()
   const sourceName = (id: string) => {
     const name = sources.data?.find((s) => s.id === id)?.name
@@ -43,7 +45,7 @@ export function NewsList({ countryId, limit = 6 }: NewsListProps) {
                 <span className={styles.meta}>
                   <span>{n.publisher ?? sourceName(n.sourceId)}</span>
                   <span>·</span>
-                  <span>{formatDate(n.publishedAt)}</span>
+                  <span>{recentAgo(n.publishedAt, now) ?? formatDate(n.publishedAt)}</span>
                   {n.eventId && n.countryIds[0] && (
                     <Link to={paths.event(n.countryIds[0], n.eventId)} className={styles.eventLink}>
                       View event →

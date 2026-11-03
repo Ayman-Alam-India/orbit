@@ -59,7 +59,7 @@ Always build paths with `API_ROUTES` from `@shared`. The column "Builder" shows 
 | `POST /api/events/scan`                     | `API_ROUTES.scanEvents`          | `OrbitEvent[]`: runs a detection scan now instead of waiting for the background one                                                 | none                                                          |
 | `GET /api/events/:id`                       | `API_ROUTES.event(id)`           | `OrbitEvent`                                                                                                                        | 400 bad ID, 404                                               |
 | `GET /api/news?countryId=`                  | `API_ROUTES.news(countryId?)`    | `NewsHeadline[]` newest first. Without `countryId`: all                                                                             | 400 bad ID                                                    |
-| `POST /api/news/refresh`                    | `API_ROUTES.newsRefresh`         | `NewsRefreshResult`: asks GDELT for fresh headlines now and waits (max 45 s). Body `{ countryId? }`                                 | 400 bad ID, 404 unknown country                               |
+| `POST /api/news/refresh`                    | `API_ROUTES.newsRefresh`         | `NewsRefreshResult`: asks the live source for fresh headlines now and waits (max 20 s). Body `{ countryId? }`                       | 400 bad ID, 404 unknown country                               |
 | `GET /api/sources`                          | `API_ROUTES.sources`             | `Source[]`                                                                                                                          | none                                                          |
 | `GET /api/insights/:subjectType/:subjectId` | `API_ROUTES.insight(type, id)`   | `AIInsight`. `subjectType` = `global` (id `world`), `country` (country ID) or `event` (event ID)                                    | 400 bad type, 404 unknown subject                             |
 | `POST /api/ask`                             | `API_ROUTES.ask`                 | `AskAnswer`                                                                                                                         | 400 invalid body                                              |
@@ -139,7 +139,7 @@ Check `kind` before using kind-specific fields.
 
 Answer of `POST /api/news/refresh` (the news panel's refresh button):
 `headlines` (same list as `GET /api/news`), `fetchedAt` (optional: when the saved live headlines were fetched),
-`refreshed` (`false` when `DATA_MODE=mock`, or GDELT failed or took over 45 s: `headlines` are then the saved ones).
+`refreshed` (`false` when `DATA_MODE=mock`, or the live sources failed or took over 20 s: `headlines` are then the saved ones).
 In `DATA_MODE=mock` this route never calls GDELT.
 
 ### Source (`shared/schemas/source.ts`)
@@ -263,16 +263,19 @@ Rules for every live source (server-side only):
 4. Live items must follow the same ID rules (e.g. `news_<source>_<slug>`) and reference existing sources.
 5. A new external API key = a new empty line in `.env.example` + a field in `server/env.ts`.
 
-**Live news (implemented): GDELT** (`server/sources/gdelt.ts`), free and keyless.
+**Live news (implemented): Google News RSS, with GDELT as fallback** (`server/sources/googleNews.ts`, `gdelt.ts`), both free and keyless.
 
-- Feeds: one per country (query = the country's name) plus a global feed (the countries with severity 4–5 events).
-  English-language articles from the last 7 days, max 10 per feed, `id` = `news_gdelt_<hash of URL>`.
-- `GET /api/news` answers **immediately** with seed + cached live headlines. A stale or missing cache (over 30 min old)
-  starts a background refresh, so GDELT's slowness never blocks the UI. Live headlines therefore appear on the next load.
-- In `DATA_MODE=live` the server pre-fetches every feed on startup (`[sources] warming live news…`), one request
-  every 10 s with a 20 s back-off on HTTP 429, because GDELT rate-limits hard. Start it well before the demo so the cache is full.
-- `POST /api/news/refresh` (the news panel's ↻ button) skips the 30-min wait for one feed and waits for GDELT,
-  max 45 s. On a failure or timeout it answers with the saved headlines and `refreshed: false`.
+- Feeds: one per country (Google News search for the country's name, last 2 days) plus a global feed (Google News
+  world top stories). English, max 10 per feed, newest first, `id` = `news_gnews_<hash of link>`, `sourceId` = `src_google_news`,
+  `publisher` = the outlet's domain. Google answers in about a second.
+- If Google News fails for a feed, GDELT is tried (`news_gdelt_...`, `src_gdelt`): last 7 days, one request every 10 s,
+  20 s back-off on HTTP 429, because GDELT rate-limits hard. An empty answer keeps the feed's saved headlines.
+- In `DATA_MODE=live` the server refreshes **every feed on startup and again every 10 min** (one feed per second, about a minute
+  per pass; it logs `[sources] live news: N/M feeds updated`). The news panel re-fetches every 2 min, so headlines update with no click.
+- `GET /api/news` answers **immediately** with seed + cached live headlines; a feed older than 10 min also starts a background refresh.
+- `POST /api/news/refresh` (the news panel's ↻ button) refreshes one feed now and waits, max 20 s. On a failure or timeout it
+  answers with the saved headlines and `refreshed: false`.
+- The automatic event detector (`server/ingest/`) reads both Google News and GDELT headlines.
 - Cached feeds live in `server/.cache/news-<COUNTRY|global>.json`. With wifi off, cached and seed headlines keep working.
 
 ## Changing this contract

@@ -13,11 +13,15 @@ export const newsKeys = {
   dataMode: ['news', 'dataMode'] as const,
 }
 
-/** Headlines, newest first. Without a countryId: all headlines. */
+/** The server keeps every feed fresh in the background; the panel picks up new headlines this often. */
+export const NEWS_POLL_MS = 2 * 60_000
+
+/** Headlines, newest first. Without a countryId: all headlines. Updates itself while on screen. */
 export const useNews = (countryId?: CountryId) =>
   useQuery({
     queryKey: newsKeys.list(countryId),
     queryFn: () => apiGet<NewsHeadline[]>(API_ROUTES.news(countryId)),
+    refetchInterval: NEWS_POLL_MS,
   })
 
 /** "mock" or "live": the refresh button only works when the server fetches live news. */

@@ -7,6 +7,7 @@ import { env } from '../env'
 import { withGoogleModels } from '../ai/providers/googleModels'
 import { readCache, writeCache } from '../sources/cache'
 import { GDELT_SOURCE_ID } from '../sources/gdelt'
+import { GOOGLE_NEWS_SOURCE_ID } from '../sources/googleNews'
 import { getNewsFeed } from '../sources'
 import {
   classifyHeadlines,
@@ -21,7 +22,7 @@ import {
  * itself, and marks them `origin: 'auto'` so the UI can show them as detected but unverified.
  *
  * Guardrails, because this is the part that could invent things:
- * - only live headlines (GDELT) from the last few days are considered;
+ * - only live headlines (Google News, GDELT) from the last few days are considered;
  * - a headline must match a known kind of event, or it is skipped, never guessed at;
  * - the summary is written from the headline titles only, and any summary containing a figure that is
  *   not in those headlines is thrown away in favour of a plain quote of the headlines;
@@ -45,7 +46,8 @@ type AutoEventCache = { scannedAt: number; events: OrbitEvent[] }
 
 let scanning: Promise<OrbitEvent[]> | undefined
 
-const isLive = (n: NewsHeadline) => n.sourceId === GDELT_SOURCE_ID
+const LIVE_SOURCES = new Set([GOOGLE_NEWS_SOURCE_ID, GDELT_SOURCE_ID])
+const isLive = (n: NewsHeadline) => LIVE_SOURCES.has(n.sourceId)
 const isRecent = (n: NewsHeadline) => Date.now() - Date.parse(n.publishedAt) < HEADLINE_MAX_AGE_MS
 
 /** Two titles describe the same story when they share three or more significant words. */
@@ -120,7 +122,8 @@ function buildEvent(
     location: country.centroid,
     occurredAt: newest,
     severity: detail.severity,
-    sourceIds: [GDELT_SOURCE_ID],
+    // Cite the feeds the headlines actually came from.
+    sourceIds: [...new Set(candidate.headlines.map((h) => h.sourceId))],
     tags: [candidate.label, 'auto-detected'],
     origin: 'auto' as const,
     detectedAt: new Date().toISOString(),
