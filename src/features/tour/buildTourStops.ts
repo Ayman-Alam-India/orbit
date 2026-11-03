@@ -79,16 +79,20 @@ export function buildTourStops(
     .sort((a, b) => b.strength - a.strength)[0]
   if (chainRoot) {
     const chain: ImpactLink[] = [chainRoot]
-    for (let next = impacts.find((i) => i.followsImpactId === chainRoot.id); next; ) {
+    for (let next = impacts.find((i) => i.followsImpactId === chainRoot.id); next;) {
       chain.push(next)
       const current: ImpactLink = next
       next = impacts.find((i) => i.followsImpactId === current.id)
     }
     const cause = events.find((e) => e.id === chainRoot.eventId)
     const landing = chain
-      .map((l) => (l.target.kind === 'country' ? countries.find((c) => c.id === l.target.id) : undefined))
+      .map((l) =>
+        l.target.kind === 'country' ? countries.find((c) => c.id === l.target.id) : undefined,
+      )
       .find(Boolean)
-    const steps = chain.map((l) => `${l.effect.toLowerCase()} (${targetName(l, countries, markets)})`)
+    const steps = chain.map(
+      (l) => `${l.effect.toLowerCase()} (${targetName(l, countries, markets)})`,
+    )
     stops.push({
       id: `ripple_${chainRoot.id}`,
       kind: 'ripple',
@@ -107,7 +111,8 @@ export function buildTourStops(
     kind: 'outro',
     eyebrow: 'Your turn',
     title: 'Ask ORBIT anything',
-    caption: 'Open any country or event, ask ORBIT a question, verify its claims, or test a what-if scenario.',
+    caption:
+      'Open any country or event, ask ORBIT a question, verify its claims, or test a what-if scenario.',
     narration:
       'That is the briefing. Open any country or event, ask ORBIT a question and check its claims, or try a what-if scenario.',
     camera: { lat: 15, lng: 10, altitude: 2.6 },

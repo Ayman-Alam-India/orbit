@@ -61,7 +61,10 @@ let unlocked = false
 
 function AudioContextClass(): AudioContextCtor | undefined {
   if (typeof window === 'undefined') return undefined
-  const w = window as unknown as { AudioContext?: AudioContextCtor; webkitAudioContext?: AudioContextCtor }
+  const w = window as unknown as {
+    AudioContext?: AudioContextCtor
+    webkitAudioContext?: AudioContextCtor
+  }
   return w.AudioContext ?? w.webkitAudioContext
 }
 
@@ -216,7 +219,11 @@ type RecognitionCtor = new () => {
   lang: string
   interimResults: boolean
   continuous: boolean
-  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> }) => void) | null
+  onresult:
+    | ((e: {
+        results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }>
+      }) => void)
+    | null
   onend: (() => void) | null
   onerror: (() => void) | null
   start: () => void
@@ -226,6 +233,9 @@ type RecognitionCtor = new () => {
 /** Chrome/Edge speech-to-text, if available. */
 export function recognitionCtor(): RecognitionCtor | undefined {
   if (typeof window === 'undefined') return undefined
-  const w = window as unknown as { SpeechRecognition?: RecognitionCtor; webkitSpeechRecognition?: RecognitionCtor }
+  const w = window as unknown as {
+    SpeechRecognition?: RecognitionCtor
+    webkitSpeechRecognition?: RecognitionCtor
+  }
   return w.SpeechRecognition ?? w.webkitSpeechRecognition
 }

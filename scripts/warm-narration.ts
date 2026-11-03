@@ -35,4 +35,6 @@ for (const [i, stop] of stops.entries()) {
     console.log(`✗ ${i + 1}/${stops.length} ${stop.title}: ${res.status} ${await res.text()}`)
   }
 }
-console.log(failed ? `${failed} clip(s) missing: those stops use the browser voice.` : 'All narration ready.')
+console.log(
+  failed ? `${failed} clip(s) missing: those stops use the browser voice.` : 'All narration ready.',
+)

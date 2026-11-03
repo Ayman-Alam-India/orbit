@@ -41,8 +41,10 @@ export function pcmToWav(pcm: Buffer, sampleRate = SAMPLE_RATE): Buffer {
 
 async function generate(text: string): Promise<Buffer> {
   const key = env.GOOGLE_GENERATIVE_AI_API_KEY
-  if (!key) throw new AppError('UPSTREAM', 503, 'Narration voice needs GOOGLE_GENERATIVE_AI_API_KEY')
-  if (Date.now() < coolingUntil) throw new AppError('UPSTREAM', 503, 'Narration voice is rate-limited')
+  if (!key)
+    throw new AppError('UPSTREAM', 503, 'Narration voice needs GOOGLE_GENERATIVE_AI_API_KEY')
+  if (Date.now() < coolingUntil)
+    throw new AppError('UPSTREAM', 503, 'Narration voice is rate-limited')
   let lastError = 'no model answered'
   for (const model of env.GOOGLE_TTS_MODEL.split(',').map((m) => m.trim())) {
     const res = await fetch(
@@ -54,7 +56,9 @@ async function generate(text: string): Promise<Buffer> {
           contents: [{ parts: [{ text: `${STYLE}\n\n${text}` }] }],
           generationConfig: {
             responseModalities: ['AUDIO'],
-            speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: env.GOOGLE_TTS_VOICE } } },
+            speechConfig: {
+              voiceConfig: { prebuiltVoiceConfig: { voiceName: env.GOOGLE_TTS_VOICE } },
+            },
           },
         }),
         signal: AbortSignal.timeout(30_000),
