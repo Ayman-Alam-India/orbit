@@ -420,7 +420,7 @@
       "id": "ORB-SHR-04",
       "owner": "Shrey",
       "builder": "Claude (Ayman's session)",
-      "status": "todo",
+      "status": "done",
       "priority": "P1",
       "targetWindow": "H14-H18",
       "branch": "claude/demo-script",

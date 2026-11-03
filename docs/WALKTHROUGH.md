@@ -13,17 +13,17 @@ your own script in part 5. Fifteen minutes is enough.
 **Say this:** "Yes. Headlines were always automatic, and since this review events are too: ORBIT reads the
 live feed, proposes events itself, and marks them unverified until a human checks them."
 
-| Layer                       | Automatic?                                                                             | Why                                                                                                                         |
-| --------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| **News headlines**          | **Yes.** Live from GDELT, no code change.                                              | Each country's feed is fetched in the background and reused for 30 minutes, then refreshed. Nobody edits a file.            |
-| **Markets**                 | **Yes.** Yahoo Finance every 15 minutes.                                               | Same pattern: fetch, validate, cache, fall back to the stored snapshot.                                                     |
-| **Weather**                 | **Yes.** Open-Meteo, cached 30 minutes.                                                | Same pattern.                                                                                                               |
-| **Events (the globe pins)** | **Yes.** Detected from those headlines every 20 minutes, or on demand with "Scan now". | `server/ingest/`: keyword classifier, optional Gemini sentence, contract validation. Shown as auto-detected and unverified. |
-| **Ripple links**            | Curated by us.                                                                         | A causal claim ("this raises India's import bill") is the thing we least want a model to invent.                            |
+| Layer                       | Automatic?                                                                             | Why                                                                                                                          |
+| --------------------------- | -------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **News headlines**          | **Yes.** Google News for 52 countries (GDELT as fallback).                             | The live pipeline refreshes every feed every 10 minutes and rates each headline with the trust rule. Nobody edits a file.    |
+| **Markets**                 | **Yes.** Yahoo Finance every 15 minutes.                                               | Same pattern: fetch, validate, cache, fall back to the stored snapshot.                                                      |
+| **Weather**                 | **Yes.** Open-Meteo, cached 30 minutes.                                                | Same pattern.                                                                                                                |
+| **Events (the globe pins)** | **Yes.** Detected from those headlines every 20 minutes, or on demand with "Scan now". | `server/ingest/`: keyword classifier, optional Gemini sentence, contract validation. Shown as auto-detected and unverified.  |
+| **Ripple links**            | Curated, plus rule-made links with news evidence.                                      | No model invents a cause: fixed, readable rules (`server/ingest/ripples.ts`) name the channel, and the news is the evidence. |
 
-Where it happens in the code: `server/sources/index.ts` (`refreshNewsFeed`, 30-minute freshness),
-`server/sources/gdelt.ts` (the free GDELT DOC 2.0 API, throttled to one request per 10 seconds with a
-back-off), `server/sources/markets.ts`, `server/sources/weather.ts`. All of them write to
+Where it happens in the code: `server/ingest/pipeline.ts` (the 10-minute pass), `server/sources/googleNews.ts`
+(Google News RSS), `server/sources/gdelt.ts` (fallback, throttled to one request per 10 seconds),
+`server/sources/who.ts`, `server/sources/fuel.ts`, `server/sources/markets.ts`, `server/sources/weather.ts`. All of them write to
 `server/.cache/` so the demo survives a dead network.
 
 **Then show it:** on the global view, the **Detected by ORBIT** panel, and press **Scan now** while you
