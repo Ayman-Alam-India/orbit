@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { CountryIdSchema, EventIdSchema, SourceIdSchema } from './common'
 import { MarketIdSchema } from './market'
+import { TrustSchema } from './trust'
 
 /**
  * Ripple effects: how an event spreads to other countries and markets, e.g. a Red Sea shipping
@@ -46,6 +47,12 @@ export const ImpactLinkSchema = z.object({
   marketId: MarketIdSchema.optional(),
   /** For chains: the impact this one follows from (e.g. India's fuel bill follows from Brent). */
   followsImpactId: z.string().optional(),
+  /** `curated` = written by the team (impacts.json) · `auto` = found by ORBIT's ripple rules. Absent means curated. */
+  origin: z.enum(['curated', 'auto']).optional(),
+  /** Auto ripples: live articles that report this effect. */
+  evidenceUrls: z.array(z.url()).optional(),
+  /** Verification status under ORBIT's one rule (see shared/schemas/trust.ts). */
+  trust: TrustSchema.optional(),
 })
 
 export type ImpactChannel = z.infer<typeof ImpactChannelSchema>

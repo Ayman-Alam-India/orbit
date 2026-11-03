@@ -8,6 +8,7 @@ import {
   SeveritySchema,
   SourceIdSchema,
 } from './common'
+import { TrustSchema } from './trust'
 
 /**
  * Fields every event has, whatever its kind.
@@ -32,6 +33,8 @@ const OrbitEventBaseSchema = z.object({
   /** Auto-detected events only: when ORBIT found it, and the headlines it was built from. */
   detectedAt: IsoDateTimeSchema.optional(),
   headlineUrls: z.array(z.url()).optional(),
+  /** Verification status under ORBIT's one rule (see shared/schemas/trust.ts). */
+  trust: TrustSchema.optional(),
 })
 
 export const GeopoliticalEventSchema = OrbitEventBaseSchema.extend({
