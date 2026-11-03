@@ -60,6 +60,7 @@ Always build paths with `API_ROUTES` from `@shared`. The column "Builder" shows 
 | `GET /api/events/:id`                       | `API_ROUTES.event(id)`           | `OrbitEvent`                                                                                                                        | 400 bad ID, 404                                               |
 | `GET /api/news?countryId=`                  | `API_ROUTES.news(countryId?)`    | `NewsHeadline[]` newest first. Without `countryId`: all                                                                             | 400 bad ID                                                    |
 | `POST /api/news/refresh`                    | `API_ROUTES.newsRefresh`         | `NewsRefreshResult`: asks the live source for fresh headlines now and waits (max 20 s). Body `{ countryId? }`                       | 400 bad ID, 404 unknown country                               |
+| `GET /api/news/:id/media`                   | `API_ROUTES.newsMedia(id)`       | `ArticleMedia`: the article's photos, videos and description, read from its page (preview tags), cached                             | 400, 404, 502, 503 in mock mode                               |
 | `POST /api/trust/check`                     | `API_ROUTES.trustCheck`          | `Trust`: "Verify now". Body `{ kind: headline                                                                                       | event                                                         | ripple, id }`: fresh news search + Gemini/Groq, saved | 400, 404, 503 in mock mode |
 | `GET /api/status`                           | `API_ROUTES.status`              | `PipelineStatus`: last live pass, counts, trust totals, AI checkers, health of each source                                          | none                                                          |
 | `GET /api/sources`                          | `API_ROUTES.sources`             | `Source[]`                                                                                                                          | none                                                          |
@@ -145,6 +146,13 @@ Answer of `POST /api/news/refresh` (the news panel's refresh button):
 `headlines` (same list as `GET /api/news`), `fetchedAt` (optional: when the saved live headlines were fetched),
 `refreshed` (`false` when `DATA_MODE=mock`, or the live sources failed or took over 20 s: `headlines` are then the saved ones).
 In `DATA_MODE=mock` this route never calls GDELT.
+
+### ArticleMedia (`shared/schemas/news.ts`)
+
+For the in-app article preview (a plain click on a headline). `headlineId`, `articleUrl` (Google News links are resolved to the
+article itself), optional `siteName` and `description`, `images` (the page's `og:image` / `twitter:image`, logos dropped, max 4),
+`videos` (`youtube` embeds as youtube-nocookie players, `file` for mp4/webm, or a declared `embed`, max 2), `fetchedAt`.
+Only headlines ORBIT already has can be looked up (by ID). Cached per article in `server/.cache/media-<hash>.json`.
 
 ### Source (`shared/schemas/source.ts`)
 

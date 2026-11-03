@@ -1,4 +1,4 @@
-import type { CountryId, ImpactChannel, LatLng, ScenarioRole } from '@shared'
+import type { CountryId, ImpactChannel, LatLng, NewsHeadline, ScenarioRole } from '@shared'
 import { create } from 'zustand'
 
 /** What the globe shows while the what-if simulator is open. */
@@ -30,6 +30,8 @@ type UiState = {
   /** Ripple legend: only arcs of this channel are drawn (undefined = all). */
   rippleChannel?: ImpactChannel
   globeNav?: GlobeNav
+  /** The headline open in the in-app article preview. */
+  articlePreview?: NewsHeadline
   setHoveredCountry: (id?: CountryId) => void
   setAskOpen: (open: boolean) => void
   setSimulation: (simulation?: SimulationView) => void
@@ -37,6 +39,7 @@ type UiState = {
   setTourFocus: (focus?: TourFocus) => void
   setRippleChannel: (channel?: ImpactChannel) => void
   navigateGlobe: (action: GlobeNav['action']) => void
+  openArticle: (headline?: NewsHeadline) => void
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -55,4 +58,6 @@ export const useUiStore = create<UiState>()((set) => ({
   globeNav: undefined,
   setRippleChannel: (rippleChannel) => set({ rippleChannel }),
   navigateGlobe: (action) => set({ globeNav: { action, at: Date.now() } }),
+  articlePreview: undefined,
+  openArticle: (articlePreview) => set({ articlePreview }),
 }))

@@ -98,6 +98,12 @@ describe('API responses match the shared contracts', () => {
     expect((await check({ kind: 'rumour', id: 'x' })).status).toBe(400)
   })
 
+  it('GET /api/news/:id/media only looks up known headlines, and stays offline in mock mode', async () => {
+    expect((await get(API_ROUTES.newsMedia('news_ind_usa_chip_deal'))).status).toBe(503)
+    expect((await get(API_ROUTES.newsMedia('news_unknown'))).status).toBe(404)
+    expect((await get('/api/news/not-an-id/media')).status).toBe(400)
+  })
+
   it('errors use the { error: { code, message } } envelope', async () => {
     const missing = await get(API_ROUTES.country('XXX'))
     expect(missing.status).toBe(404)
