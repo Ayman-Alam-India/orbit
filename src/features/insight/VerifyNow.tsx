@@ -1,23 +1,29 @@
 import type { Trust, TrustCheckRequest } from '@shared'
 import { Button, TrustBadge } from '../../ui'
+import { HowWeKnow } from './HowWeKnow'
 import styles from './VerifyNow.module.css'
 import { useVerifyNow } from './useVerifyNow'
 
-/** The badge, plus a "Verify now" button while the item is unverified. */
+/**
+ * The badge, plus a "Verify now" button while the item is unverified. With `explain`, the "How we
+ * know" panel (reports and AI checks) follows, updated after Verify now.
+ */
 export function TrustWithVerify({
   trust,
   request,
   compact = false,
+  explain = false,
 }: {
   trust?: Trust
   request: TrustCheckRequest
   compact?: boolean
+  explain?: boolean
 }) {
   const verify = useVerifyNow()
   const result = verify.data
   const shown = result ?? trust
   if (!shown) return null
-  return (
+  const badge = (
     <span className={styles.wrap}>
       <TrustBadge trust={shown} compact={compact} />
       {shown.status === 'unverified' && !result && (
@@ -46,5 +52,12 @@ export function TrustWithVerify({
         </span>
       )}
     </span>
+  )
+  if (!explain) return badge
+  return (
+    <div className={styles.explained}>
+      {badge}
+      <HowWeKnow trust={shown} />
+    </div>
   )
 }

@@ -21,7 +21,6 @@ export function EventBriefing({ event, countryId }: { event: OrbitEvent; country
           <Tag kind={event.kind}>{event.kind === 'health' ? 'Health signal' : 'Geopolitical'}</Tag>
           <SeverityBadge severity={event.severity} />
           {event.origin === 'auto' && <span className={styles.autoFlag}>Auto-detected</span>}
-          <TrustWithVerify trust={event.trust} request={{ kind: 'event', id: event.id }} />
         </span>
         <Link to={paths.country(countryId)} className={styles.back}>
           ← Back to country
@@ -32,6 +31,7 @@ export function EventBriefing({ event, countryId }: { event: OrbitEvent; country
         {formatDate(event.occurredAt)} · {countryNames(event.countryIds, countries.data)}
       </p>
       <p className={styles.summary}>{event.summary}</p>
+      <TrustWithVerify trust={event.trust} request={{ kind: 'event', id: event.id }} explain />
 
       <div className={styles.facts}>
         <p className={styles.factsLabel}>Key facts</p>

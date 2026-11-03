@@ -14,10 +14,9 @@ import { draftRipples, findEvidence } from './ripples'
 import {
   aiBudget,
   headlineTrust as checkHeadline,
+  evidenceTrust,
   liveTrust,
   officialTrust,
-  outletTrust,
-  outletsOf,
   storyIndex,
 } from './trust'
 
@@ -119,9 +118,8 @@ export async function runPipeline(): Promise<LiveWorld> {
   const headlineTrust: Record<string, Trust> = {}
   const headlineImportance: Record<string, Importance> = {}
   for (const h of headlines) {
-    const outlets = outletsOf(index.sameStory(h.title))
-    headlineTrust[h.url] = outletTrust(outlets)
-    headlineImportance[h.url] = ruleImportance(h, outlets.length)
+    headlineTrust[h.url] = evidenceTrust(index.sameStory(h.title))
+    headlineImportance[h.url] = ruleImportance(h, headlineTrust[h.url].outlets.length)
   }
   const focus = headlines
     .filter((h) => h.countryIds.includes(FOCUS_COUNTRY))

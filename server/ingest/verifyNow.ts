@@ -8,7 +8,7 @@ import { LIVE_WORLD_KEY, readLiveWorld } from '../sources/liveWorld'
 import { significantWords } from './classify'
 import { aiVerifiers } from '../ai/verify'
 import { allLiveHeadlines } from './pipeline'
-import { aiCrossCheck, outletTrust, outletsOf, storyIndex } from './trust'
+import { aiCrossCheck, evidenceTrust, storyIndex } from './trust'
 
 /**
  * "Verify now" on one unverified headline, event or ripple: search the news again for the story,
@@ -67,11 +67,10 @@ export async function verifyNow({ kind, id }: TrustCheckRequest): Promise<Trust>
   const evidence = [...new Map(reports.map((h) => [h.url, h])).values()].filter(
     (h) => !own || (h.url !== own.url && h.publisher !== own.publisher),
   )
-  const outlets = outletsOf(own ? [own, ...evidence] : evidence)
   // Asked on request: the AI checks even when fewer than 3 outlets report it (the rating still
   // needs 3 for "corroborated"; the reason says what the AI concluded).
-  const aiCheck = await aiCrossCheck(claim, evidence, store.getSources(), { left: 1 })
-  const rated = outletTrust(outlets, aiCheck)
+  const ai = await aiCrossCheck(claim, evidence, store.getSources(), { left: 1 })
+  const rated = evidenceTrust(own ? [own, ...evidence] : evidence, ai)
   const trust = aiVerifiers().length
     ? rated
     : {

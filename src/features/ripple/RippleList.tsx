@@ -100,7 +100,6 @@ function RippleItem({
               ? 'Sourced'
               : 'ORBIT analysis'}
         </span>
-        <TrustWithVerify trust={link.trust} request={{ kind: 'ripple', id: link.id }} />
         <span className={styles.strength} aria-label={`Strength ${link.strength} of 3`}>
           {[1, 2, 3].map((n) => (
             <span key={n} data-on={n <= link.strength} />
@@ -112,6 +111,7 @@ function RippleItem({
           </Link>
         )}
       </div>
+      <TrustWithVerify trust={link.trust} request={{ kind: 'ripple', id: link.id }} explain />
       {link.evidenceUrls?.length ? (
         <p className={styles.evidence}>
           In the news:{' '}

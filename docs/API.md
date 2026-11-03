@@ -201,14 +201,25 @@ reporting the effect) and `trust` (below).
 Optional `trust` on `NewsHeadline`, `OrbitEvent` and `ImpactLink`: `status`, `outlets` (distinct outlet domains reporting the
 same story), `aiCheck` (`agree`, `disagree`, `unavailable`), `reason` (one sentence), `checkedAt`.
 
-| `status`       | Rule                                                                                                         |
-| -------------- | ------------------------------------------------------------------------------------------------------------ |
-| `verified`     | Curated by the team (seed files), or published by an official source (WHO, a government, the UN)             |
-| `corroborated` | Reported by 3+ independent outlets (`MIN_CORROBORATING_OUTLETS`) **and** Gemini + Groq agree when configured |
-| `unverified`   | A single source, fewer than 3 outlets, or an AI checker disagrees                                            |
+| `status`       | Rule                                                                                                                        |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `verified`     | Curated by the team (seed files), or published by an official source (WHO, a government, the UN)                            |
+| `corroborated` | 3+ **independent** outlets, at least 1 **established** (`MIN_ESTABLISHED_OUTLETS`), and Gemini + Groq agree when configured |
+| `unverified`   | A single source, fewer than 3 outlets, or an AI checker disagrees                                                           |
 
-Without AI keys `aiCheck` is `unavailable` and the outlet count decides. Headlines use the outlet count only (one AI call per
-headline would use up the free quota).
+Without AI keys `aiCheck` is `unavailable` and the reports decide.
+
+- **Independent** (`server/sources/trustRules.ts`): sites that only republish others (`AGGREGATORS` in `server/sources/outlets.ts`:
+  MSN, Yahoo, Flipboard…) never count, and near-identical headlines from different outlets (80%+ of their significant words the same)
+  are one syndicated report; the earliest is the original. Copies are kept as evidence, marked `copyOf`, and counted in `copies`.
+- **Established** (`ESTABLISHED` in `server/sources/outlets.ts`): wire services, public broadcasters and papers of record. Three
+  unknown sites alone can't corroborate a story.
+- **Evidence:** `evidence` lists the reports (established first, copies last, max 8) and `checks` what each AI checker said, for the
+  "How we know" panel under badges in the article preview, the event card and ripples.
+- India's important headlines, Verify now, and live events and ripples with 3+ independent outlets get the AI check; other headlines
+  use the reports only (an AI call per headline would use up the free quota).
+- **Gemini safeguards:** max 8 calls a minute, each event summary is written once, and when every model fails Gemini pauses for 5 min
+  (callers use their non-AI fallback), so a bad key or used-up quota can't stall the pipeline.
 
 ### MarketQuote (`shared/schemas/market.ts`)
 
