@@ -114,5 +114,489 @@
         "sourceIds": ["src_theprint_india_crude"]
       }
     ]
+  },
+  {
+    "id": "scn_malacca_blockade",
+    "title": "Strait of Malacca is blocked",
+    "description": "Shipping through the Strait of Malacca, the narrow passage between the Indian Ocean and the South China Sea, stops. Ships must detour through Indonesian straits further south.",
+    "chokepoint": {
+      "name": "Strait of Malacca",
+      "location": {
+        "lat": 2.5,
+        "lng": 101.4
+      }
+    },
+    "defaultBrentPct": 25,
+    "facts": [
+      {
+        "text": "Over 94,000 vessels pass through the strait each year (2008), making it the world's busiest strait and carrying about 25% of the world's traded goods, including oil, Chinese manufactured products, coal and palm oil.",
+        "sourceIds": ["src_wiki_malacca"]
+      },
+      {
+        "text": "Oil shipments through the strait rose to an estimated 15.2 million barrels per day in 2011.",
+        "sourceIds": ["src_wiki_malacca"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "CHN",
+        "role": "importer",
+        "note": "Chinese manufactured exports and oil imports pass through the strait.",
+        "sourceIds": ["src_wiki_malacca"]
+      },
+      {
+        "countryId": "JPN",
+        "role": "importer",
+        "note": "Oil from the Middle East reaches East Asia through the strait.",
+        "sourceIds": ["src_eia_chokepoints"]
+      },
+      {
+        "countryId": "KOR",
+        "role": "importer",
+        "note": "Oil from the Middle East reaches East Asia through the strait.",
+        "sourceIds": ["src_eia_chokepoints"]
+      },
+      {
+        "countryId": "IDN",
+        "role": "transit",
+        "note": "Borders the strait; ships diverting would use Indonesian straits instead.",
+        "sourceIds": ["src_wiki_malacca"]
+      }
+    ]
+  },
+  {
+    "id": "scn_suez_closure",
+    "title": "Suez Canal is closed",
+    "description": "The Suez Canal, the shortest sea route between Asia and Europe, is blocked. Ships sail around the Cape of Good Hope instead, adding weeks to the journey.",
+    "chokepoint": {
+      "name": "Suez Canal",
+      "location": {
+        "lat": 30.58,
+        "lng": 32.27
+      }
+    },
+    "defaultBrentPct": 10,
+    "facts": [
+      {
+        "text": "The canal was blocked for six days, from 23 to 29 March 2021, by the Ever Given, a container ship that ran aground in it.",
+        "sourceIds": ["src_wiki_suez_2021"]
+      },
+      {
+        "text": "The Suez Canal and the SUMED pipeline are a chokepoint for oil moving between the Persian Gulf and Europe.",
+        "sourceIds": ["src_eia_chokepoints"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "EGY",
+        "role": "transit",
+        "note": "Operates the canal and loses its transit fees while it is closed.",
+        "sourceIds": ["src_wiki_suez_2021"]
+      },
+      {
+        "countryId": "IND",
+        "role": "exporter",
+        "note": "Much of India's trade with Europe uses the canal.",
+        "sourceIds": ["src_eia_chokepoints"]
+      },
+      {
+        "countryId": "CHN",
+        "role": "exporter",
+        "note": "Asia–Europe container traffic uses the canal.",
+        "sourceIds": ["src_wiki_suez_2021"]
+      },
+      {
+        "countryId": "DEU",
+        "role": "importer",
+        "note": "European importers wait longer for goods from Asia.",
+        "sourceIds": ["src_wiki_suez_2021"]
+      },
+      {
+        "countryId": "ITA",
+        "role": "importer",
+        "note": "Mediterranean ports lose the direct route to Asia.",
+        "sourceIds": ["src_wiki_suez_2021"]
+      }
+    ]
+  },
+  {
+    "id": "scn_black_sea_grain",
+    "title": "Black Sea grain exports halt",
+    "description": "Grain shipments from Ukraine's Black Sea ports stop, as they did before the 2022 grain deal and after it ended in July 2023.",
+    "chokepoint": {
+      "name": "Port of Odesa",
+      "location": {
+        "lat": 46.48,
+        "lng": 30.73
+      }
+    },
+    "defaultBrentPct": 10,
+    "facts": [
+      {
+        "text": "According to the UN Food and Agriculture Organization, Ukraine provides more than 45 million tonnes of grain a year to the global market.",
+        "sourceIds": ["src_wiki_black_sea_grain"]
+      },
+      {
+        "text": "By mid-July 2023, more than 1,000 shipments under the Black Sea Grain Initiative had carried nearly 33 million tonnes of grain and other food to 45 countries.",
+        "sourceIds": ["src_wiki_black_sea_grain"]
+      },
+      {
+        "text": "The Turkish Straits connect the Black Sea to the Aegean and Mediterranean seas.",
+        "sourceIds": ["src_wiki_turkish_straits"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "UKR",
+        "role": "exporter",
+        "note": "Its grain exports leave through the Black Sea ports.",
+        "sourceIds": ["src_wiki_black_sea_grain"]
+      },
+      {
+        "countryId": "RUS",
+        "role": "exporter",
+        "note": "A party to the grain deal; its own exports also use the Black Sea.",
+        "sourceIds": ["src_wiki_black_sea_grain"]
+      },
+      {
+        "countryId": "TUR",
+        "role": "transit",
+        "note": "Controls the straits every Black Sea cargo must pass; brokered the grain deal with the UN.",
+        "sourceIds": ["src_wiki_turkish_straits", "src_wiki_black_sea_grain"]
+      },
+      {
+        "countryId": "EGY",
+        "role": "importer",
+        "note": "A large buyer of Black Sea wheat.",
+        "sourceIds": ["src_wiki_black_sea_grain"]
+      },
+      {
+        "countryId": "LBN",
+        "role": "importer",
+        "note": "Imports wheat from the Black Sea region.",
+        "sourceIds": ["src_wiki_black_sea_grain"]
+      }
+    ]
+  },
+  {
+    "id": "scn_panama_drought",
+    "title": "Drought cuts Panama Canal traffic",
+    "description": "Low water levels force the Panama Canal to limit how many ships pass each day, as happened in the 2023 drought.",
+    "chokepoint": {
+      "name": "Panama Canal",
+      "location": {
+        "lat": 9.08,
+        "lng": -79.68
+      }
+    },
+    "defaultBrentPct": 5,
+    "facts": [
+      {
+        "text": "In normal times 36 ships can transit the canal each day; in early December 2023 only 22 a day could, because of low water levels.",
+        "sourceIds": ["src_wiki_panama_canal"]
+      },
+      {
+        "text": "Drought and El Niño restrictions pushed up the prices shippers paid for transit slots.",
+        "sourceIds": ["src_wiki_panama_canal"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "USA",
+        "role": "exporter",
+        "note": "US Gulf Coast exports to Asia use the canal.",
+        "sourceIds": ["src_wiki_panama_canal"]
+      },
+      {
+        "countryId": "CHN",
+        "role": "importer",
+        "note": "Receives cargo from the Americas that crosses the canal.",
+        "sourceIds": ["src_wiki_panama_canal"]
+      },
+      {
+        "countryId": "JPN",
+        "role": "importer",
+        "note": "Receives cargo from the Americas that crosses the canal.",
+        "sourceIds": ["src_wiki_panama_canal"]
+      },
+      {
+        "countryId": "CHL",
+        "role": "exporter",
+        "note": "West-coast South American trade with the US East Coast uses the canal.",
+        "sourceIds": ["src_wiki_panama_canal"]
+      }
+    ]
+  },
+  {
+    "id": "scn_russia_oil_cutoff",
+    "title": "Russian seaborne oil is cut off",
+    "description": "Tighter sanctions stop Russia's seaborne crude exports, going further than the 2022 G7 price cap.",
+    "chokepoint": {
+      "name": "Primorsk oil terminal (Baltic Sea)",
+      "location": {
+        "lat": 60.35,
+        "lng": 28.61
+      }
+    },
+    "defaultBrentPct": 15,
+    "facts": [
+      {
+        "text": "A G7 price cap of US$60 per barrel on Russian seaborne crude came into effect on 5 December 2022.",
+        "sourceIds": ["src_wiki_russia_price_cap"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "RUS",
+        "role": "exporter",
+        "note": "Loses its seaborne crude sales.",
+        "sourceIds": ["src_wiki_russia_price_cap"]
+      },
+      {
+        "countryId": "IND",
+        "role": "importer",
+        "note": "Became a large buyer of Russian crude after 2022 and would need other suppliers.",
+        "sourceIds": ["src_wiki_russia_price_cap"]
+      },
+      {
+        "countryId": "CHN",
+        "role": "importer",
+        "note": "A large buyer of Russian crude that would need other suppliers.",
+        "sourceIds": ["src_wiki_russia_price_cap"]
+      },
+      {
+        "countryId": "TUR",
+        "role": "transit",
+        "note": "Russian Black Sea crude passes the Turkish Straits.",
+        "sourceIds": ["src_wiki_turkish_straits"]
+      }
+    ]
+  },
+  {
+    "id": "scn_opec_cut",
+    "title": "OPEC+ makes a deep output cut",
+    "description": "OPEC+ producers agree to pump much less oil, as in October 2022, tightening world supply.",
+    "chokepoint": {
+      "name": "OPEC+ producers (Riyadh)",
+      "location": {
+        "lat": 24.71,
+        "lng": 46.68
+      }
+    },
+    "defaultBrentPct": 20,
+    "facts": [
+      {
+        "text": "In October 2022, key OPEC+ ministers agreed to cut oil production by 2 million barrels per day, the first cut since 2020.",
+        "sourceIds": ["src_wiki_opec_plus"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "SAU",
+        "role": "exporter",
+        "note": "The largest OPEC producer, leading the cut.",
+        "sourceIds": ["src_wiki_opec_plus"]
+      },
+      {
+        "countryId": "RUS",
+        "role": "exporter",
+        "note": "Leads the non-OPEC members of OPEC+.",
+        "sourceIds": ["src_wiki_opec_plus"]
+      },
+      {
+        "countryId": "IRQ",
+        "role": "exporter",
+        "note": "An OPEC member bound by the quotas.",
+        "sourceIds": ["src_wiki_opec_plus"]
+      },
+      {
+        "countryId": "ARE",
+        "role": "exporter",
+        "note": "An OPEC member bound by the quotas.",
+        "sourceIds": ["src_wiki_opec_plus"]
+      },
+      {
+        "countryId": "IND",
+        "role": "importer",
+        "note": "Imports most of its crude, so pays more when supply is cut.",
+        "sourceIds": ["src_theprint_india_crude"]
+      }
+    ]
+  },
+  {
+    "id": "scn_taiwan_blockade",
+    "title": "Taiwan Strait is blockaded",
+    "description": "Shipping and air links to Taiwan are cut off, halting exports from the world's largest contract chipmaker.",
+    "chokepoint": {
+      "name": "Taiwan Strait",
+      "location": {
+        "lat": 24.0,
+        "lng": 119.5
+      }
+    },
+    "defaultBrentPct": 10,
+    "facts": [
+      {
+        "text": "TSMC holds about 70% of the global semiconductor foundry market.",
+        "sourceIds": ["src_wiki_tsmc"]
+      },
+      {
+        "text": "TSMC has grown rapidly with the AI boom because of its importance in making the advanced chips AI needs.",
+        "sourceIds": ["src_wiki_tsmc"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "TWN",
+        "role": "exporter",
+        "note": "Home of TSMC; its chip exports stop.",
+        "sourceIds": ["src_wiki_tsmc"]
+      },
+      {
+        "countryId": "USA",
+        "role": "importer",
+        "note": "US tech firms rely on chips made by TSMC.",
+        "sourceIds": ["src_wiki_tsmc"]
+      },
+      {
+        "countryId": "JPN",
+        "role": "importer",
+        "note": "Its electronics and car industries buy Taiwanese chips.",
+        "sourceIds": ["src_wiki_tsmc"]
+      },
+      {
+        "countryId": "DEU",
+        "role": "importer",
+        "note": "German carmakers depend on Asian chip supply.",
+        "sourceIds": ["src_wiki_tsmc"]
+      },
+      {
+        "countryId": "CHN",
+        "role": "importer",
+        "note": "Chinese electronics makers buy chips made in Taiwan.",
+        "sourceIds": ["src_wiki_tsmc"]
+      }
+    ]
+  },
+  {
+    "id": "scn_qatar_lng_halt",
+    "title": "Qatar's LNG exports stop",
+    "description": "An outage at Ras Laffan, Qatar's gas export hub, halts liquefied natural gas shipments.",
+    "chokepoint": {
+      "name": "Ras Laffan",
+      "location": {
+        "lat": 25.92,
+        "lng": 51.55
+      }
+    },
+    "defaultBrentPct": 15,
+    "facts": [
+      {
+        "text": "Ras Laffan Industrial City is Qatar's main site for producing liquefied natural gas, made from gas from the North Field.",
+        "sourceIds": ["src_wiki_ras_laffan"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "QAT",
+        "role": "exporter",
+        "note": "Its LNG exports leave from Ras Laffan.",
+        "sourceIds": ["src_wiki_ras_laffan"]
+      },
+      {
+        "countryId": "JPN",
+        "role": "importer",
+        "note": "A large LNG importer.",
+        "sourceIds": ["src_wiki_ras_laffan"]
+      },
+      {
+        "countryId": "KOR",
+        "role": "importer",
+        "note": "A large LNG importer.",
+        "sourceIds": ["src_wiki_ras_laffan"]
+      },
+      {
+        "countryId": "IND",
+        "role": "importer",
+        "note": "Buys LNG from Qatar.",
+        "sourceIds": ["src_wiki_ras_laffan"]
+      },
+      {
+        "countryId": "PAK",
+        "role": "importer",
+        "note": "Buys LNG from Qatar.",
+        "sourceIds": ["src_wiki_ras_laffan"]
+      }
+    ]
+  },
+  {
+    "id": "scn_kharg_strike",
+    "title": "Iran's Kharg oil terminal is knocked out",
+    "description": "A strike or accident shuts Kharg Island, the terminal that handles most of Iran's oil exports.",
+    "chokepoint": {
+      "name": "Kharg Island",
+      "location": {
+        "lat": 29.23,
+        "lng": 50.32
+      }
+    },
+    "defaultBrentPct": 15,
+    "facts": [
+      {
+        "text": "Kharg Island is the port for up to 90% of Iran's oil exports and stores up to 30 million barrels of oil.",
+        "sourceIds": ["src_wiki_kharg"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "IRN",
+        "role": "exporter",
+        "note": "Loses most of its oil export capacity.",
+        "sourceIds": ["src_wiki_kharg"]
+      },
+      {
+        "countryId": "CHN",
+        "role": "importer",
+        "note": "A buyer of Iranian crude that would need other suppliers.",
+        "sourceIds": ["src_wiki_kharg"]
+      }
+    ]
+  },
+  {
+    "id": "scn_gulf_hurricane",
+    "title": "Major hurricane hits the US Gulf Coast",
+    "description": "A Katrina-strength hurricane shuts offshore platforms and refineries in the Gulf of Mexico.",
+    "chokepoint": {
+      "name": "US Gulf of Mexico oil fields",
+      "location": {
+        "lat": 28.5,
+        "lng": -90.0
+      }
+    },
+    "defaultBrentPct": 10,
+    "facts": [
+      {
+        "text": "Hurricane Katrina (2005) damaged or destroyed 30 oil platforms and closed nine refineries.",
+        "sourceIds": ["src_wiki_katrina"]
+      },
+      {
+        "text": "Shut-in Gulf of Mexico oil production in the six months after Katrina was about 24% of the year's production, and gas about 18%.",
+        "sourceIds": ["src_wiki_katrina"]
+      }
+    ],
+    "affected": [
+      {
+        "countryId": "USA",
+        "role": "exporter",
+        "note": "Gulf of Mexico oil, gas and refining go offline.",
+        "sourceIds": ["src_wiki_katrina"]
+      },
+      {
+        "countryId": "MEX",
+        "role": "importer",
+        "note": "Buys refined fuel from US Gulf Coast refineries.",
+        "sourceIds": ["src_wiki_katrina"]
+      }
+    ]
   }
 ]
