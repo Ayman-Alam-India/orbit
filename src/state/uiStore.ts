@@ -1,4 +1,4 @@
-import type { CountryId, LatLng, ScenarioRole } from '@shared'
+import type { CountryId, ImpactChannel, LatLng, ScenarioRole } from '@shared'
 import { create } from 'zustand'
 
 /** What the globe shows while the what-if simulator is open. */
@@ -13,6 +13,9 @@ export type SimulationView = {
 /** Where the guided tour points the camera, and which country it highlights. */
 export type TourFocus = { lat: number; lng: number; altitude: number; countryId?: CountryId }
 
+/** A camera move asked for by the globe buttons; `at` makes repeated clicks count. */
+export type GlobeNav = { action: 'left' | 'right' | 'recentre'; at: number }
+
 /**
  * Short-lived UI state shared between the globe and the panels.
  * What is SELECTED lives in the URL (/country/:countryId/event/:eventId), not here.
@@ -24,11 +27,16 @@ type UiState = {
   simulation?: SimulationView
   tourActive: boolean
   tourFocus?: TourFocus
+  /** Ripple legend: only arcs of this channel are drawn (undefined = all). */
+  rippleChannel?: ImpactChannel
+  globeNav?: GlobeNav
   setHoveredCountry: (id?: CountryId) => void
   setAskOpen: (open: boolean) => void
   setSimulation: (simulation?: SimulationView) => void
   setTourActive: (active: boolean) => void
   setTourFocus: (focus?: TourFocus) => void
+  setRippleChannel: (channel?: ImpactChannel) => void
+  navigateGlobe: (action: GlobeNav['action']) => void
 }
 
 export const useUiStore = create<UiState>()((set) => ({
@@ -40,6 +48,11 @@ export const useUiStore = create<UiState>()((set) => ({
   tourActive: false,
   tourFocus: undefined,
   setSimulation: (simulation) => set({ simulation }),
-  setTourActive: (tourActive) => set(tourActive ? { tourActive } : { tourActive, tourFocus: undefined }),
+  setTourActive: (tourActive) =>
+    set(tourActive ? { tourActive } : { tourActive, tourFocus: undefined }),
   setTourFocus: (tourFocus) => set({ tourFocus }),
+  rippleChannel: undefined,
+  globeNav: undefined,
+  setRippleChannel: (rippleChannel) => set({ rippleChannel }),
+  navigateGlobe: (action) => set({ globeNav: { action, at: Date.now() } }),
 }))

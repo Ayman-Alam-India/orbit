@@ -28,6 +28,10 @@ const TEXTURES = {
 const GLOBAL_ROTATE_SPEED = 0.35
 const RESUME_ROTATION_MS = 4000
 const TOUR_FLIGHT_MS = 2600
+/** The globe buttons: degrees per ← / → click, flight time, and where ⟳ goes on the global view. */
+const NAV_STEP_DEG = 30
+const NAV_MS = 600
+const RECENTRE_HOME = 'IND'
 
 /** One country shape from public/data/countries.geojson (Natural Earth 110m, slimmed to id + name). */
 type CountryFeature = {
@@ -46,7 +50,8 @@ type CountryShapes = { type: 'FeatureCollection'; features: CountryFeature[] }
 export default function OrbitGlobe() {
   const globeRef = useRef<GlobeMethods | undefined>(undefined)
   const navigate = useNavigate()
-  const { hoveredCountryId, setHoveredCountry, simulation, tourFocus } = useUiStore()
+  const { hoveredCountryId, setHoveredCountry, simulation, tourFocus, rippleChannel, globeNav } =
+    useUiStore()
   const selectedCountryId = useMatch(`${ROUTE_PATTERNS.country}/*`)?.params.countryId
   const shapes = useQuery({
     queryKey: ['globe', 'shapes'],
@@ -93,6 +98,34 @@ export default function OrbitGlobe() {
       ? MINI_GLOBE_ROTATE_SPEED
       : GLOBAL_ROTATE_SPEED
   }, [selectedCountryId, countries.data, simulation, tourFocus])
+
+  // The ← / ⟳ / → buttons: turn 30° per click, or recentre on the open country (India on the global view).
+  const handledNav = useRef(0)
+  useEffect(() => {
+    const globe = globeRef.current
+    if (!globe || !globeNav || globeNav.at === handledNav.current) return
+    handledNav.current = globeNav.at
+    globe.controls().autoRotate = false
+    const pov = globe.pointOfView()
+    if (globeNav.action === 'recentre') {
+      const home = countries.data?.find((c) => c.id === (selectedCountryId ?? RECENTRE_HOME))
+      globe.pointOfView(
+        {
+          ...(home?.centroid ?? { lat: 0, lng: 0 }),
+          altitude: selectedCountryId ? MINI_GLOBE_ALTITUDE : 2.5,
+        },
+        NAV_MS * 2,
+      )
+    } else {
+      const step = globeNav.action === 'left' ? -NAV_STEP_DEG : NAV_STEP_DEG
+      globe.pointOfView({ lat: pov.lat, lng: pov.lng + step, altitude: pov.altitude }, NAV_MS)
+    }
+    const timer = setTimeout(() => {
+      const { tourFocus: touring, simulation: simulating } = useUiStore.getState()
+      if (!touring && !simulating) globe.controls().autoRotate = true
+    }, RESUME_ROTATION_MS)
+    return () => clearTimeout(timer)
+  }, [globeNav, countries.data, selectedCountryId])
 
   // Idle auto-rotation: pause while the user drags, resume a few seconds after they let go.
   useEffect(() => {
@@ -155,7 +188,7 @@ export default function OrbitGlobe() {
             countries.data ?? [],
             markets.data ?? [],
             selectedCountryId,
-          ),
+          ).filter((a) => !rippleChannel || a.channel === rippleChannel),
     [
       impacts.data,
       allEvents,
@@ -164,6 +197,7 @@ export default function OrbitGlobe() {
       selectedCountryId,
       simulation,
       shapes.data,
+      rippleChannel,
     ],
   )
   const fadeRing = useMemo(() => ringColor(cssVar('--globe-ring')), [])
