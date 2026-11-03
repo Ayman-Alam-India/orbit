@@ -36,7 +36,7 @@ export async function verifyInsight(
   subjectType: InsightSubjectType,
   subjectId: string,
 ): Promise<VerificationReport> {
-  const context = buildContext(subjectType, subjectId)
+  const context = await buildContext(subjectType, subjectId)
   const insight = await generateInsight(subjectType, subjectId)
   const claims = extractClaims(insight)
   const verifiers = configuredVerifiers()

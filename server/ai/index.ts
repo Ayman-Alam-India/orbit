@@ -12,7 +12,9 @@ import {
 import { store } from '../data/store'
 import { env } from '../env'
 import { notFound } from '../http'
+import { getAutoEvent } from '../ingest/events'
 import { simulate } from '../sim/simulate'
+import { getNewsFeed } from '../sources'
 import { readCache, writeCache } from '../sources/cache'
 import { getMarkets } from '../sources/markets'
 import { googleProvider } from './providers/google'
@@ -30,8 +32,16 @@ function selectedProvider(): AiProvider {
 
 export const activeProviderName = () => selectedProvider().name
 
-/** Collects the seed data an answer should be based on. Unknown IDs become 404s. */
-export function buildContext(subjectType: InsightSubjectType, subjectId: string): AiContext {
+/** A curated event, or one ORBIT detected in live headlines itself (origin "auto"). */
+async function findEvent(id: string): Promise<OrbitEvent | undefined> {
+  return store.getEvent(id) ?? (await getAutoEvent(id))
+}
+
+/** Collects the data an answer should be based on. Unknown IDs become 404s. */
+export async function buildContext(
+  subjectType: InsightSubjectType,
+  subjectId: string,
+): Promise<AiContext> {
   const sources = store.getSources()
   if (subjectType === 'global') {
     if (subjectId !== GLOBAL_SUBJECT_ID) throw notFound(`Global subject "${subjectId}"`)
@@ -58,13 +68,24 @@ export function buildContext(subjectType: InsightSubjectType, subjectId: string)
       store.getImpacts({ countryId: country.id }),
     )
   }
-  const event = store.getEvent(subjectId)
+  const event = await findEvent(subjectId)
   if (!event) throw notFound(`Event "${subjectId}"`)
+  // An auto-detected event is based on live headlines: give the model exactly those.
+  const headlineUrls = new Set(event.headlineUrls ?? [])
+  const liveNews = headlineUrls.size
+    ? (await getNewsFeed()).concat(
+        ...(await Promise.all(event.countryIds.map((id) => getNewsFeed(id)))),
+      )
+    : []
+  const news = [
+    ...store.getNews().filter((n) => n.eventId === event.id),
+    ...new Map(liveNews.filter((n) => headlineUrls.has(n.url)).map((n) => [n.url, n])).values(),
+  ]
   return withRipples(
     {
       countries: store.getCountries().filter((c) => event.countryIds.includes(c.id)),
       events: [event],
-      news: store.getNews().filter((n) => n.eventId === event.id),
+      news,
       sources,
     },
     store.getImpacts({ eventId: event.id }),
@@ -142,7 +163,7 @@ export async function generateInsight(
   subjectType: InsightSubjectType,
   subjectId: string,
 ): Promise<AIInsight> {
-  const context = buildContext(subjectType, subjectId)
+  const context = await buildContext(subjectType, subjectId)
   const cacheKey = `ai-insight-${subjectType}-${subjectId.toLowerCase()}`
   const provider = selectedProvider()
   if (provider !== mockProvider) {
@@ -163,9 +184,12 @@ export async function generateInsight(
 export async function askOrbit(request: AskRequest): Promise<AskAnswer> {
   const { eventId, simulation } = request.context ?? {}
   // Full briefing so "pollution in India" still works while the globe is on another event.
-  // Unknown event ids still 404 (the open card must be real).
-  if (eventId && !store.getEvent(eventId)) throw notFound(`Event "${eventId}"`)
-  const context = buildContext('global', GLOBAL_SUBJECT_ID)
+  // Unknown event ids still 404 (the open card must be real); auto-detected events count as real.
+  const openEvent = eventId ? await findEvent(eventId) : undefined
+  if (eventId && !openEvent) throw notFound(`Event "${eventId}"`)
+  const context = await buildContext('global', GLOBAL_SUBJECT_ID)
+  if (openEvent && !context.events.some((e) => e.id === openEvent.id))
+    context.events = [openEvent, ...context.events]
   if (simulation)
     context.simulation = await simulationFor(simulation.scenarioId, simulation.brentPct)
   return withFallback(
