@@ -10,3 +10,9 @@
   font-family: var(--font-label);
   font-size: var(--text-xs);
 }
+
+.explained {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}

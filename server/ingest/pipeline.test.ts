@@ -24,7 +24,7 @@ vi.mock('../sources/cache', () => ({
   writeCache: async (key: string, value: unknown) => void cache.set(key, value),
 }))
 
-const { liveTrust, outletTrust, storyIndex, isOfficial } = await import('./trust')
+const { evidenceTrust, liveTrust, outletTrust, storyIndex, isOfficial } = await import('./trust')
 
 // These rules are about the real country list, so they read the curated seed (not the test fixtures).
 const seed = readRawSeed('server/data/seed')
@@ -166,10 +166,33 @@ describe('ripple rules', () => {
 
 describe('the one trust rule', () => {
   it('needs 3 independent outlets for corroborated', () => {
-    expect(outletTrust(['a.com', 'b.com']).status).toBe('unverified')
-    expect(outletTrust(['a.com', 'b.com', 'c.com']).status).toBe('corroborated')
-    expect(outletTrust(['a.com', 'b.com', 'c.com'], 'disagree').status).toBe('unverified')
-    expect(outletTrust(['a.com']).reason).toBe('Reported by 1 outlet (needs 3).')
+    expect(outletTrust(['reuters.com', 'b.com']).status).toBe('unverified')
+    expect(outletTrust(['reuters.com', 'b.com', 'c.com']).status).toBe('corroborated')
+    expect(outletTrust(['reuters.com', 'b.com', 'c.com'], 'disagree').status).toBe('unverified')
+    expect(outletTrust(['a.com']).reason).toBe('Reported by 1 independent outlet (needs 3).')
+    // Three unknown sites can't confirm a story on their own.
+    const unknown = outletTrust(['a.com', 'b.com', 'c.com'])
+    expect(unknown.status).toBe('unverified')
+    expect(unknown.reason).toContain('none of them an established news organisation')
+  })
+
+  it('counts syndicated copies and aggregator republications once', () => {
+    const trust = evidenceTrust([
+      {
+        ...headline('reuters.com', 'Magnitude 6 earthquake strikes off Japan coast'),
+        publishedAt: '2026-11-03T08:00:00Z',
+      },
+      headline('b.com', 'Magnitude 6 earthquake strikes off Japan coast'),
+      headline('msn.com', 'Japan quake: magnitude 6 hits the coast'),
+      headline('c.com', 'Strong quake shakes northern Japan, no tsunami warning issued'),
+    ])
+    expect(trust.outlets).toEqual(['reuters.com', 'c.com'])
+    expect(trust.established).toEqual(['reuters.com'])
+    expect(trust.copies).toBe(2)
+    expect(trust.evidence?.find((e) => e.publisher === 'b.com')?.copyOf).toBe('reuters.com')
+    expect(trust.evidence?.[0]).toMatchObject({ publisher: 'reuters.com', established: true })
+    expect(trust.reason).toContain('2 syndicated copies not counted')
+    expect(trust.status).toBe('unverified')
   })
 
   it('groups headlines that tell the same story', () => {
@@ -183,7 +206,11 @@ describe('the one trust rule', () => {
   })
 
   it('asks the AI checkers only once 3+ outlets report it, and caches the answer', async () => {
-    const evidence = ['a.com', 'b.com', 'c.com'].map((p) => headline(p, 'Port strike in Mumbai'))
+    const evidence = [
+      headline('reuters.com', 'Port strike halts Mumbai docks'),
+      headline('b.com', 'Mumbai port workers walk out over pay'),
+      headline('c.com', 'Strike at Mumbai port stops cargo handling'),
+    ]
     configured = 0
     expect((await liveTrust('claim', evidence, sources, { left: 5 })).aiCheck).toBe('unavailable')
 
@@ -192,6 +219,10 @@ describe('the one trust rule', () => {
     const budget = { left: 5 }
     const agreed = await liveTrust('claim', evidence, sources, budget)
     expect(agreed).toMatchObject({ status: 'corroborated', aiCheck: 'agree' })
+    expect(agreed.checks).toEqual([
+      { model: 'ai0', verdict: 'supported', reason: 'ok' },
+      { model: 'ai1', verdict: 'supported', reason: 'ok' },
+    ])
     expect(verify).toHaveBeenCalledTimes(2)
     await liveTrust('claim', evidence, sources, budget) // cached
     expect(verify).toHaveBeenCalledTimes(2)
@@ -253,12 +284,35 @@ describe('important or normal', () => {
       outlets: ['a.com'],
     })
     expect(verify).not.toHaveBeenCalled()
-    const others = ['b.com', 'c.com'].map((p) =>
-      headline(p, 'Mumbai schools closed by monsoon floods'),
-    )
+    const others = [
+      headline('bbc.com', 'Mumbai schools shut as monsoon floods the city'),
+      headline('c.com', 'Heavy rain forces Mumbai to close schools for two days'),
+    ]
     const backed = await headlineTrust(own, [own, ...others], sources, { left: 3 })
     expect(backed).toMatchObject({ status: 'corroborated', aiCheck: 'agree' })
     const context = verify.mock.calls[0][1] as { news: NewsHeadline[] }
-    expect(context.news.map((h) => h.publisher)).toEqual(['b.com', 'c.com'])
+    expect(context.news.map((h) => h.publisher)).toEqual(['bbc.com', 'c.com'])
+  })
+})
+
+describe('AI checks when one checker is down', () => {
+  it('uses the checkers that answered (e.g. Groq while Gemini is out of quota)', async () => {
+    configured = 2
+    verify.mockReset()
+    verify
+      .mockRejectedValueOnce(new Error('quota'))
+      .mockResolvedValueOnce([
+        { verdict: 'supported', sourceIds: [], reason: 'Matches the reports.' },
+      ])
+    const evidence = [
+      headline('reuters.com', 'Floods cut power across Chennai'),
+      headline('b.com', 'Chennai without electricity after heavy flooding'),
+      headline('c.com', 'Power outage in Chennai as rains flood streets'),
+    ]
+    const trust = await liveTrust('Floods cut power in Chennai', evidence, sources, { left: 3 })
+    expect(trust).toMatchObject({ status: 'corroborated', aiCheck: 'agree' })
+    expect(trust.checks).toEqual([
+      { model: 'ai1', verdict: 'supported', reason: 'Matches the reports.' },
+    ])
   })
 })

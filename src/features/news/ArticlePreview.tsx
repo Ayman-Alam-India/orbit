@@ -115,7 +115,11 @@ export function ArticlePreview() {
         <h2 id="article-preview-title" className={styles.title}>
           {headline.title}
         </h2>
-        <TrustWithVerify trust={headline.trust} request={{ kind: 'headline', id: headline.id }} />
+        <TrustWithVerify
+          trust={headline.trust}
+          request={{ kind: 'headline', id: headline.id }}
+          explain
+        />
         <Media headline={headline} />
         <a
           className={styles.read}

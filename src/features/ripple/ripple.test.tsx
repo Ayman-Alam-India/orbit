@@ -13,7 +13,11 @@ withTestApiServer()
 describe('ripple effects panel', () => {
   it('shows the chain an event causes, with basis, channel and live market figure', async () => {
     renderWithProviders(<RipplePanel eventId="evt_usa_tariff_review" />)
-    const items = await screen.findAllByRole('listitem')
+    // Only the ripple rows (they carry data-depth): each row's source chips are list items too and
+    // load a moment later, which made a plain count flaky under load.
+    const items = (await screen.findAllByRole('listitem')).filter((li) =>
+      li.hasAttribute('data-depth'),
+    )
     expect(items).toHaveLength(2)
     // The follow-on link is listed under (after) the link it follows from, one level deeper.
     expect(items[0]).toHaveAttribute('data-depth', '0')

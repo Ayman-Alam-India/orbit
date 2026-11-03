@@ -4,15 +4,17 @@ import {
   type NewsHeadline,
   type Source,
   type Trust,
+  type TrustCheck,
 } from '@shared'
 import { createHash } from 'node:crypto'
 import { aiVerifiers } from '../ai/verify'
 import { readCache, writeCache } from '../sources/cache'
-import { outletTrust, outletsOf } from '../sources/trustRules'
+import { evidenceTrust, type AiResult } from '../sources/trustRules'
 import { significantWords } from './classify'
 
 export {
   curatedTrust,
+  evidenceTrust,
   isOfficial,
   officialTrust,
   outletTrust,
@@ -49,21 +51,23 @@ export function storyIndex(headlines: NewsHeadline[]) {
   }
 }
 
-type AiCache = Record<string, AiCheck>
+/** Older cache entries hold just the verdict; newer ones also keep what each checker said. */
+type AiCache = Record<string, AiCheck | AiResult>
 
 /**
- * Asks every configured AI checker (Gemini, Groq) whether the headlines support the claim.
+ * Asks every configured AI checker (Gemini, Groq) whether the reports support the claim.
  * agree = all say "supported" · disagree = any says otherwise · unavailable = none configured,
- * budget used up, or a checker failed. Answers are cached, so a claim is checked once.
+ * budget used up, or a checker failed. Answers (with each checker's reason) are cached, so a
+ * claim is checked once.
  */
 export async function aiCrossCheck(
   claim: string,
   evidence: NewsHeadline[],
   sources: Source[],
   budget: { left: number },
-): Promise<AiCheck> {
+): Promise<AiResult> {
   const verifiers = aiVerifiers()
-  if (!verifiers.length || !evidence.length) return 'unavailable'
+  if (!verifiers.length || !evidence.length) return { check: 'unavailable' }
   const key = createHash('sha1')
     .update(
       claim +
@@ -75,8 +79,9 @@ export async function aiCrossCheck(
     .digest('hex')
     .slice(0, 16)
   const cache = (await readCache<AiCache>(AI_CACHE_KEY)) ?? {}
-  if (cache[key]) return cache[key]
-  if (budget.left <= 0) return 'unavailable'
+  const hit = cache[key]
+  if (hit) return typeof hit === 'string' ? { check: hit } : hit
+  if (budget.left <= 0) return { check: 'unavailable' }
   budget.left--
   const context = {
     countries: [],
@@ -86,34 +91,51 @@ export async function aiCrossCheck(
     impacts: [],
     markets: [],
   }
-  try {
-    const results = await Promise.all(verifiers.map((v) => v.verify([claim], context)))
-    const check: AiCheck = results.every((r) => r[0]?.verdict === 'supported')
-      ? 'agree'
-      : 'disagree'
-    await writeCache(AI_CACHE_KEY, { ...cache, [key]: check })
-    return check
-  } catch (err) {
-    console.warn('[ai] trust cross-check failed:', err)
-    return 'unavailable'
+  // Each checker answers on its own: one that fails (e.g. Gemini out of quota) doesn't throw away
+  // the others' answers. The verdict uses whoever answered.
+  const settled = await Promise.allSettled(verifiers.map((v) => v.verify([claim], context)))
+  const checks: TrustCheck[] = settled.flatMap((r, i) =>
+    r.status === 'fulfilled'
+      ? [
+          {
+            model: verifiers[i].name,
+            verdict: r.value[0]?.verdict ?? 'unsupported',
+            reason: r.value[0]?.reason ?? 'No answer.',
+          },
+        ]
+      : [],
+  )
+  const failed = settled.filter((r) => r.status === 'rejected').length
+  if (failed)
+    console.warn(`[ai] trust cross-check: ${failed} of ${verifiers.length} checkers failed`)
+  if (!checks.length) return { check: 'unavailable' }
+  const result: AiResult = {
+    check: checks.every((c) => c.verdict === 'supported') ? 'agree' : 'disagree',
+    checks,
   }
+  // Only a complete answer is cached, so a checker that was down gets its turn next time.
+  if (!failed) await writeCache(AI_CACHE_KEY, { ...cache, [key]: result })
+  return result
 }
 
-/** Live items (auto events, auto ripples): outlets first; the AI is only asked once 3+ outlets report it. */
+/**
+ * Live items (auto events, auto ripples): the reports decide first (independent outlets, copies
+ * counted once); the AI is only asked once enough independent outlets report it.
+ */
 export async function liveTrust(
   claim: string,
   evidence: NewsHeadline[],
   sources: Source[],
   budget: { left: number },
 ): Promise<Trust> {
-  const outlets = outletsOf(evidence)
-  if (outlets.length < MIN_CORROBORATING_OUTLETS) return outletTrust(outlets)
-  return outletTrust(outlets, await aiCrossCheck(claim, evidence, sources, budget))
+  const byReports = evidenceTrust(evidence)
+  if (byReports.outlets.length < MIN_CORROBORATING_OUTLETS) return byReports
+  return evidenceTrust(evidence, await aiCrossCheck(claim, evidence, sources, budget))
 }
 
 /**
- * One headline: its outlets are its own plus every other outlet reporting the same story, and the
- * AI checkers judge it only against the OTHER outlets' reports (a headline always "supports" itself).
+ * One headline: its own report plus every other outlet's report of the same story; the AI
+ * checkers judge it only against the OTHER outlets' reports (a headline always "supports" itself).
  */
 export async function headlineTrust(
   headline: NewsHeadline,
@@ -124,9 +146,8 @@ export async function headlineTrust(
   const evidence = others.filter(
     (h) => h.url !== headline.url && h.publisher !== headline.publisher,
   )
-  const outlets = outletsOf([headline, ...evidence])
-  const ai = evidence.length
+  const ai: AiResult = evidence.length
     ? await aiCrossCheck(headline.title, evidence, sources, budget)
-    : 'unavailable'
-  return outletTrust(outlets, ai)
+    : { check: 'unavailable' }
+  return evidenceTrust([headline, ...evidence], ai)
 }
