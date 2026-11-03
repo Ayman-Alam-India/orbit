@@ -25,6 +25,26 @@ vi.mock('../sources/cache', () => ({
   writeCache: async (key: string, value: unknown) => void cache.set(key, value),
 }))
 
+// One event ORBIT detected in live headlines by itself (not in the curated seed).
+const autoEvent = {
+  id: 'evt_auto_test',
+  kind: 'geopolitical',
+  title: 'Port strike in India',
+  summary: 'Headlines report a port strike.',
+  countryIds: ['IND'],
+  location: { lat: 20, lng: 78 },
+  occurredAt: '2026-11-03T09:00:00Z',
+  severity: 3,
+  sourceIds: ['src_google_news'],
+  tags: ['labour', 'auto-detected'],
+  origin: 'auto',
+  category: 'labour',
+  actors: [],
+}
+vi.mock('../ingest/events', () => ({
+  getAutoEvent: async (id: string) => (id === autoEvent.id ? autoEvent : undefined),
+}))
+
 const { askOrbit, generateInsight } = await import('.')
 
 beforeEach(() => {
@@ -52,6 +72,17 @@ describe('AI module with the Google provider', () => {
     expect(prompt).not.toContain('"id":"BRA"')
   })
 
+  it('explains an auto-detected event instead of answering "not found"', async () => {
+    generateText.mockResolvedValue({
+      output: { summary: 'A port strike.', keyPoints: [], sourceIds: [], confidence: 'low' },
+    })
+    const insight = await generateInsight('event', 'evt_auto_test')
+    expect(insight.subjectId).toBe('evt_auto_test')
+    const { prompt } = generateText.mock.calls[0][0] as { prompt: string }
+    expect(prompt).toContain('Port strike in India')
+    await expect(generateInsight('event', 'evt_missing')).rejects.toThrow('not found')
+  })
+
   it('answers questions with the current context', async () => {
     generateText.mockResolvedValue({
       output: { answer: 'Heat is driving admissions.', sourceIds: [] },
@@ -65,7 +96,10 @@ describe('AI module with the Google provider', () => {
 
   it('still includes other countries when Ask is opened on an event', async () => {
     generateText.mockResolvedValue({
-      output: { answer: 'ORBIT is not tracking pollution; India dengue is the closest health signal.', sourceIds: [] },
+      output: {
+        answer: 'ORBIT is not tracking pollution; India dengue is the closest health signal.',
+        sourceIds: [],
+      },
     })
     await askOrbit({
       question: 'pollution level in india',
