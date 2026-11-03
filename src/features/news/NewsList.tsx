@@ -6,6 +6,8 @@ import { TrustWithVerify } from '../insight/VerifyNow'
 import { formatDate, shortSourceName } from '../event/format'
 import { useSources } from '../event/useSources'
 import styles from './NewsList.module.css'
+import { useUiStore } from '../../state/uiStore'
+import { previewOnPlainClick } from './openArticleClick'
 import { RefreshNews } from './RefreshNews'
 import { recentAgo, useNow } from './updatedAgo'
 import { useNews } from './useNews'
@@ -23,6 +25,7 @@ type NewsListProps = {
  */
 export function NewsList({ countryId, limit = 6 }: NewsListProps) {
   const query = useNews(countryId)
+  const openArticle = useUiStore((s) => s.openArticle)
   const now = useNow()
   const sources = useSources()
   const sourceName = (id: string) => {
@@ -49,7 +52,13 @@ export function NewsList({ countryId, limit = 6 }: NewsListProps) {
                 {n.importance === 'important' && (
                   <span className={styles.important}>Important</span>
                 )}
-                <a href={n.url} target="_blank" rel="noreferrer" className={styles.title}>
+                <a
+                  href={n.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.title}
+                  onClick={previewOnPlainClick(n, openArticle)}
+                >
                   {n.title}
                 </a>
                 <span className={styles.meta}>

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Outlet, useLocation, useMatch, useNavigate, useSearchParams } from 'react-router-dom'
 import { AskPanel } from '../features/ask/AskPanel'
+import { ArticlePreview } from '../features/news/ArticlePreview'
 import { RippleLegend } from '../features/ripple/RippleLegend'
 import { GlobeNav } from '../globe/GlobeNav'
 import { paths, ROUTE_PATTERNS } from '../routes'
@@ -92,6 +93,10 @@ export function OrbitLayout() {
           </ErrorBoundary>
         </div>
       </main>
+
+      <ErrorBoundary title="Article preview failed">
+        <ArticlePreview />
+      </ErrorBoundary>
 
       <aside
         className={styles.drawer}

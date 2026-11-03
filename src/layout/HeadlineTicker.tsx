@@ -2,7 +2,9 @@ import type { NewsHeadline } from '@shared'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { useNews } from '../features/news/useNews'
+import { previewOnPlainClick } from '../features/news/openArticleClick'
 import { paths } from '../routes'
+import { useUiStore } from '../state/uiStore'
 import styles from './HeadlineTicker.module.css'
 
 /** Seconds each headline is on screen; the loop gets longer as headlines are added. */
@@ -10,14 +12,21 @@ const SECONDS_PER_HEADLINE = 8
 
 function HeadlineLink({ headline, hidden }: { headline: NewsHeadline; hidden?: boolean }) {
   const countryId = headline.countryIds[0]
+  const openArticle = useUiStore((s) => s.openArticle)
   const common = { className: styles.item, tabIndex: hidden ? -1 : undefined }
-  // Headlines about an ORBIT event open that event; others open their source.
+  // Headlines about an ORBIT event open that event; others open ORBIT's article preview.
   return headline.eventId && countryId ? (
     <Link {...common} to={paths.event(countryId, headline.eventId)}>
       {headline.title}
     </Link>
   ) : (
-    <a {...common} href={headline.url} target="_blank" rel="noreferrer">
+    <a
+      {...common}
+      href={headline.url}
+      target="_blank"
+      rel="noreferrer"
+      onClick={previewOnPlainClick(headline, openArticle)}
+    >
       {headline.title}
     </a>
   )

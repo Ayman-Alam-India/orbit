@@ -1,5 +1,6 @@
 import {
   API_ROUTES,
+  type ArticleMedia,
   type CountryId,
   type HealthStatus,
   type NewsHeadline,
@@ -44,3 +45,13 @@ export function useRefreshNews(countryId?: CountryId) {
     onSuccess: (result) => queryClient.setQueryData(newsKeys.list(countryId), result.headlines),
   })
 }
+
+/** The article's photos, videos and description, read by the server (live mode). Cached for the session. */
+export const useArticleMedia = (headlineId?: string) =>
+  useQuery({
+    queryKey: ['news', 'media', headlineId],
+    queryFn: () => apiGet<ArticleMedia>(API_ROUTES.newsMedia(headlineId!)),
+    enabled: Boolean(headlineId),
+    staleTime: Infinity,
+    retry: false,
+  })

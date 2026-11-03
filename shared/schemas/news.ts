@@ -46,5 +46,22 @@ export const NewsRefreshResultSchema = z.object({
   refreshed: z.boolean(),
 })
 
+/** GET /api/news/:id/media: what the article itself shows, read from its page by the server. */
+export const ArticleMediaSchema = z.object({
+  headlineId: prefixedId(ID_PREFIX.news),
+  /** The article's own address (Google News links are resolved to it). */
+  articleUrl: z.url(),
+  /** The outlet's name from the page, e.g. "Reuters". */
+  siteName: z.string().min(1).optional(),
+  /** The article's own short description (og:description). */
+  description: z.string().min(1).optional(),
+  /** Photos the article declares for previews (og:image, twitter:image), best first. */
+  images: z.array(z.url()),
+  /** Videos: a YouTube embed, or a video file / player the page declares (og:video). */
+  videos: z.array(z.object({ url: z.url(), kind: z.enum(['youtube', 'file', 'embed']) })),
+  fetchedAt: IsoDateTimeSchema,
+})
+
+export type ArticleMedia = z.infer<typeof ArticleMediaSchema>
 export type NewsRefreshRequest = z.infer<typeof NewsRefreshRequestSchema>
 export type NewsRefreshResult = z.infer<typeof NewsRefreshResultSchema>

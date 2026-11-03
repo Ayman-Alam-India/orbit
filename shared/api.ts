@@ -25,6 +25,8 @@ export const API_ROUTES = {
   news: (countryId?: CountryId) => (countryId ? `/api/news?countryId=${countryId}` : '/api/news'),
   /** POST { countryId? } → NewsRefreshResult: fetches fresh live headlines now (waits for them). */
   newsRefresh: '/api/news/refresh',
+  /** GET → ArticleMedia: the article's photos, videos and description (read by the server). */
+  newsMedia: (headlineId: string) => `/api/news/${headlineId}/media`,
   /** POST TrustCheckRequest → Trust: re-verify one headline, event or ripple now. */
   trustCheck: '/api/trust/check',
   /** GET → PipelineStatus: last live pass, counts and source health. */
