@@ -10,15 +10,18 @@
 }
 
 /* Apple segmented control */
+/* 12+ scenarios: the picker wraps into rows of chips instead of one squashed row. */
 .segmented {
   display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
   padding: 2px;
   border-radius: var(--radius-sm);
   background: var(--color-fill);
 }
 
 .segment {
-  flex: 1;
+  flex: 1 1 auto;
   padding: 6px var(--space-2);
   border: none;
   border-radius: 7px;

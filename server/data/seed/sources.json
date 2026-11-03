@@ -138,5 +138,89 @@
     "url": "https://eia.gov/todayinenergy/detail.php?id=65504",
     "type": "government",
     "reliability": "high"
+  },
+  {
+    "id": "src_eia_chokepoints",
+    "name": "U.S. EIA: World Oil Transit Chokepoints",
+    "url": "https://www.eia.gov/international/analysis/special-topics/World_Oil_Transit_Chokepoints",
+    "type": "government",
+    "reliability": "high"
+  },
+  {
+    "id": "src_wiki_malacca",
+    "name": "Wikipedia: Strait of Malacca",
+    "url": "https://en.wikipedia.org/wiki/Strait_of_Malacca",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_suez_2021",
+    "name": "Wikipedia: 2021 Suez Canal obstruction",
+    "url": "https://en.wikipedia.org/wiki/2021_Suez_Canal_obstruction",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_black_sea_grain",
+    "name": "Wikipedia: Black Sea Grain Initiative",
+    "url": "https://en.wikipedia.org/wiki/Black_Sea_Grain_Initiative",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_turkish_straits",
+    "name": "Wikipedia: Turkish Straits",
+    "url": "https://en.wikipedia.org/wiki/Turkish_Straits",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_panama_canal",
+    "name": "Wikipedia: Panama Canal",
+    "url": "https://en.wikipedia.org/wiki/Panama_Canal",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_russia_price_cap",
+    "name": "Wikipedia: Russian oil price cap",
+    "url": "https://en.wikipedia.org/wiki/Russian_oil_price_cap",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_opec_plus",
+    "name": "Wikipedia: OPEC+",
+    "url": "https://en.wikipedia.org/wiki/OPEC%2B",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_tsmc",
+    "name": "Wikipedia: TSMC",
+    "url": "https://en.wikipedia.org/wiki/TSMC",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_ras_laffan",
+    "name": "Wikipedia: Ras Laffan Industrial City",
+    "url": "https://en.wikipedia.org/wiki/Ras_Laffan_Industrial_City",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_kharg",
+    "name": "Wikipedia: Kharg Island",
+    "url": "https://en.wikipedia.org/wiki/Kharg_Island",
+    "type": "research",
+    "reliability": "medium"
+  },
+  {
+    "id": "src_wiki_katrina",
+    "name": "Wikipedia: Hurricane Katrina",
+    "url": "https://en.wikipedia.org/wiki/Hurricane_Katrina",
+    "type": "research",
+    "reliability": "medium"
   }
 ]
