@@ -53,8 +53,19 @@ async function waitForSlot() {
   }
 }
 
+/**
+ * Circuit breaker: when every model fails (quota used up, Google throttling, no network), Gemini is
+ * not called again for this long. Callers fail fast and use their non-AI fallback, so a bad key or an
+ * exhausted quota can never stall the live pipeline or keep a visitor waiting.
+ */
+export const geminiBreaker = { pauseMs: process.env.VITEST ? 0 : 5 * 60_000, openUntil: 0 }
+
 /** Runs `task` with each configured Gemini model in turn until one succeeds; throws the last error. */
 export async function withGoogleModels<T>(task: (model: LanguageModel) => Promise<T>): Promise<T> {
+  if (Date.now() < geminiBreaker.openUntil)
+    throw new Error(
+      `Gemini paused until ${new Date(geminiBreaker.openUntil).toISOString()} after every model failed`,
+    )
   const google = createGoogleGenerativeAI({ apiKey: env.GOOGLE_GENERATIVE_AI_API_KEY })
   let lastError: unknown = new Error('GOOGLE_MODEL is empty')
   const failures: string[] = []
@@ -72,6 +83,15 @@ export async function withGoogleModels<T>(task: (model: LanguageModel) => Promis
       console.warn(
         `[ai] Gemini model ${id} failed (${describeGeminiError(err)}), trying the next one if configured`,
       )
+    }
+  }
+  // Every model failed: pause Gemini so nothing queues up behind it.
+  if (googleModelIds().length) {
+    geminiBreaker.openUntil = Date.now() + geminiBreaker.pauseMs
+    aiHealth.gemini = {
+      ok: false,
+      detail: `${aiHealth.gemini.detail ?? ''} · paused for ${geminiBreaker.pauseMs / 60_000} min`,
+      at: Date.now(),
     }
   }
   throw lastError
