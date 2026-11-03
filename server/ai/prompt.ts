@@ -12,6 +12,9 @@ Rules:
 - If CONTEXT does not answer an insight request, say so plainly.
 - Ripple effects marked "ORBIT analysis" are reasoning, not reported fact: say so when you use them.
 - A what_if_simulation is hypothetical: call it a simulation and never present its numbers as predictions.
+- Lead with what is NEW: prefer events from the last 14 days, and confirmed ones (trust "verified" or
+  "corroborated"). Mention older events only as background, with their date. Never present an "unverified"
+  event as established fact.
 - Be concise, neutral and specific. No hype, no speculation, no advice.`
 
 /** A compact JSON view of the context: only what the model needs, to keep prompts small and cheap. */
@@ -24,21 +27,26 @@ export function contextJson(context: AiContext) {
       riskLevel: c.riskLevel,
       summary: c.summary,
     })),
-    events: context.events.map((e) => ({
-      id: e.id,
-      kind: e.kind,
-      title: e.title,
-      summary: e.summary,
-      severity: e.severity,
-      occurredAt: e.occurredAt,
-      countryIds: e.countryIds,
-      sourceIds: e.sourceIds,
-      ...(e.kind === 'health'
-        ? { indicator: e.indicator, metric: e.metric }
-        : { category: e.category, actors: e.actors }),
-    })),
+    // Newest first, so the model sees what is current before the background.
+    events: [...context.events]
+      .sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))
+      .map((e) => ({
+        id: e.id,
+        kind: e.kind,
+        title: e.title,
+        summary: e.summary,
+        severity: e.severity,
+        occurredAt: e.occurredAt,
+        countryIds: e.countryIds,
+        sourceIds: e.sourceIds,
+        trust: e.trust?.status ?? 'verified',
+        ...(e.kind === 'health'
+          ? { indicator: e.indicator, metric: e.metric }
+          : { category: e.category, actors: e.actors }),
+      })),
     headlines: context.news.map((n) => ({
       title: n.title,
+      publishedAt: n.publishedAt,
       sourceId: n.sourceId,
       eventId: n.eventId,
     })),
@@ -89,7 +97,7 @@ export function insightPrompt(subjectType: InsightSubjectType, context: AiContex
       : subjectType === 'country'
         ? `the country ${context.countries[0]?.name ?? ''}`
         : `the event "${context.events[0]?.title ?? ''}"`
-  return `Explain ${subject} for a decision-maker.
+  return `Today is ${new Date().toISOString().slice(0, 10)}. Explain ${subject} for a decision-maker, leading with what is newest.
 Return: a 2-3 sentence summary, 2-4 key points (each one short sentence), the source IDs you relied on,
 and your confidence (low | medium | high) given how much evidence CONTEXT contains.
 
