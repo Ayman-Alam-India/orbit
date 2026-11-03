@@ -24,6 +24,12 @@ describe('news panel', () => {
     expect(links[0]).toHaveAttribute('href', '/country/IND/event/hs_ind_dengue_surge')
   })
 
+  it('disables the refresh button in mock mode, so nothing leaves the laptop', async () => {
+    renderWithProviders(<NewsList countryId="IND" />)
+    const button = await screen.findByRole('button', { name: 'Live news is off (mock mode)' })
+    expect(button).toBeDisabled()
+  })
+
   it('respects the limit', async () => {
     renderWithProviders(<NewsList limit={2} />)
     expect(await screen.findAllByRole('listitem')).toHaveLength(2)

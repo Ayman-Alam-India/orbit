@@ -5,6 +5,7 @@ import { ItemList, Panel, QueryState } from '../../ui'
 import { formatDate, shortSourceName } from '../event/format'
 import { useSources } from '../event/useSources'
 import styles from './NewsList.module.css'
+import { RefreshNews } from './RefreshNews'
 import { useNews } from './useNews'
 
 type NewsListProps = {
@@ -27,7 +28,7 @@ export function NewsList({ countryId, limit = 6 }: NewsListProps) {
   }
 
   return (
-    <Panel eyebrow="Headlines">
+    <Panel eyebrow="Headlines" actions={<RefreshNews countryId={countryId} />}>
       <QueryState query={query} label="headlines">
         {(news) => (
           <ItemList
