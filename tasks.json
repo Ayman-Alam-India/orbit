@@ -595,6 +595,25 @@
         "src/features/news/NewsList.test.tsx"
       ],
       "handoff": "Tell the team live news now comes from Google News and stays current by itself in live mode."
+    },
+    {
+      "id": "ORB-SHR-07",
+      "owner": "Ayman",
+      "builder": "Claude (Ayman's session)",
+      "status": "in_progress",
+      "priority": "P1",
+      "targetWindow": "H18-H22",
+      "branch": "claude/more-countries",
+      "title": "52 countries",
+      "description": "Grow the seed from 15 to 52 countries (G20 plus regional powers and hotspots). New entries carry lasting background facts, not dated events, because the drafter's knowledge ends mid-2026; live news, auto-detected events and AI insights add the current picture. Decided by Ayman (team offline, full permission given).",
+      "paths": ["server/data/seed/countries.json", "docs/API.md", "tasks.json"],
+      "dependsOn": ["ORB-HAR-06"],
+      "acceptance": [
+        "Every new country has news in DATA_MODE=live and opens without errors",
+        "Population, capital and summary checked against a reliable source before the demo"
+      ],
+      "tests": ["server/data/seed.test.ts"],
+      "handoff": "Ask a teammate to spot-check populations and summaries against the World Bank and recent news."
     }
   ]
 }
