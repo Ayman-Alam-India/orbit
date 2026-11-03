@@ -7,17 +7,21 @@ markets, weather and explainable, multi-model-verified AI, in one flow: **Global
 
 ## What makes ORBIT different
 
-| Feature                             | What it does                                                                                                                                                                                                                                 |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Ripple effects**                  | Shows how an event spreads: Red Sea crisis → Brent crude → India's crude import bill → the rupee and pump prices. Each link is sourced or labelled "ORBIT analysis", has a live market figure, and is drawn as an animated arc on the globe. |
-| **What if… simulator**              | `/simulate`: close the Strait of Hormuz or Bab el-Mandeb, choose an oil-price shock (−30…+100%), and ORBIT computes the knock-on effects with visible formulas on live and sourced numbers. Labelled "Simulation, not a forecast".           |
-| **Multi-model claim check**         | Every AI explanation is split into claims. Gemini, Groq (gpt-oss-120b) and a deterministic rule checker verify each claim against ORBIT's data independently, and the UI shows where they agree or disagree.                                 |
-| **Guided tour with a narrator**     | `▶ Tour` (or `/?tour=1`): the globe flies through the most severe events and the strongest ripple chain while a Gemini voice narrates. Narration is built from sourced data only. Keys: ← → move, space pause, M mute, Esc exit.             |
-| **Voice in Ask ORBIT**              | 🎙 ask by voice (Chrome/Edge) and 🔊 Listen to any answer.                                                                                                                                                                                    |
-| **Grounded AI**                     | Gemini answers only from ORBIT's data, cites source IDs, flags analysis and simulations, and falls back to cached insights, then to an offline analyser. It never shows a blank screen.                                                      |
-| **Automatic event detection**       | ORBIT reads today's live headlines, proposes new events itself and marks them auto-detected and unverified, separate from the curated ones. See [docs/AUTO_EVENTS.md](docs/AUTO_EVENTS.md).                                                  |
-| **Live, free data**                 | GDELT news, Yahoo Finance markets (Brent, USD/INR, NIFTY, Sensex, Indian blue chips), Open-Meteo weather. Every source is free and keyless, and every value is cached and has a seeded fallback for offline demos.                           |
-| **Realistic Earth, Apple-style UI** | NASA Blue Marble textures, terrain, shiny oceans and stars; frosted-glass panels, capsule toolbar, SF typography.                                                                                                                            |
+| Feature                             | What it does                                                                                                                                                                                                                                                                                                                                            |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Ripple effects**                  | Shows how an event spreads: Red Sea crisis → Brent crude → India's crude import bill → the rupee and pump prices. Curated links are sourced; ORBIT's rules add more (chokepoints, chips, grain, outbreaks) with news evidence. A clickable legend filters the arcs on the globe by channel.                                                             |
+| **What if… simulator**              | `/simulate`: 12 scenarios (Hormuz, Bab el-Mandeb, Malacca, Suez, Black Sea grain, Panama drought, Russian oil, OPEC+ cut, Taiwan Strait, Qatar LNG, Kharg Island, Gulf hurricane), each with sourced facts. Choose an oil-price shock (−30…+100%) and ORBIT computes the knock-on effects with visible formulas. Labelled "Simulation, not a forecast". |
+| **Multi-model claim check**         | Every AI explanation is split into claims. Gemini, Groq (gpt-oss-120b) and a deterministic rule checker verify each claim against ORBIT's data independently, and the UI shows where they agree or disagree.                                                                                                                                            |
+| **Guided tour with a narrator**     | `▶ Tour` (or `/?tour=1`): the globe flies through the most severe events and the strongest ripple chain while a Gemini voice narrates. Narration is built from sourced data only. Keys: ← → move, space pause, M mute, Esc exit.                                                                                                                        |
+| **Voice in Ask ORBIT**              | 🎙 ask by voice (Chrome/Edge) and 🔊 Listen to any answer.                                                                                                                                                                                                                                                                                               |
+| **Grounded AI**                     | Gemini answers only from ORBIT's data, cites source IDs, flags analysis and simulations, and falls back to cached insights, then to an offline analyser. It never shows a blank screen.                                                                                                                                                                 |
+| **Automatic event detection**       | ORBIT reads the live headlines and proposes events itself (up to 3 per country, a top story for quiet ones), rated by the trust rule and kept separate from the curated ones. See [docs/AUTO_EVENTS.md](docs/AUTO_EVENTS.md).                                                                                                                           |
+| **One trust rule, shown**           | Every headline, event and ripple carries ✓ Verified (curated or official), ◑ Corroborated (3+ independent outlets, one established, AI checkers agree) or ○ Unverified. Syndicated copies and aggregators count once. "How we know" lists the reports and what Gemini and Groq said; "Verify now" re-checks on the spot.                                |
+| **Live pipeline, every 10 min**     | News for 52 countries (Google News, GDELT fallback), WHO outbreak reports as official health signals with a pin in every affected country, events detected from headlines, rule-made ripples with news evidence, then the trust rule. A status light in the top bar shows each source's health.                                                         |
+| **India focus**                     | Petrol and diesel for Delhi, Mumbai, Kolkata and Chennai (daily, 10-day history); headlines ranked important or normal (rules + Gemini) and the important ones checked by Gemini + Groq.                                                                                                                                                                |
+| **Article preview**                 | Clicking a headline opens it inside ORBIT with the article's own photo or video, its description and a link to the full story.                                                                                                                                                                                                                          |
+| **Live, free data**                 | Google News (GDELT fallback), WHO Disease Outbreak News, Goodreturns fuel prices, Yahoo Finance markets, Open-Meteo weather. Every source is free and keyless, cached, and has a seeded fallback for offline demos.                                                                                                                                     |
+| **Realistic Earth, Apple-style UI** | NASA Blue Marble textures, terrain, shiny oceans and stars; frosted-glass panels, capsule toolbar, SF typography.                                                                                                                                                                                                                                       |
 
 All of it runs on free tiers ($0) and still works with the wifi off.
 
@@ -67,8 +71,10 @@ Browser (React + 3D globe) ──/api──► Express API server ──► seed
 - **AI** (`server/ai/`): Gemini via the Vercel AI SDK (model fallback list) with structured output. Insights are cached,
   and when Gemini fails ORBIT uses the cache, then the offline analyser. Claim verification: Gemini + Groq + rules
   (`server/ai/verify/`). Narrator voice: Gemini TTS, cached as WAV (`server/ai/tts.ts`).
-- **Live sources** (`server/sources/`): GDELT (throttled queue), Yahoo Finance (refreshed every 15 min), Open-Meteo
-  (cached 30 min). All go through the disk cache in `server/.cache/`.
+- **Live sources** (`server/sources/`): Google News RSS (GDELT fallback), WHO outbreak news, Goodreturns fuel prices, Yahoo
+  Finance (every 15 min), Open-Meteo (cached 30 min), article previews. All go through the disk cache in `server/.cache/`.
+- **Live pipeline** (`server/ingest/pipeline.ts`): news → WHO → events → ripples → trust, every 10 minutes in live mode.
+  The trust rule is in `server/sources/trustRules.ts`, the outlet lists in `server/sources/outlets.ts`.
 - **Simulator** (`server/sim/simulate.ts`): a pure, unit-tested engine. Every output carries its formula and sources.
 
 Details: [docs/PLAYBOOK.md](docs/PLAYBOOK.md#2-architecture).
@@ -165,9 +171,11 @@ Contract changes, conflicts and what never gets committed: [docs/INTEGRATION.md]
 
 ## Demo checklist
 
+The full 3-minute script, with what to say at each step and a plan B: **[docs/DEMO.md](docs/DEMO.md)**.
+
 1. `.env` has `DATA_MODE=live`, `AI_PROVIDER=google`, the Gemini and Groq keys.
-2. `npm run dev`, then `npm run warm:voice`. Open each featured country once so insights and claim checks are cached.
-3. Use **Edge** in full screen. Start with `/?tour=1` and press ▶. Then Red Sea event → claim check → What if… Hormuz +30% → Ask ORBIT by voice.
+2. `npm run dev` 30 minutes ahead (one pipeline pass takes about 3 minutes), then `npm run warm:voice`.
+3. Hover the status light in the top bar: green **Live**, ✓ on each source. Gemini ✗ (free quota used up) is fine; ORBIT falls back.
 4. If the wifi dies, keep going: the cached data, AI answers and narration still work.
 
 ## Credits

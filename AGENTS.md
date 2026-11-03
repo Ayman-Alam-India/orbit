@@ -4,6 +4,13 @@ This file is the single source of rules for Claude Code, Codex, Cursor and peopl
 `.cursor/rules/orbit.mdc` only point here. If another document disagrees with this file, this file wins.
 Tell Hardik so the other document gets fixed.
 
+## Temporary arrangement (since 2026-11-03)
+
+The rest of the team is offline and has given Ayman explicit permission and full access. Until someone
+rejoins, **Ayman makes every customization decision and merges PRs himself**; Claude asks Ayman instead of
+the area owners, and each PR lists its decisions as "decided by Ayman (team offline)" so owners can review
+them later. Everything else in this file still applies. Remove this section when the team is back.
+
 ## 0. Build model: one code writer
 
 **Only Claude, running in Ayman's session, commits code.** Teammates do not commit code. Instead they:
