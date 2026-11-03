@@ -1,5 +1,5 @@
 import type { Country, ImpactLink, MarketQuote, OrbitEvent } from '@shared'
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { rippleArcs } from '../../globe/rippleArcs'
 import { withTestApiServer } from '../../test/apiServer'
@@ -15,9 +15,11 @@ describe('ripple effects panel', () => {
     renderWithProviders(<RipplePanel eventId="evt_usa_tariff_review" />)
     // Only the ripple rows (they carry data-depth): each row's source chips are list items too and
     // load a moment later, which made a plain count flaky under load.
-    const items = (await screen.findAllByRole('listitem')).filter((li) =>
-      li.hasAttribute('data-depth'),
-    )
+    const items = await waitFor(() => {
+      const rows = screen.getAllByRole('listitem').filter((li) => li.hasAttribute('data-depth'))
+      expect(rows).toHaveLength(2)
+      return rows
+    })
     expect(items).toHaveLength(2)
     // The follow-on link is listed under (after) the link it follows from, one level deeper.
     expect(items[0]).toHaveAttribute('data-depth', '0')

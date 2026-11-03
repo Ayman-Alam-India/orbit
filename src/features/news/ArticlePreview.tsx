@@ -78,12 +78,39 @@ export function ArticlePreview() {
   const media = useArticleMedia(headline?.id)
   const now = useNow()
 
+  // Keyboard: focus moves into the preview, Tab stays inside it, Esc closes it, and focus returns
+  // to the headline that opened it.
   useEffect(() => {
     if (!headline) return
+    const opener = document.activeElement as HTMLElement | null
     dialog.current?.focus()
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && openArticle(undefined)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') return openArticle(undefined)
+      if (e.key !== 'Tab' || !dialog.current) return
+      const focusable = [
+        ...dialog.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), iframe, video, summary',
+        ),
+      ]
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (
+        e.shiftKey &&
+        (document.activeElement === first || document.activeElement === dialog.current)
+      ) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      opener?.focus?.()
+    }
   }, [headline, openArticle])
 
   if (!headline) return null

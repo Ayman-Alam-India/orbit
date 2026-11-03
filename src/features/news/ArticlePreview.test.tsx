@@ -47,8 +47,11 @@ describe('article preview', () => {
         <ArticlePreview />
       </>,
     )
-    fireEvent.click(await screen.findByRole('link', { name: headline.title }))
+    const link = await screen.findByRole('link', { name: headline.title })
+    link.focus()
+    fireEvent.click(link)
     const dialog = await screen.findByRole('dialog', { name: headline.title })
+    expect(dialog).toHaveFocus()
     expect(await screen.findByAltText(`Photo from the article: ${headline.title}`)).toHaveAttribute(
       'src',
       'https://static.dw.com/image/1.jpg',
@@ -65,5 +68,7 @@ describe('article preview', () => {
 
     fireEvent.keyDown(window, { key: 'Escape' })
     expect(dialog).not.toBeInTheDocument()
+    // Keyboard users land back on the headline they opened.
+    expect(link).toHaveFocus()
   })
 })
