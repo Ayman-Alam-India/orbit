@@ -316,3 +316,13 @@ describe('AI checks when one checker is down', () => {
     ])
   })
 })
+
+describe('top stories skip soft news', () => {
+  it('never makes a sports or entertainment story a country event', async () => {
+    const { topStoryCandidate } = await import('./classify')
+    const sport = ['a.com', 'b.com', 'c.com'].map((p, i) =>
+      headline(p, `ISSF World Championship: India open campaign with ${i + 1} medals in shooting`),
+    )
+    expect(topStoryCandidate(sport, 2)).toBeUndefined()
+  })
+})
