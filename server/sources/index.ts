@@ -3,6 +3,7 @@ import { store } from '../data/store'
 import { env } from '../env'
 import { readCache, writeCache } from './cache'
 import { fetchGdeltHeadlines } from './gdelt'
+import { fetchGoogleNews } from './googleNews'
 
 /**
  * Live-data layer. Routes ask this module for data that may come from live APIs.
@@ -12,18 +13,20 @@ import { fetchGdeltHeadlines } from './gdelt'
  * In DATA_MODE=mock (the default) nothing leaves the laptop.
  */
 
-/** Live results are reused for this long before GDELT is asked again (it is rate-limited). */
-const FRESH_MS = 30 * 60_000
+/** A feed older than this is refreshed; the background loop also re-fetches every feed this often. */
+export const NEWS_FRESH_MS = 10 * 60_000
+/** Gap between feeds in the background loop, so Google News sees a gentle trickle (~1 min per pass). */
+export const newsLoop = { gapMs: 1_000 }
 /**
- * How long a refresh button click waits for GDELT. The request queue can hold several feeds
- * (e.g. during the startup warm-up), so the click gives up and answers with the saved headlines.
+ * How long a refresh button click waits. Google News answers in about a second; the limit only
+ * matters when it fails and the (slow, rate-limited) GDELT fallback is tried.
  */
-export const refreshTimeout = { ms: 45_000 }
+export const refreshTimeout = { ms: 20_000 }
 
 type CachedFeed = { fetchedAt: number; items: NewsHeadline[] }
 
-/** What to search for: the country's name, or (for the global feed) the countries with the most severe events. */
-function queryFor(countryId?: CountryId) {
+/** GDELT fallback query: the country's name, or (for the global feed) the countries with the most severe events. */
+function gdeltQueryFor(countryId?: CountryId) {
   if (countryId) {
     const country = store.getCountry(countryId)
     return country ? `"${country.name}"` : undefined
@@ -48,20 +51,36 @@ function merge(seed: NewsHeadline[], live: NewsHeadline[]) {
 const cacheKey = (countryId?: CountryId) => `news-${countryId ?? 'global'}`
 const refreshing = new Map<string, Promise<boolean>>()
 
+/** Google News first; GDELT only when Google fails (GDELT is slow and rate-limited). Throws when both fail. */
+async function fetchLiveHeadlines(countryId?: CountryId): Promise<NewsHeadline[]> {
+  const countryIds = countryId ? [countryId] : []
+  const name = countryId ? store.getCountry(countryId)?.name : undefined
+  try {
+    return await fetchGoogleNews(name, countryIds)
+  } catch (err) {
+    console.warn(`[sources] Google News for ${countryId ?? 'global'} failed, trying GDELT:`, err)
+    const query = gdeltQueryFor(countryId)
+    if (!query) throw err
+    return fetchGdeltHeadlines(query, countryIds)
+  }
+}
+
 /**
  * Fetches live headlines and saves them to the cache. Resolves true when fresh headlines were
- * saved. Never throws: failures are logged and the old cache stays. Concurrent calls for the
- * same feed share one request.
+ * saved. Never throws: failures are logged and the old cache stays (an empty answer, e.g. a quiet
+ * day for a small country, also keeps the old headlines). Concurrent calls for one feed share a request.
  */
 export function refreshNewsFeed(countryId?: CountryId): Promise<boolean> {
   const key = cacheKey(countryId)
-  const query = queryFor(countryId)
-  if (!query) return Promise.resolve(false)
+  if (countryId && !store.getCountry(countryId)) return Promise.resolve(false)
   const pending = refreshing.get(key)
   if (pending) return pending
-  const run = fetchGdeltHeadlines(query, countryId ? [countryId] : [])
-    .then((items) => writeCache(key, { fetchedAt: Date.now(), items } satisfies CachedFeed))
-    .then(() => true)
+  const run = fetchLiveHeadlines(countryId)
+    .then(async (items) => {
+      if (!items.length) return false
+      await writeCache(key, { fetchedAt: Date.now(), items } satisfies CachedFeed)
+      return true
+    })
     .catch((err) => {
       console.warn(`[sources] live news for ${countryId ?? 'global'} failed:`, err)
       return false
@@ -73,20 +92,20 @@ export function refreshNewsFeed(countryId?: CountryId): Promise<boolean> {
 
 /**
  * Headlines for a country (or the world). Answers immediately: curated seed + whatever live
- * headlines are cached. If the cache is missing or older than 30 min, a refresh starts in the
- * background, so GDELT's slowness never delays the UI.
+ * headlines are cached. If the cache is missing or older than 10 min, a refresh starts in the
+ * background, so a slow source never delays the UI.
  */
 export async function getNewsFeed(countryId?: CountryId): Promise<NewsHeadline[]> {
   const seed = store.getNews(countryId)
   if (env.DATA_MODE === 'mock') return seed
 
   const cached = await readCache<CachedFeed>(cacheKey(countryId))
-  if (!cached || Date.now() - cached.fetchedAt >= FRESH_MS) void refreshNewsFeed(countryId)
+  if (!cached || Date.now() - cached.fetchedAt >= NEWS_FRESH_MS) void refreshNewsFeed(countryId)
   return merge(seed, cached?.items ?? [])
 }
 
 /**
- * The refresh button: asks GDELT now and waits (up to refreshTimeout.ms) for the answer.
+ * The refresh button: asks the live source now and waits (up to refreshTimeout.ms) for the answer.
  * In DATA_MODE=mock nothing leaves the laptop: it answers with the curated headlines and
  * `refreshed: false`. On failure or timeout it answers with the saved headlines.
  */
@@ -111,14 +130,30 @@ export async function refreshNews(countryId?: CountryId): Promise<NewsRefreshRes
   }
 }
 
+let loopTimer: ReturnType<typeof setTimeout> | undefined
+
+/** One pass over the global feed and every country, one feed at a time. */
+async function refreshAllFeeds() {
+  const feeds: (CountryId | undefined)[] = [undefined, ...store.getCountries().map((c) => c.id)]
+  let ok = 0
+  for (const countryId of feeds) {
+    if (await refreshNewsFeed(countryId)) ok++
+    await new Promise((resolve) => setTimeout(resolve, newsLoop.gapMs))
+  }
+  console.log(`[sources] live news: ${ok}/${feeds.length} feeds updated`)
+}
+
 /**
- * Live mode only: fetch every feed once at startup (queued to respect GDELT's rate limit, ~6 s each),
- * so live headlines are ready and cached before the demo starts.
+ * Live mode only: fetch every feed at startup, then again every 10 min, so every country's
+ * headlines stay current while the server runs (like a news site, nobody has to click).
  */
 export async function warmLiveNews(): Promise<void> {
-  if (env.DATA_MODE !== 'live') return
-  const feeds: (CountryId | undefined)[] = [undefined, ...store.getCountries().map((c) => c.id)]
-  console.log(`[sources] warming live news for ${feeds.length} feeds in the background`)
-  for (const countryId of feeds) await refreshNewsFeed(countryId)
-  console.log('[sources] live news warm-up finished')
+  if (env.DATA_MODE !== 'live' || loopTimer) return
+  console.log('[sources] live news: refreshing every feed now and every 10 min')
+  const pass = async () => {
+    await refreshAllFeeds().catch((err) => console.warn('[sources] live news pass failed:', err))
+    loopTimer = setTimeout(() => void pass(), NEWS_FRESH_MS)
+    loopTimer.unref?.()
+  }
+  await pass()
 }

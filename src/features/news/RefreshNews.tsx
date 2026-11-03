@@ -1,27 +1,20 @@
 import type { CountryId } from '@shared'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Button } from '../../ui'
 import styles from './RefreshNews.module.css'
-import { updatedAgo } from './updatedAgo'
+import { updatedAgo, useNow } from './updatedAgo'
 import { useDataMode, useRefreshNews } from './useNews'
 
 /**
  * The ↻ button in the Headlines panel header (decisions: Shrey). Disabled in DATA_MODE=mock,
- * spins while GDELT answers, then shows "Updated X ago" or a fallback message.
+ * spins while the live source answers, then shows "Updated X ago" or a fallback message.
  */
 export function RefreshNews({ countryId }: { countryId?: CountryId }) {
   const dataMode = useDataMode()
   const refresh = useRefreshNews(countryId)
-  const [now, setNow] = useState(() => Date.now())
+  const now = useNow()
   const result = refresh.data
   const live = dataMode.data === 'live'
-
-  // Keep "Updated X ago" current while it is on screen.
-  useEffect(() => {
-    if (!result?.refreshed) return
-    const timer = setInterval(() => setNow(Date.now()), 30_000)
-    return () => clearInterval(timer)
-  }, [result])
 
   // A new country starts without a status line.
   const { reset } = refresh
