@@ -1,4 +1,4 @@
-import type { CountryId, NewsHeadline } from '@shared'
+import type { CountryId, NewsHeadline, NewsRefreshResult } from '@shared'
 import { store } from '../data/store'
 import { env } from '../env'
 import { readCache, writeCache } from './cache'
@@ -14,6 +14,11 @@ import { fetchGdeltHeadlines } from './gdelt'
 
 /** Live results are reused for this long before GDELT is asked again (it is rate-limited). */
 const FRESH_MS = 30 * 60_000
+/**
+ * How long a refresh button click waits for GDELT. The request queue can hold several feeds
+ * (e.g. during the startup warm-up), so the click gives up and answers with the saved headlines.
+ */
+export const refreshTimeout = { ms: 45_000 }
 
 type CachedFeed = { fetchedAt: number; items: NewsHeadline[] }
 
@@ -41,21 +46,26 @@ function merge(seed: NewsHeadline[], live: NewsHeadline[]) {
 }
 
 const cacheKey = (countryId?: CountryId) => `news-${countryId ?? 'global'}`
-const refreshing = new Map<string, Promise<void>>()
+const refreshing = new Map<string, Promise<boolean>>()
 
 /**
- * Fetches live headlines and saves them to the cache. Never throws: failures are logged and the
- * old cache stays. Concurrent calls for the same feed share one request.
+ * Fetches live headlines and saves them to the cache. Resolves true when fresh headlines were
+ * saved. Never throws: failures are logged and the old cache stays. Concurrent calls for the
+ * same feed share one request.
  */
-export function refreshNewsFeed(countryId?: CountryId): Promise<void> {
+export function refreshNewsFeed(countryId?: CountryId): Promise<boolean> {
   const key = cacheKey(countryId)
   const query = queryFor(countryId)
-  if (!query) return Promise.resolve()
+  if (!query) return Promise.resolve(false)
   const pending = refreshing.get(key)
   if (pending) return pending
   const run = fetchGdeltHeadlines(query, countryId ? [countryId] : [])
     .then((items) => writeCache(key, { fetchedAt: Date.now(), items } satisfies CachedFeed))
-    .catch((err) => console.warn(`[sources] live news for ${countryId ?? 'global'} failed:`, err))
+    .then(() => true)
+    .catch((err) => {
+      console.warn(`[sources] live news for ${countryId ?? 'global'} failed:`, err)
+      return false
+    })
     .finally(() => refreshing.delete(key))
   refreshing.set(key, run)
   return run
@@ -73,6 +83,32 @@ export async function getNewsFeed(countryId?: CountryId): Promise<NewsHeadline[]
   const cached = await readCache<CachedFeed>(cacheKey(countryId))
   if (!cached || Date.now() - cached.fetchedAt >= FRESH_MS) void refreshNewsFeed(countryId)
   return merge(seed, cached?.items ?? [])
+}
+
+/**
+ * The refresh button: asks GDELT now and waits (up to refreshTimeout.ms) for the answer.
+ * In DATA_MODE=mock nothing leaves the laptop: it answers with the curated headlines and
+ * `refreshed: false`. On failure or timeout it answers with the saved headlines.
+ */
+export async function refreshNews(countryId?: CountryId): Promise<NewsRefreshResult> {
+  let refreshed = false
+  if (env.DATA_MODE !== 'mock') {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const timeout = new Promise<false>((resolve) => {
+      timer = setTimeout(() => resolve(false), refreshTimeout.ms)
+    })
+    refreshed = await Promise.race([refreshNewsFeed(countryId), timeout])
+    clearTimeout(timer)
+    if (!refreshed)
+      console.warn(`[sources] refresh for ${countryId ?? 'global'}: showing saved headlines`)
+  }
+  const cached =
+    env.DATA_MODE === 'mock' ? undefined : await readCache<CachedFeed>(cacheKey(countryId))
+  return {
+    headlines: merge(store.getNews(countryId), cached?.items ?? []),
+    fetchedAt: cached ? new Date(cached.fetchedAt).toISOString() : undefined,
+    refreshed,
+  }
 }
 
 /**

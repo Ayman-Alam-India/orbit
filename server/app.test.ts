@@ -6,6 +6,7 @@ import {
   AskAnswerSchema,
   CountrySchema,
   HealthStatusSchema,
+  NewsRefreshResultSchema,
   OrbitEventSchema,
 } from '@shared'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
@@ -56,6 +57,23 @@ describe('API responses match the shared contracts', () => {
     expect(AskAnswerSchema.parse(((await res.json()) as { data: unknown }).data).answer).toContain(
       'Brazil',
     )
+  })
+
+  it('POST /api/news/refresh stays offline in mock mode', async () => {
+    const refresh = (body: unknown) =>
+      fetch(server.baseUrl + API_ROUTES.newsRefresh, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    const res = await refresh({ countryId: 'IND' })
+    expect(res.status).toBe(200)
+    const result = NewsRefreshResultSchema.parse(((await res.json()) as { data: unknown }).data)
+    expect(result.refreshed).toBe(false)
+    expect(result.headlines.length).toBeGreaterThan(0)
+
+    expect((await refresh({ countryId: 'india' })).status).toBe(400)
+    expect((await refresh({ countryId: 'XXX' })).status).toBe(404)
   })
 
   it('errors use the { error: { code, message } } envelope', async () => {

@@ -532,6 +532,38 @@
       ],
       "tests": ["server/sources/markets.test.ts"],
       "handoff": "Tell Shrey what is shown for the demo."
+    },
+    {
+      "id": "ORB-HAR-05",
+      "owner": "Hardik",
+      "builder": "Claude (Ayman's session)",
+      "status": "in_progress",
+      "priority": "P2",
+      "targetWindow": "H18-H22",
+      "branch": "claude/news-refresh",
+      "title": "Refresh button for live headlines",
+      "description": "A refresh icon in the Headlines panel that fetches fresh GDELT headlines for the current country now, instead of waiting for the 30-min cache. Contract PR: POST /api/news/refresh + NewsRefreshResult (shared/, docs/API.md, server route). Feature PR: the button in src/features/news/. Panel decisions by Shrey: icon in the panel header with 'Updated X ago'; the click waits and keeps the old headlines visible; disabled with a tooltip in DATA_MODE=mock.",
+      "paths": [
+        "shared/",
+        "docs/API.md",
+        "server/routes/news.ts",
+        "server/sources/",
+        "server/app.test.ts",
+        "src/features/news/",
+        "tasks.json"
+      ],
+      "dependsOn": ["ORB-HAR-03", "ORB-SHR-03"],
+      "acceptance": [
+        "In DATA_MODE=live the button shows new headlines without a page reload",
+        "In DATA_MODE=mock the button is disabled and nothing leaves the laptop",
+        "A failure or a GDELT wait over 45 s keeps the saved headlines and shows a message"
+      ],
+      "tests": [
+        "server/sources/news.test.ts: refresh success, failure and timeout",
+        "server/app.test.ts: POST /api/news/refresh in mock mode, 400 and 404",
+        "src/features/news/NewsList.test.tsx: disabled in mock mode, refresh swaps headlines"
+      ],
+      "handoff": "Tell Shrey the button is in, and Hardik that the demo laptop needs DATA_MODE=live for it to work."
     }
   ]
 }
