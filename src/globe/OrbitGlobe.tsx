@@ -1,6 +1,6 @@
 import type { OrbitEvent } from '@shared'
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Globe, { type GlobeMethods } from 'react-globe.gl'
 import { useMatch, useNavigate } from 'react-router-dom'
 import { Color, MeshPhongMaterial, TextureLoader } from 'three'
@@ -211,6 +211,27 @@ export default function OrbitGlobe() {
   )
   const fadeRing = useMemo(() => ringColor(cssVar('--globe-ring')), [])
 
+  // Country shapes. react-globe.gl redraws every polygon whenever one of these functions changes, so
+  // they are stable (the cap colour only changes when the highlighted country does). New functions
+  // on every render made all 177 borders flicker each time the mouse moved over a country.
+  const polygonCapColor = useCallback(
+    (f: object) => {
+      const id = (f as CountryFeature).properties.id
+      const role = simulation?.affected.find((a) => a.countryId === id)?.role
+      if (role) return cssVar(`--sim-${role}`)
+      if (id === tourFocus?.countryId) return cssVar('--globe-land-selected')
+      if (id === selectedCountryId) return cssVar('--globe-land-selected')
+      return id === hoveredCountryId ? cssVar('--globe-land-hover') : cssVar('--globe-land')
+    },
+    [simulation, tourFocus?.countryId, selectedCountryId, hoveredCountryId],
+  )
+  const polygonSideColor = useCallback(() => cssVar('--globe-land-side'), [])
+  const polygonStrokeColor = useCallback(() => cssVar('--globe-border'), [])
+  const polygonLabel = useCallback(
+    (f: object) => tooltipHtml((f as CountryFeature).properties.name),
+    [],
+  )
+
   return (
     <Globe
       ref={globeRef}
@@ -224,18 +245,16 @@ export default function OrbitGlobe() {
       atmosphereColor={cssVar('--globe-atmosphere')}
       atmosphereAltitude={0.16}
       polygonsData={shapes.data?.features ?? []}
-      polygonCapColor={(f) => {
-        const id = (f as CountryFeature).properties.id
-        const role = simulation?.affected.find((a) => a.countryId === id)?.role
-        if (role) return cssVar(`--sim-${role}`)
-        if (id === tourFocus?.countryId) return cssVar('--globe-land-selected')
-        if (id === selectedCountryId) return cssVar('--globe-land-selected')
-        return id === hoveredCountryId ? cssVar('--globe-land-hover') : cssVar('--globe-land')
-      }}
-      polygonSideColor={() => cssVar('--globe-land-side')}
-      polygonStrokeColor={() => cssVar('--globe-border')}
-      polygonAltitude={0.006}
-      polygonLabel={(f) => tooltipHtml((f as CountryFeature).properties.name)}
+      polygonCapColor={polygonCapColor}
+      polygonSideColor={polygonSideColor}
+      polygonStrokeColor={polygonStrokeColor}
+      // Slightly above the surface, and outlines that follow the curve closely (2° steps instead of
+      // 5°): long straight border segments no longer dip under the sphere and flicker in and out.
+      polygonAltitude={0.008}
+      polygonCapCurvatureResolution={2}
+      // Colour changes (hover, selection) switch instantly instead of animating every outline.
+      polygonsTransitionDuration={0}
+      polygonLabel={polygonLabel}
       onPolygonHover={(f) => setHoveredCountry((f as CountryFeature | null)?.properties.id)}
       onPolygonClick={(f) => navigate(paths.country((f as CountryFeature).properties.id))}
       pointsData={pinnedEvents}

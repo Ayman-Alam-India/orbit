@@ -27,7 +27,8 @@ describe('ripple effects panel', () => {
     expect(within(items[0]).getByText('Sourced')).toBeInTheDocument()
     expect(within(items[1]).getByText('ORBIT analysis')).toBeInTheDocument()
     expect(await within(items[1]).findByText('₹84.00')).toBeInTheDocument()
-    expect(within(items[1]).getByRole('link', { name: 'India' })).toHaveAttribute(
+    // The row shows "IND" until the country list has loaded, then "India": wait for the name.
+    expect(await within(items[1]).findByRole('link', { name: 'India' })).toHaveAttribute(
       'href',
       '/country/IND',
     )
