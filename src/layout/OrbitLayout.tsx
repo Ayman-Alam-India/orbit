@@ -1,6 +1,8 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Outlet, useLocation, useMatch, useNavigate, useSearchParams } from 'react-router-dom'
 import { AskPanel } from '../features/ask/AskPanel'
+import { RippleLegend } from '../features/ripple/RippleLegend'
+import { GlobeNav } from '../globe/GlobeNav'
 import { paths, ROUTE_PATTERNS } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import { ErrorBoundary, Loader } from '../ui'
@@ -62,6 +64,18 @@ export function OrbitLayout() {
           aria-label="Back to global view"
           onClick={() => navigate(paths.global())}
         />
+      )}
+
+      {isGlobal && !tourActive && (
+        <div className={styles.leftRail}>
+          {/* The simulator draws its own arcs, so the legend is only for live ripples. */}
+          {onGlobal && (
+            <ErrorBoundary title="Legend failed">
+              <RippleLegend />
+            </ErrorBoundary>
+          )}
+          <GlobeNav />
+        </div>
       )}
 
       <TopBar />

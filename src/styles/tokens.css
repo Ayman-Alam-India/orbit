@@ -142,6 +142,7 @@
 
   /* Layout */
   --panel-width: 420px;
+  --legend-width: 220px;
   --topbar-height: 72px;
   --center-width: 760px;
   --mini-globe-size: 220px;
