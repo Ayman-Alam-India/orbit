@@ -83,7 +83,7 @@ const SummarySchema = z.object({
  * Optional polish: Gemini rewrites the headlines into one neutral sentence. It may use nothing but the
  * headline titles, and its output is rejected if it introduces a figure they do not contain.
  */
-async function summarise(
+async function summariseWithAi(
   candidate: Candidate,
   country: Country,
 ): Promise<{ summary: string; severity: number }> {
@@ -112,6 +112,24 @@ async function summarise(
   } catch {
     return fallback
   }
+}
+
+/** Gemini summaries already written, per story (first headline URL), so each story costs one call ever. */
+const SUMMARY_CACHE_KEY = 'ai-event-summaries'
+type SummaryCache = Record<string, { summary: string; severity: number }>
+
+async function summarise(
+  candidate: Candidate,
+  country: Country,
+): Promise<{ summary: string; severity: number }> {
+  const key = createHash('sha1').update(candidate.headlines[0].url).digest('hex').slice(0, 16)
+  const cache = (await readCache<SummaryCache>(SUMMARY_CACHE_KEY)) ?? {}
+  if (cache[key]) return cache[key]
+  const result = await summariseWithAi(candidate, country)
+  // Only real AI summaries are saved; a fallback quote is retried next time.
+  if (result.summary !== quoteHeadlines(candidate))
+    await writeCache(SUMMARY_CACHE_KEY, { ...cache, [key]: result })
+  return result
 }
 
 function buildEvent(

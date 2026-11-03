@@ -24,7 +24,7 @@ import {
 /** The focus country: its headlines are ranked by Gemini and checked by Gemini + Groq every pass. */
 export const FOCUS_COUNTRY = 'IND'
 /** Focus-country headlines AI-checked per pass (newest important ones first; answers are cached). */
-export const focusBudget = { perPass: 8 }
+export const focusBudget = { perPass: 6 }
 
 /**
  * ORBIT's live pipeline: one ordered pass, every 10 minutes in DATA_MODE=live.
