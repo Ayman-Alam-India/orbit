@@ -170,7 +170,44 @@ const COUNTRY_TERMS: Record<string, string[]> = {
   ITA: ['italy', 'italian', 'rome'],
   LBR: ['liberia', 'liberian', 'monrovia'],
   KOS: ['kosovo', 'kosovar', 'pristina'],
-  NZL: ['new zealand', 'wellington'],
+  NZL: ['new zealand', 'wellington', 'kiwi'],
+  GBR: ['united kingdom', 'uk', 'u.k.', 'britain', 'british', 'london', 'england', 'scotland'],
+  JPN: ['japan', 'japanese', 'tokyo'],
+  KOR: ['south korea', 'south korean', 'seoul'],
+  BRA: ['brazil', 'brazilian', 'brasilia', 'brasília', 'lula'],
+  CAN: ['canada', 'canadian', 'ottawa'],
+  AUS: ['australia', 'australian', 'canberra', 'sydney', 'melbourne'],
+  MEX: ['mexico', 'mexican', 'mexico city'],
+  IDN: ['indonesia', 'indonesian', 'jakarta'],
+  TUR: ['turkey', 'türkiye', 'turkish', 'ankara', 'istanbul', 'erdogan'],
+  ARG: ['argentina', 'argentine', 'argentinian', 'buenos aires', 'milei'],
+  ZAF: ['south africa', 'south african', 'pretoria', 'johannesburg', 'cape town'],
+  PAK: ['pakistan', 'pakistani', 'islamabad', 'karachi', 'lahore'],
+  BGD: ['bangladesh', 'bangladeshi', 'dhaka'],
+  IRN: ['iran', 'iranian', 'tehran'],
+  ISR: ['israel', 'israeli', 'jerusalem', 'tel aviv', 'gaza', 'netanyahu'],
+  EGY: ['egypt', 'egyptian', 'cairo', 'suez'],
+  NGA: ['nigeria', 'nigerian', 'abuja', 'lagos'],
+  ETH: ['ethiopia', 'ethiopian', 'addis ababa'],
+  KEN: ['kenya', 'kenyan', 'nairobi', 'mombasa'],
+  SDN: ['sudan', 'sudanese', 'khartoum', 'darfur'],
+  IRQ: ['iraq', 'iraqi', 'baghdad'],
+  SYR: ['syria', 'syrian', 'damascus'],
+  AFG: ['afghanistan', 'afghan', 'kabul', 'taliban'],
+  ARE: ['uae', 'united arab emirates', 'emirati', 'dubai', 'abu dhabi'],
+  QAT: ['qatar', 'qatari', 'doha'],
+  VNM: ['vietnam', 'vietnamese', 'hanoi', 'ho chi minh'],
+  THA: ['thailand', 'thai', 'bangkok'],
+  PHL: ['philippines', 'philippine', 'filipino', 'manila'],
+  TWN: ['taiwan', 'taiwanese', 'taipei'],
+  PRK: ['north korea', 'north korean', 'pyongyang', 'kim jong un'],
+  MMR: ['myanmar', 'burma', 'burmese', 'naypyidaw', 'yangon'],
+  VEN: ['venezuela', 'venezuelan', 'caracas'],
+  COL: ['colombia', 'colombian', 'bogota', 'bogotá'],
+  ESP: ['spain', 'spanish', 'madrid', 'barcelona'],
+  POL: ['poland', 'polish', 'warsaw'],
+  LBN: ['lebanon', 'lebanese', 'beirut', 'hezbollah'],
+  CHL: ['chile', 'chilean', 'santiago'],
 }
 
 /** True when the headline names the country it was filed under. */
@@ -273,4 +310,38 @@ export function numbersGrounded(text: string, headlines: NewsHeadline[]): boolea
   const digits = (s: string) => (s.match(/\d[\d,.\s]*/g) ?? []).map((n) => n.replace(/\D/g, ''))
   const evidence = digits(headlines.map((h) => h.title).join(' '))
   return digits(text).every((n) => evidence.includes(n))
+}
+
+/** Distinct outlets (publisher domains) behind a candidate. */
+export const outletCount = (c: Candidate) =>
+  new Set(c.headlines.map((h) => h.publisher ?? h.url)).size
+
+/**
+ * A quiet country's top story: when no headline matches a known kind of event, the story the most
+ * independent outlets report today (3 or more) becomes the country's event. It is labelled "top
+ * story" at severity 2: it says what the news is about, not that something dangerous happened.
+ */
+export function topStoryCandidate(
+  headlines: NewsHeadline[],
+  minOutlets = 3,
+): Candidate | undefined {
+  const news = headlines.filter((h) => !isNotNews(h.title))
+  const words = news.map((h) => new Set(significantWords(h.title)))
+  let best: Candidate | undefined
+  news.forEach((h, i) => {
+    const group = news.filter((_, j) => overlap(words[i], words[j]) >= 3)
+    const candidate: Candidate = {
+      kind: 'geopolitical',
+      label: 'top story',
+      severity: 2,
+      title: h.title,
+      headlines: group,
+    }
+    if (
+      outletCount(candidate) >= minOutlets &&
+      (!best || outletCount(candidate) > outletCount(best))
+    )
+      best = candidate
+  })
+  return best
 }

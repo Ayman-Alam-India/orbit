@@ -7,6 +7,7 @@ import {
   CountrySchema,
   HealthStatusSchema,
   NewsRefreshResultSchema,
+  PipelineStatusSchema,
   OrbitEventSchema,
 } from '@shared'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
@@ -74,6 +75,27 @@ describe('API responses match the shared contracts', () => {
 
     expect((await refresh({ countryId: 'india' })).status).toBe(400)
     expect((await refresh({ countryId: 'XXX' })).status).toBe(404)
+  })
+
+  it('GET /api/status reports offline data in mock mode', async () => {
+    const { status, body } = await get(API_ROUTES.status)
+    expect(status).toBe(200)
+    expect(PipelineStatusSchema.parse(body.data)).toMatchObject({
+      dataMode: 'mock',
+      aiCheckers: [],
+      sources: [],
+    })
+  })
+
+  it('POST /api/trust/check refuses to go online in mock mode', async () => {
+    const check = (body: unknown) =>
+      fetch(server.baseUrl + API_ROUTES.trustCheck, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+    expect((await check({ kind: 'headline', id: 'news_x' })).status).toBe(503)
+    expect((await check({ kind: 'rumour', id: 'x' })).status).toBe(400)
   })
 
   it('errors use the { error: { code, message } } envelope', async () => {

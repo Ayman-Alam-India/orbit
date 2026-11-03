@@ -22,6 +22,11 @@ export const NewsHeadlineSchema = z.object({
   publisher: z.string().min(1).optional(),
   /** How well the story is confirmed (live headlines only; curated ones are verified by definition). */
   trust: TrustSchema.optional(),
+  /**
+   * important = serious (conflict, disaster, outbreak, security), widely reported (3+ outlets) or
+   * ranked important by the AI · normal = everything else. Set on live headlines.
+   */
+  importance: z.enum(['important', 'normal']).optional(),
 })
 
 export type NewsHeadline = z.infer<typeof NewsHeadlineSchema>

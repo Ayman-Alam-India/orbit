@@ -110,3 +110,23 @@ export async function liveTrust(
   if (outlets.length < MIN_CORROBORATING_OUTLETS) return outletTrust(outlets)
   return outletTrust(outlets, await aiCrossCheck(claim, evidence, sources, budget))
 }
+
+/**
+ * One headline: its outlets are its own plus every other outlet reporting the same story, and the
+ * AI checkers judge it only against the OTHER outlets' reports (a headline always "supports" itself).
+ */
+export async function headlineTrust(
+  headline: NewsHeadline,
+  others: NewsHeadline[],
+  sources: Source[],
+  budget: { left: number },
+): Promise<Trust> {
+  const evidence = others.filter(
+    (h) => h.url !== headline.url && h.publisher !== headline.publisher,
+  )
+  const outlets = outletsOf([headline, ...evidence])
+  const ai = evidence.length
+    ? await aiCrossCheck(headline.title, evidence, sources, budget)
+    : 'unavailable'
+  return outletTrust(outlets, ai)
+}

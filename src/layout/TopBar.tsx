@@ -3,10 +3,11 @@ import { paths } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import { Button } from '../ui'
 import { unlockAudio } from '../features/tour/speech'
+import { LiveStatus } from './LiveStatus'
 import { SearchBox } from './SearchBox'
 import styles from './TopBar.module.css'
 
-/** A single floating toolbar capsule, centred at the top: logo · search · Tour · What if… · Ask ORBIT. */
+/** A single floating toolbar capsule, centred at the top: logo · live status · search · Tour · What if… · Ask ORBIT. */
 export function TopBar() {
   const { askOpen, setAskOpen, tourActive, setTourActive } = useUiStore()
   return (
@@ -16,6 +17,7 @@ export function TopBar() {
           <span className={styles.dot} aria-hidden />
           ORBIT
         </Link>
+        <LiveStatus />
         <SearchBox />
         <button
           type="button"

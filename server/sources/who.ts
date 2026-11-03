@@ -139,6 +139,9 @@ export function toHealthSignals(items: WhoItem[], countries: Country[], now = Da
 
 type CachedWho = { fetchedAt: number; signals: HealthSignal[] }
 
+/** Whether the last WHO request worked (for GET /api/status). */
+export const whoState = { ok: false }
+
 /**
  * Live mode: the latest WHO outbreak reports as health signals. On any failure the last saved
  * list is used. Mock mode: none (nothing leaves the laptop).
@@ -151,8 +154,10 @@ export async function fetchWhoSignals(): Promise<HealthSignal[]> {
     const body = (await res.json()) as { value?: WhoItem[] }
     const signals = toHealthSignals(body.value ?? [], store.getCountries())
     await writeCache(CACHE_KEY, { fetchedAt: Date.now(), signals } satisfies CachedWho)
+    whoState.ok = true
     return signals
   } catch (err) {
+    whoState.ok = false
     console.warn('[sources] WHO outbreak news failed, using the saved list:', err)
     return (await readCache<CachedWho>(CACHE_KEY))?.signals ?? []
   }

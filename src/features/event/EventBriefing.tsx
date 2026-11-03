@@ -1,7 +1,8 @@
 import type { OrbitEvent } from '@shared'
 import { Link } from 'react-router-dom'
 import { paths } from '../../routes'
-import { SeverityBadge, StatTile, Tag, TrustBadge } from '../../ui'
+import { SeverityBadge, StatTile, Tag } from '../../ui'
+import { TrustWithVerify } from '../insight/VerifyNow'
 import { useCountries } from '../country/useCountry'
 import { countryNames, formatDate, shortSourceName } from './format'
 import styles from './EventView.module.css'
@@ -20,7 +21,7 @@ export function EventBriefing({ event, countryId }: { event: OrbitEvent; country
           <Tag kind={event.kind}>{event.kind === 'health' ? 'Health signal' : 'Geopolitical'}</Tag>
           <SeverityBadge severity={event.severity} />
           {event.origin === 'auto' && <span className={styles.autoFlag}>Auto-detected</span>}
-          <TrustBadge trust={event.trust} />
+          <TrustWithVerify trust={event.trust} request={{ kind: 'event', id: event.id }} />
         </span>
         <Link to={paths.country(countryId)} className={styles.back}>
           ← Back to country

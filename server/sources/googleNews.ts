@@ -7,7 +7,7 @@ import { NewsHeadlineSchema, type CountryId, type NewsHeadline } from '@shared'
 const BASE = 'https://news.google.com/rss'
 const EDITION = 'hl=en-US&gl=US&ceid=US:en'
 const TIMEOUT_MS = 10_000
-const MAX_ITEMS = 10
+const MAX_ITEMS = 30
 
 /** Every Google News headline cites this source (it exists in server/data/seed/sources.json). */
 export const GOOGLE_NEWS_SOURCE_ID = 'src_google_news'

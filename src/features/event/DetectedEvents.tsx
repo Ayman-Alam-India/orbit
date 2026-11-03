@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { paths } from '../../routes'
-import { Button, ItemList, Panel, QueryState, SeverityBadge, TrustBadge } from '../../ui'
+import { Button, ItemList, Panel, QueryState, SeverityBadge } from '../../ui'
+import { TrustWithVerify } from '../insight/VerifyNow'
 import styles from './DetectedEvents.module.css'
 import { formatDate } from './format'
 import { useAutoEvents } from './useEvents'
@@ -44,7 +45,7 @@ export function DetectedEvents({ limit = 4 }: { limit?: number }) {
                 <div className={styles.head}>
                   <SeverityBadge severity={e.severity} />
                   {e.trust ? (
-                    <TrustBadge trust={e.trust} />
+                    <TrustWithVerify trust={e.trust} request={{ kind: 'event', id: e.id }} />
                   ) : (
                     <span className={styles.flag}>Unverified</span>
                   )}

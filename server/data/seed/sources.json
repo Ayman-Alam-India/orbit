@@ -77,6 +77,13 @@
     "reliability": "high"
   },
   {
+    "id": "src_goodreturns_fuel_live",
+    "name": "Goodreturns: petrol and diesel prices in Delhi, Mumbai, Kolkata and Chennai (live, DATA_MODE=live)",
+    "url": "https://www.goodreturns.in/petrol-price.html",
+    "type": "news",
+    "reliability": "medium"
+  },
+  {
     "id": "src_google_news",
     "name": "Google News: live headlines (DATA_MODE=live)",
     "url": "https://news.google.com/",

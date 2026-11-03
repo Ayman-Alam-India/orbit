@@ -1,7 +1,8 @@
 import type { CountryId, ImpactDirection, ImpactLink } from '@shared'
 import { Link } from 'react-router-dom'
 import { paths } from '../../routes'
-import { Panel, QueryState, Tag, TrustBadge } from '../../ui'
+import { Panel, QueryState, Tag } from '../../ui'
+import { TrustWithVerify } from '../insight/VerifyNow'
 import { useCountries } from '../country/useCountry'
 import { useAutoEvents, useEvents } from '../event/useEvents'
 import { SourceChips } from '../insight/SourceChips'
@@ -99,7 +100,7 @@ function RippleItem({
               ? 'Sourced'
               : 'ORBIT analysis'}
         </span>
-        <TrustBadge trust={link.trust} />
+        <TrustWithVerify trust={link.trust} request={{ kind: 'ripple', id: link.id }} />
         <span className={styles.strength} aria-label={`Strength ${link.strength} of 3`}>
           {[1, 2, 3].map((n) => (
             <span key={n} data-on={n <= link.strength} />
