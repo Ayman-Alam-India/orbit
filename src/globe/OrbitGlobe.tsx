@@ -12,6 +12,7 @@ import { useImpacts } from '../features/ripple/useImpacts'
 import { paths, ROUTE_PATTERNS } from '../routes'
 import { useUiStore } from '../state/uiStore'
 import { cssVar, severityColor } from '../styles/cssVar'
+import { TRUST_LABEL } from '../ui/trustLabel'
 import { needsRing, pinAltitude, ringColor, ringMaxRadius, tooltipHtml } from './globeStyle'
 import { MINI_GLOBE_ALTITUDE, MINI_GLOBE_ROTATE_SPEED } from './miniGlobe'
 import { rippleArcs, simulationArcs, type RippleArc } from './rippleArcs'
@@ -131,7 +132,14 @@ export default function OrbitGlobe() {
     () => [...(events.data ?? []), ...(autoEvents.data ?? [])],
     [events.data, autoEvents.data],
   )
-  const severeEvents = useMemo(() => (events.data ?? []).filter(needsRing), [events.data])
+  // Rings for severe curated events and severe official (WHO) signals.
+  const severeEvents = useMemo(
+    () =>
+      allEvents.filter(
+        (e) => needsRing(e) && (e.origin !== 'auto' || e.trust?.status === 'verified'),
+      ),
+    [allEvents],
+  )
   // Ripple effects: animated arcs from each event to the countries it affects.
   const arcs = useMemo(
     () =>
@@ -143,14 +151,14 @@ export default function OrbitGlobe() {
           )
         : rippleArcs(
             impacts.data ?? [],
-            events.data ?? [],
+            allEvents,
             countries.data ?? [],
             markets.data ?? [],
             selectedCountryId,
           ),
     [
       impacts.data,
-      events.data,
+      allEvents,
       countries.data,
       markets.data,
       selectedCountryId,
@@ -191,7 +199,8 @@ export default function OrbitGlobe() {
       pointLat={(e) => (e as OrbitEvent).location.lat}
       pointLng={(e) => (e as OrbitEvent).location.lng}
       pointColor={(e) =>
-        (e as OrbitEvent).origin === 'auto'
+        // Detected-but-unconfirmed events are violet; official and corroborated ones use severity colours.
+        (e as OrbitEvent).origin === 'auto' && (e as OrbitEvent).trust?.status === 'unverified'
           ? cssVar('--origin-auto')
           : severityColor((e as OrbitEvent).severity)
       }
@@ -201,7 +210,9 @@ export default function OrbitGlobe() {
       pointLabel={(e) => {
         const event = e as OrbitEvent
         const note =
-          event.origin === 'auto' ? 'Auto-detected · unverified' : `Severity ${event.severity}/5`
+          event.origin === 'auto'
+            ? `Auto-detected · ${TRUST_LABEL[event.trust?.status ?? 'unverified'].label}`
+            : `Severity ${event.severity}/5`
         return tooltipHtml(event.title, note)
       }}
       onPointClick={(p) => {

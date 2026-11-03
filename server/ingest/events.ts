@@ -6,6 +6,7 @@ import { store } from '../data/store'
 import { env } from '../env'
 import { withGoogleModels } from '../ai/providers/googleModels'
 import { readCache, writeCache } from '../sources/cache'
+import { readLiveWorld } from '../sources/liveWorld'
 import { GDELT_SOURCE_ID } from '../sources/gdelt'
 import { GOOGLE_NEWS_SOURCE_ID } from '../sources/googleNews'
 import { getNewsFeed } from '../sources'
@@ -195,6 +196,9 @@ export function runScan(): Promise<OrbitEvent[]> {
  */
 export async function getAutoEvents(): Promise<OrbitEvent[]> {
   if (env.DATA_MODE !== 'live') return []
+  // The live pipeline's last pass: WHO health signals + detected events, each with trust.
+  const world = await readLiveWorld()
+  if (world) return [...world.events].sort((a, b) => b.occurredAt.localeCompare(a.occurredAt))
   const cached = await readCache<AutoEventCache>(CACHE_KEY)
   if (!cached || Date.now() - cached.scannedAt >= SCAN_FRESH_MS) void runScan()
   return cached?.events ?? []

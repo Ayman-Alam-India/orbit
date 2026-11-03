@@ -1,7 +1,7 @@
 import { createApp } from './app'
 import { getSeed, SeedValidationError } from './data/store'
 import { env } from './env'
-import { warmLiveNews } from './sources'
+import { startPipeline } from './ingest/pipeline'
 import { refreshMarkets } from './sources/markets'
 
 // Validate all seed data before accepting requests: a broken JSON file fails loudly here, not mid-demo.
@@ -23,7 +23,7 @@ const server = createApp().listen(env.PORT, () => {
     `[api] listening on http://localhost:${env.PORT} (DATA_MODE=${env.DATA_MODE}, AI_PROVIDER=${env.AI_PROVIDER})`,
   )
   if (env.DATA_MODE === 'live') void refreshMarkets()
-  void warmLiveNews()
+  void startPipeline()
 })
 // Keep idle connections open longer than the dev proxy does, so a reused socket is never closed mid-request
 // (that showed up as ECONNRESET on /api/speech and silent narration).

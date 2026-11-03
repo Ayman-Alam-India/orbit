@@ -43,6 +43,7 @@ const autoEvent = {
 }
 vi.mock('../ingest/events', () => ({
   getAutoEvent: async (id: string) => (id === autoEvent.id ? autoEvent : undefined),
+  getAutoEvents: async () => [],
 }))
 
 const { askOrbit, generateInsight } = await import('.')

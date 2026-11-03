@@ -1,0 +1,27 @@
+.badge {
+  --trust-color: var(--color-text-faint);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--trust-color) 16%, transparent);
+  color: var(--trust-color);
+  font-family: var(--font-label);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  cursor: help;
+}
+
+.badge[data-status='verified'] {
+  --trust-color: var(--color-success);
+}
+
+.badge[data-status='corroborated'] {
+  --trust-color: var(--color-primary);
+}
+
+.badge[data-status='unverified'] {
+  --trust-color: var(--origin-auto);
+}

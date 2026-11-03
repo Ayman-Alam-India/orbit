@@ -70,6 +70,13 @@
     "reliability": "high"
   },
   {
+    "id": "src_who_don_live",
+    "name": "WHO Disease Outbreak News: live feed (DATA_MODE=live)",
+    "url": "https://www.who.int/emergencies/disease-outbreak-news",
+    "type": "international_org",
+    "reliability": "high"
+  },
+  {
     "id": "src_google_news",
     "name": "Google News: live headlines (DATA_MODE=live)",
     "url": "https://news.google.com/",

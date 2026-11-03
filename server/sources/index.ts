@@ -4,6 +4,8 @@ import { env } from '../env'
 import { readCache, writeCache } from './cache'
 import { fetchGdeltHeadlines } from './gdelt'
 import { fetchGoogleNews } from './googleNews'
+import { readLiveWorld } from './liveWorld'
+import { curatedTrust } from './trustRules'
 
 /**
  * Live-data layer. Routes ask this module for data that may come from live APIs.
@@ -45,6 +47,16 @@ function merge(seed: NewsHeadline[], live: NewsHeadline[]) {
   const seen = new Set(seed.map((n) => n.url))
   return [...seed, ...live.filter((n) => !seen.has(n.url) && seen.add(n.url))].sort((a, b) =>
     b.publishedAt.localeCompare(a.publishedAt),
+  )
+}
+
+/** Every headline carries trust: curated ones are verified; live ones use the pipeline's last rating. */
+async function withTrust(seed: NewsHeadline[], live: NewsHeadline[]) {
+  const ratings = live.length ? (await readLiveWorld())?.headlineTrust : undefined
+  const verified = curatedTrust()
+  return merge(
+    seed.map((n) => ({ ...n, trust: verified })),
+    live.map((n) => (ratings?.[n.url] ? { ...n, trust: ratings[n.url] } : n)),
   )
 }
 
@@ -97,11 +109,11 @@ export function refreshNewsFeed(countryId?: CountryId): Promise<boolean> {
  */
 export async function getNewsFeed(countryId?: CountryId): Promise<NewsHeadline[]> {
   const seed = store.getNews(countryId)
-  if (env.DATA_MODE === 'mock') return seed
+  if (env.DATA_MODE === 'mock') return withTrust(seed, [])
 
   const cached = await readCache<CachedFeed>(cacheKey(countryId))
   if (!cached || Date.now() - cached.fetchedAt >= NEWS_FRESH_MS) void refreshNewsFeed(countryId)
-  return merge(seed, cached?.items ?? [])
+  return withTrust(seed, cached?.items ?? [])
 }
 
 /**
@@ -124,16 +136,17 @@ export async function refreshNews(countryId?: CountryId): Promise<NewsRefreshRes
   const cached =
     env.DATA_MODE === 'mock' ? undefined : await readCache<CachedFeed>(cacheKey(countryId))
   return {
-    headlines: merge(store.getNews(countryId), cached?.items ?? []),
+    headlines: await withTrust(store.getNews(countryId), cached?.items ?? []),
     fetchedAt: cached ? new Date(cached.fetchedAt).toISOString() : undefined,
     refreshed,
   }
 }
 
-let loopTimer: ReturnType<typeof setTimeout> | undefined
-
-/** One pass over the global feed and every country, one feed at a time. */
-async function refreshAllFeeds() {
+/**
+ * One pass over the global feed and every country, one feed at a time (about a minute). The live
+ * pipeline (server/ingest/pipeline.ts) runs this first, every 10 min.
+ */
+export async function refreshAllFeeds() {
   const feeds: (CountryId | undefined)[] = [undefined, ...store.getCountries().map((c) => c.id)]
   let ok = 0
   for (const countryId of feeds) {
@@ -141,19 +154,4 @@ async function refreshAllFeeds() {
     await new Promise((resolve) => setTimeout(resolve, newsLoop.gapMs))
   }
   console.log(`[sources] live news: ${ok}/${feeds.length} feeds updated`)
-}
-
-/**
- * Live mode only: fetch every feed at startup, then again every 10 min, so every country's
- * headlines stay current while the server runs (like a news site, nobody has to click).
- */
-export async function warmLiveNews(): Promise<void> {
-  if (env.DATA_MODE !== 'live' || loopTimer) return
-  console.log('[sources] live news: refreshing every feed now and every 10 min')
-  const pass = async () => {
-    await refreshAllFeeds().catch((err) => console.warn('[sources] live news pass failed:', err))
-    loopTimer = setTimeout(() => void pass(), NEWS_FRESH_MS)
-    loopTimer.unref?.()
-  }
-  await pass()
 }

@@ -1,7 +1,7 @@
 import type { CountryId } from '@shared'
 import { Link } from 'react-router-dom'
 import { paths } from '../../routes'
-import { ItemList, Panel, QueryState } from '../../ui'
+import { ItemList, Panel, QueryState, TrustBadge } from '../../ui'
 import { formatDate, shortSourceName } from '../event/format'
 import { useSources } from '../event/useSources'
 import styles from './NewsList.module.css'
@@ -43,6 +43,7 @@ export function NewsList({ countryId, limit = 6 }: NewsListProps) {
                   {n.title}
                 </a>
                 <span className={styles.meta}>
+                  <TrustBadge trust={n.trust} compact />
                   <span>{n.publisher ?? sourceName(n.sourceId)}</span>
                   <span>·</span>
                   <span>{recentAgo(n.publishedAt, now) ?? formatDate(n.publishedAt)}</span>

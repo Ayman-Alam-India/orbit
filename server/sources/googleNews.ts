@@ -12,10 +12,14 @@ const MAX_ITEMS = 10
 /** Every Google News headline cites this source (it exists in server/data/seed/sources.json). */
 export const GOOGLE_NEWS_SOURCE_ID = 'src_google_news'
 
+/** Names that also match a different country ("Sudan" is inside "South Sudan"): that one is excluded. */
+const EXCLUDE: Record<string, string> = { Sudan: 'South Sudan' }
+
 /** World top stories, or the last two days of English news that mention the country by name. */
 export function googleNewsUrl(countryName?: string) {
   if (!countryName) return `${BASE}/headlines/section/topic/WORLD?${EDITION}`
-  const q = encodeURIComponent(`"${countryName}" when:2d`)
+  const exclude = EXCLUDE[countryName] ? ` -"${EXCLUDE[countryName]}"` : ''
+  const q = encodeURIComponent(`"${countryName}"${exclude} when:2d`)
   return `${BASE}/search?q=${q}&${EDITION}`
 }
 
@@ -90,12 +94,8 @@ export function parseGoogleNews(xml: string, countryIds: CountryId[]): NewsHeadl
   return headlines.sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, MAX_ITEMS)
 }
 
-/** Latest headlines for a country (by name) or the world. Throws on any failure. */
-export async function fetchGoogleNews(
-  countryName: string | undefined,
-  countryIds: CountryId[],
-): Promise<NewsHeadline[]> {
-  const res = await fetch(googleNewsUrl(countryName), {
+async function fetchRss(url: string, countryIds: CountryId[]): Promise<NewsHeadline[]> {
+  const res = await fetch(url, {
     signal: AbortSignal.timeout(TIMEOUT_MS),
     headers: { 'User-Agent': 'ORBIT-hackathon-prototype' },
   })
@@ -103,4 +103,17 @@ export async function fetchGoogleNews(
   const xml = await res.text()
   if (!xml.includes('<rss')) throw new Error(`Google News returned non-RSS: ${xml.slice(0, 120)}`)
   return parseGoogleNews(xml, countryIds)
+}
+
+/** Latest headlines for a country (by name) or the world. Throws on any failure. */
+export function fetchGoogleNews(
+  countryName: string | undefined,
+  countryIds: CountryId[],
+): Promise<NewsHeadline[]> {
+  return fetchRss(googleNewsUrl(countryName), countryIds)
+}
+
+/** Free-text search (Google News syntax, e.g. `"Red Sea" "Egypt" when:7d`). Throws on any failure. */
+export function searchGoogleNews(query: string, countryIds: CountryId[] = []) {
+  return fetchRss(`${BASE}/search?q=${encodeURIComponent(query)}&${EDITION}`, countryIds)
 }
