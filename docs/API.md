@@ -232,7 +232,7 @@ One JSON file per entity, each a plain **array** of objects matching the schema 
 | `sources.json`   | `Source[]`                                          | Shrey |
 | `timeline.json`  | `TimelineEvent[]`                                   | Shrey |
 
-**Curated seed (what the app shows):** 15 countries, 14 real events (7 geopolitical, 7 health signals), 7 headlines and
+**Curated seed (what the app shows):** 52 countries (15 with a dated situation summary, 37 with lasting background facts), 14 real events (7 geopolitical, 7 health signals), 7 headlines and
 11 timeline entries, current as of 19 September 2026. Sourcing rules:
 
 - Every fact comes from a page that was actually opened. Each `sources.json` entry points to that exact page

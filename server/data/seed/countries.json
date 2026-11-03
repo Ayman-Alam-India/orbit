@@ -193,5 +193,486 @@
     "population": 1450935791,
     "summary": "Imports 88.7% of its crude oil, so the Red Sea crisis feeds into its fuel bill and the rupee. Its free trade agreement with New Zealand, signed on 27 April 2026, cleared New Zealand’s Parliament.",
     "riskLevel": 2
+  },
+  {
+    "id": "GBR",
+    "name": "United Kingdom",
+    "region": "Europe & Central Asia",
+    "capital": "London",
+    "centroid": {
+      "lat": 51.5074,
+      "lng": -0.1278
+    },
+    "population": 69226000,
+    "summary": "Europe's second-largest economy and a global financial centre, and a permanent UN Security Council member that left the EU in 2020.",
+    "riskLevel": 1
+  },
+  {
+    "id": "JPN",
+    "name": "Japan",
+    "region": "East Asia & Pacific",
+    "capital": "Tokyo",
+    "centroid": {
+      "lat": 35.6762,
+      "lng": 139.6503
+    },
+    "population": 123975000,
+    "summary": "The world's fourth-largest economy and a major exporter of cars and electronics; it imports almost all of its oil and gas.",
+    "riskLevel": 1
+  },
+  {
+    "id": "KOR",
+    "name": "South Korea",
+    "region": "East Asia & Pacific",
+    "capital": "Seoul",
+    "centroid": {
+      "lat": 37.5665,
+      "lng": 126.978
+    },
+    "population": 51711000,
+    "summary": "A leading maker of memory chips, ships and cars, still technically at war with North Korea under the 1953 armistice.",
+    "riskLevel": 2
+  },
+  {
+    "id": "BRA",
+    "name": "Brazil",
+    "region": "Latin America & Caribbean",
+    "capital": "Brasília",
+    "centroid": {
+      "lat": -15.7939,
+      "lng": -47.8828
+    },
+    "population": 211999000,
+    "summary": "Latin America's largest economy and a top exporter of soybeans, iron ore, coffee and beef; home to most of the Amazon rainforest.",
+    "riskLevel": 2
+  },
+  {
+    "id": "CAN",
+    "name": "Canada",
+    "region": "North America",
+    "capital": "Ottawa",
+    "centroid": {
+      "lat": 45.4215,
+      "lng": -75.6972
+    },
+    "population": 41288000,
+    "summary": "A top crude oil exporter that sends most of it to the United States, its largest trading partner.",
+    "riskLevel": 1
+  },
+  {
+    "id": "AUS",
+    "name": "Australia",
+    "region": "East Asia & Pacific",
+    "capital": "Canberra",
+    "centroid": {
+      "lat": -35.2809,
+      "lng": 149.13
+    },
+    "population": 27204000,
+    "summary": "The world's largest iron ore exporter and a major supplier of coal and LNG, with China as its biggest customer.",
+    "riskLevel": 1
+  },
+  {
+    "id": "MEX",
+    "name": "Mexico",
+    "region": "Latin America & Caribbean",
+    "capital": "Mexico City",
+    "centroid": {
+      "lat": 19.4326,
+      "lng": -99.1332
+    },
+    "population": 130861000,
+    "summary": "The United States' largest trading partner and a manufacturing hub for cars and electronics under the USMCA trade deal.",
+    "riskLevel": 2
+  },
+  {
+    "id": "IDN",
+    "name": "Indonesia",
+    "region": "East Asia & Pacific",
+    "capital": "Jakarta",
+    "centroid": {
+      "lat": -6.2088,
+      "lng": 106.8456
+    },
+    "population": 283488000,
+    "summary": "The world's largest archipelago nation and its biggest producer of nickel and palm oil.",
+    "riskLevel": 2
+  },
+  {
+    "id": "TUR",
+    "name": "Türkiye",
+    "region": "Europe & Central Asia",
+    "capital": "Ankara",
+    "centroid": {
+      "lat": 39.9334,
+      "lng": 32.8597
+    },
+    "population": 85518000,
+    "summary": "A NATO member that controls the Bosphorus and Dardanelles straits linking the Black Sea to the Mediterranean.",
+    "riskLevel": 2
+  },
+  {
+    "id": "ARG",
+    "name": "Argentina",
+    "region": "Latin America & Caribbean",
+    "capital": "Buenos Aires",
+    "centroid": {
+      "lat": -34.6037,
+      "lng": -58.3816
+    },
+    "population": 45696000,
+    "summary": "A major exporter of soybean meal, beef and lithium, with a long history of high inflation and debt crises.",
+    "riskLevel": 2
+  },
+  {
+    "id": "ZAF",
+    "name": "South Africa",
+    "region": "Sub-Saharan Africa",
+    "capital": "Pretoria",
+    "centroid": {
+      "lat": -25.7479,
+      "lng": 28.2293
+    },
+    "population": 64007000,
+    "summary": "Africa's most industrialised economy and the world's leading producer of platinum and chromium.",
+    "riskLevel": 2
+  },
+  {
+    "id": "PAK",
+    "name": "Pakistan",
+    "region": "South Asia",
+    "capital": "Islamabad",
+    "centroid": {
+      "lat": 33.6844,
+      "lng": 73.0479
+    },
+    "population": 251269000,
+    "summary": "The world's fifth-most-populous country, a nuclear-armed neighbour of India, and heavily reliant on IMF support.",
+    "riskLevel": 3
+  },
+  {
+    "id": "BGD",
+    "name": "Bangladesh",
+    "region": "South Asia",
+    "capital": "Dhaka",
+    "centroid": {
+      "lat": 23.8103,
+      "lng": 90.4125
+    },
+    "population": 173562000,
+    "summary": "The world's second-largest garment exporter after China, and highly exposed to floods and cyclones.",
+    "riskLevel": 3
+  },
+  {
+    "id": "IRN",
+    "name": "Iran",
+    "region": "Middle East & North Africa",
+    "capital": "Tehran",
+    "centroid": {
+      "lat": 35.6892,
+      "lng": 51.389
+    },
+    "population": 91568000,
+    "summary": "Holds some of the world's largest oil and gas reserves and borders the Strait of Hormuz, through which about a fifth of global oil passes.",
+    "riskLevel": 4
+  },
+  {
+    "id": "ISR",
+    "name": "Israel",
+    "region": "Middle East & North Africa",
+    "capital": "Jerusalem (status disputed)",
+    "centroid": {
+      "lat": 31.7683,
+      "lng": 35.2137
+    },
+    "population": 9974000,
+    "summary": "A high-tech economy whose conflicts with Hamas in Gaza, Hezbollah in Lebanon and Iran shape regional security.",
+    "riskLevel": 4
+  },
+  {
+    "id": "EGY",
+    "name": "Egypt",
+    "region": "Middle East & North Africa",
+    "capital": "Cairo",
+    "centroid": {
+      "lat": 30.0444,
+      "lng": 31.2357
+    },
+    "population": 116538000,
+    "summary": "Operates the Suez Canal, a key East-West shipping route whose earnings fell sharply when Red Sea attacks diverted ships.",
+    "riskLevel": 2
+  },
+  {
+    "id": "NGA",
+    "name": "Nigeria",
+    "region": "Sub-Saharan Africa",
+    "capital": "Abuja",
+    "centroid": {
+      "lat": 9.0765,
+      "lng": 7.3986
+    },
+    "population": 232679000,
+    "summary": "Africa's most populous country and one of its largest oil producers.",
+    "riskLevel": 3
+  },
+  {
+    "id": "ETH",
+    "name": "Ethiopia",
+    "region": "Sub-Saharan Africa",
+    "capital": "Addis Ababa",
+    "centroid": {
+      "lat": 9.03,
+      "lng": 38.74
+    },
+    "population": 132060000,
+    "summary": "Africa's second-most-populous country, seat of the African Union, and builder of the Grand Ethiopian Renaissance Dam on the Blue Nile.",
+    "riskLevel": 3
+  },
+  {
+    "id": "KEN",
+    "name": "Kenya",
+    "region": "Sub-Saharan Africa",
+    "capital": "Nairobi",
+    "centroid": {
+      "lat": -1.2921,
+      "lng": 36.8219
+    },
+    "population": 56433000,
+    "summary": "East Africa's largest economy and a regional hub for trade, finance and tech, with the port of Mombasa.",
+    "riskLevel": 2
+  },
+  {
+    "id": "SDN",
+    "name": "Sudan",
+    "region": "Sub-Saharan Africa",
+    "capital": "Khartoum",
+    "centroid": {
+      "lat": 15.5007,
+      "lng": 32.5599
+    },
+    "population": 50449000,
+    "summary": "A civil war between the army and the Rapid Support Forces since April 2023 has caused the world's largest displacement crisis.",
+    "riskLevel": 5
+  },
+  {
+    "id": "IRQ",
+    "name": "Iraq",
+    "region": "Middle East & North Africa",
+    "capital": "Baghdad",
+    "centroid": {
+      "lat": 33.3152,
+      "lng": 44.3661
+    },
+    "population": 46042000,
+    "summary": "One of OPEC's largest oil producers; oil provides most of the government's revenue.",
+    "riskLevel": 3
+  },
+  {
+    "id": "SYR",
+    "name": "Syria",
+    "region": "Middle East & North Africa",
+    "capital": "Damascus",
+    "centroid": {
+      "lat": 33.5138,
+      "lng": 36.2765
+    },
+    "population": 24673000,
+    "summary": "Rebuilding after more than a decade of civil war; Bashar al-Assad's government fell in December 2024.",
+    "riskLevel": 4
+  },
+  {
+    "id": "AFG",
+    "name": "Afghanistan",
+    "region": "South Asia",
+    "capital": "Kabul",
+    "centroid": {
+      "lat": 34.5553,
+      "lng": 69.2075
+    },
+    "population": 42647000,
+    "summary": "Ruled by the Taliban since August 2021 and facing one of the world's most severe humanitarian crises.",
+    "riskLevel": 4
+  },
+  {
+    "id": "ARE",
+    "name": "United Arab Emirates",
+    "region": "Middle East & North Africa",
+    "capital": "Abu Dhabi",
+    "centroid": {
+      "lat": 24.4539,
+      "lng": 54.3773
+    },
+    "population": 11027000,
+    "summary": "A Gulf hub for trade, aviation and finance; Dubai's Jebel Ali is the Middle East's busiest port.",
+    "riskLevel": 1
+  },
+  {
+    "id": "QAT",
+    "name": "Qatar",
+    "region": "Middle East & North Africa",
+    "capital": "Doha",
+    "centroid": {
+      "lat": 25.2854,
+      "lng": 51.531
+    },
+    "population": 2857000,
+    "summary": "One of the world's largest exporters of liquefied natural gas, all shipped through the Strait of Hormuz.",
+    "riskLevel": 1
+  },
+  {
+    "id": "VNM",
+    "name": "Vietnam",
+    "region": "East Asia & Pacific",
+    "capital": "Hanoi",
+    "centroid": {
+      "lat": 21.0278,
+      "lng": 105.8342
+    },
+    "population": 100988000,
+    "summary": "A fast-growing manufacturing hub for electronics and clothing, used by many firms moving production out of China.",
+    "riskLevel": 1
+  },
+  {
+    "id": "THA",
+    "name": "Thailand",
+    "region": "East Asia & Pacific",
+    "capital": "Bangkok",
+    "centroid": {
+      "lat": 13.7563,
+      "lng": 100.5018
+    },
+    "population": 71668000,
+    "summary": "Southeast Asia's car-making hub and a major rice exporter, with tourism a large part of its economy.",
+    "riskLevel": 1
+  },
+  {
+    "id": "PHL",
+    "name": "Philippines",
+    "region": "East Asia & Pacific",
+    "capital": "Manila",
+    "centroid": {
+      "lat": 14.5995,
+      "lng": 120.9842
+    },
+    "population": 115844000,
+    "summary": "An archipelago in disputes with China over parts of the South China Sea; money sent home by overseas workers supports its economy.",
+    "riskLevel": 2
+  },
+  {
+    "id": "TWN",
+    "name": "Taiwan",
+    "region": "East Asia & Pacific",
+    "capital": "Taipei",
+    "centroid": {
+      "lat": 25.033,
+      "lng": 121.5654
+    },
+    "population": 23400000,
+    "summary": "Makes most of the world's most advanced chips; China claims the island, making the Taiwan Strait a key flashpoint.",
+    "riskLevel": 3
+  },
+  {
+    "id": "PRK",
+    "name": "North Korea",
+    "region": "East Asia & Pacific",
+    "capital": "Pyongyang",
+    "centroid": {
+      "lat": 39.0392,
+      "lng": 125.7625
+    },
+    "population": 26498000,
+    "summary": "A nuclear-armed state under heavy UN sanctions that regularly tests ballistic missiles.",
+    "riskLevel": 4
+  },
+  {
+    "id": "MMR",
+    "name": "Myanmar",
+    "region": "East Asia & Pacific",
+    "capital": "Naypyidaw",
+    "centroid": {
+      "lat": 19.7633,
+      "lng": 96.0785
+    },
+    "population": 54500000,
+    "summary": "In civil war since the February 2021 military coup, with armed groups holding large parts of the country.",
+    "riskLevel": 5
+  },
+  {
+    "id": "VEN",
+    "name": "Venezuela",
+    "region": "Latin America & Caribbean",
+    "capital": "Caracas",
+    "centroid": {
+      "lat": 10.4806,
+      "lng": -66.9036
+    },
+    "population": 28406000,
+    "summary": "Holds the world's largest proven oil reserves, but years of economic collapse have driven millions to emigrate.",
+    "riskLevel": 3
+  },
+  {
+    "id": "COL",
+    "name": "Colombia",
+    "region": "Latin America & Caribbean",
+    "capital": "Bogotá",
+    "centroid": {
+      "lat": 4.711,
+      "lng": -74.0721
+    },
+    "population": 52886000,
+    "summary": "A major exporter of oil, coal and coffee, still working to end decades of armed conflict.",
+    "riskLevel": 2
+  },
+  {
+    "id": "ESP",
+    "name": "Spain",
+    "region": "Europe & Central Asia",
+    "capital": "Madrid",
+    "centroid": {
+      "lat": 40.4168,
+      "lng": -3.7038
+    },
+    "population": 48620000,
+    "summary": "The eurozone's fourth-largest economy and one of the world's most visited countries.",
+    "riskLevel": 1
+  },
+  {
+    "id": "POL",
+    "name": "Poland",
+    "region": "Europe & Central Asia",
+    "capital": "Warsaw",
+    "centroid": {
+      "lat": 52.2297,
+      "lng": 21.0122
+    },
+    "population": 36560000,
+    "summary": "One of the EU's fastest-growing economies and the main transit route for Western aid to neighbouring Ukraine.",
+    "riskLevel": 2
+  },
+  {
+    "id": "LBN",
+    "name": "Lebanon",
+    "region": "Middle East & North Africa",
+    "capital": "Beirut",
+    "centroid": {
+      "lat": 33.8938,
+      "lng": 35.5018
+    },
+    "population": 5806000,
+    "summary": "Still recovering from a financial collapse that began in 2019 and from the 2024 war between Israel and Hezbollah.",
+    "riskLevel": 4
+  },
+  {
+    "id": "CHL",
+    "name": "Chile",
+    "region": "Latin America & Caribbean",
+    "capital": "Santiago",
+    "centroid": {
+      "lat": -33.4489,
+      "lng": -70.6693
+    },
+    "population": 19765000,
+    "summary": "The world's largest copper producer and second-largest lithium producer.",
+    "riskLevel": 1
   }
 ]
