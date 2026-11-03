@@ -7,6 +7,7 @@ import {
   prefixedId,
   SourceIdSchema,
 } from './common'
+import { TrustSchema } from './trust'
 
 export const NewsHeadlineSchema = z.object({
   id: prefixedId(ID_PREFIX.news),
@@ -19,6 +20,8 @@ export const NewsHeadlineSchema = z.object({
   eventId: EventIdSchema.optional(),
   /** The outlet that published it (e.g. "reuters.com"), when the source is an aggregator like GDELT. */
   publisher: z.string().min(1).optional(),
+  /** How well the story is confirmed (live headlines only; curated ones are verified by definition). */
+  trust: TrustSchema.optional(),
 })
 
 export type NewsHeadline = z.infer<typeof NewsHeadlineSchema>

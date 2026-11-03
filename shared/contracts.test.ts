@@ -5,9 +5,11 @@ import {
   API_ROUTES,
   CountryIdSchema,
   EventIdSchema,
+  ImpactLinkSchema,
   IsoDateTimeSchema,
   OrbitEventSchema,
   SeveritySchema,
+  TrustSchema,
 } from '.'
 
 const baseEvent = {
@@ -66,5 +68,39 @@ describe('shared contracts', () => {
     expect(API_ROUTES.countryEvents('IND')).toBe('/api/countries/IND/events')
     expect(API_ROUTES.news()).toBe('/api/news')
     expect(API_ROUTES.newsRefresh).toBe('/api/news/refresh')
+  })
+
+  it('trust is optional and has one shape everywhere', () => {
+    const trust = {
+      status: 'corroborated',
+      outlets: ['reuters.com', 'bbc.com', 'apnews.com'],
+      aiCheck: 'unavailable',
+      reason: 'Reported by 3 outlets.',
+      checkedAt: '2026-11-03T12:00:00Z',
+    }
+    expect(TrustSchema.safeParse(trust).success).toBe(true)
+    expect(TrustSchema.safeParse({ ...trust, status: 'true' }).success).toBe(false)
+    const ripple = {
+      id: 'imp_auto_x',
+      eventId: 'evt_auto_x',
+      target: { kind: 'country', id: 'IND' },
+      channel: 'energy',
+      direction: 'up',
+      strength: 2,
+      effect: 'Higher oil import bill',
+      mechanism: 'x',
+      basis: 'analysis',
+      sourceIds: [],
+    }
+    // Existing curated links (no origin, no trust) stay valid.
+    expect(ImpactLinkSchema.safeParse(ripple).success).toBe(true)
+    expect(
+      ImpactLinkSchema.safeParse({
+        ...ripple,
+        origin: 'auto',
+        evidenceUrls: ['https://example.org/a'],
+        trust,
+      }).success,
+    ).toBe(true)
   })
 })

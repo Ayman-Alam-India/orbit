@@ -181,6 +181,22 @@ ORBIT's USP: how an event spreads to other countries and markets. `id` (`imp_...
 optional `marketId` (a live figure that shows it) and `followsImpactId` (chains, e.g. Brent → India's crude bill → rupee).
 **`basis: sourced`** means a cited, opened source states the link. **`basis: analysis`** means ORBIT's reasoning from sourced facts.
 The UI and the AI always say which it is. The globe draws one arc per event → affected country.
+Optional: `origin` (`curated`, the default, or `auto` = found by ORBIT's ripple rules), `evidenceUrls` (live articles
+reporting the effect) and `trust` (below).
+
+### Trust: one verification rule for everything (`shared/schemas/trust.ts`)
+
+Optional `trust` on `NewsHeadline`, `OrbitEvent` and `ImpactLink`: `status`, `outlets` (distinct outlet domains reporting the
+same story), `aiCheck` (`agree`, `disagree`, `unavailable`), `reason` (one sentence), `checkedAt`.
+
+| `status`       | Rule                                                                                                         |
+| -------------- | ------------------------------------------------------------------------------------------------------------ |
+| `verified`     | Curated by the team (seed files), or published by an official source (WHO, a government, the UN)             |
+| `corroborated` | Reported by 3+ independent outlets (`MIN_CORROBORATING_OUTLETS`) **and** Gemini + Groq agree when configured |
+| `unverified`   | A single source, fewer than 3 outlets, or an AI checker disagrees                                            |
+
+Without AI keys `aiCheck` is `unavailable` and the outlet count decides. Headlines use the outlet count only (one AI call per
+headline would use up the free quota).
 
 ### MarketQuote (`shared/schemas/market.ts`)
 
