@@ -15,10 +15,11 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write .",
-    "check": "npm run lint && npm test && npm run build",
+    "check": "npm run lint && npm run format:check && npm test && npm run build",
     "preview": "vite preview",
     "docs:pdf": "node scripts/build-pdf.mjs",
-    "warm:voice": "tsx --tsconfig tsconfig.server.json scripts/warm-narration.ts"
+    "warm:voice": "tsx --tsconfig tsconfig.server.json scripts/warm-narration.ts",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.76",

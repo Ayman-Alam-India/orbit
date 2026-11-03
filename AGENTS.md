@@ -122,7 +122,7 @@ Code in every folder is written by Claude (section 0). A task may only change fi
 
 ## 10. Testing
 
-- `npm run check` = lint + tests + typecheck/build. It must pass before every PR.
+- `npm run check` = lint + formatting (Prettier) + tests + typecheck/build. It must pass before every PR. Fix formatting with `npm run format`.
 - Each task lists the tests it needs in `tasks.json`. Put tests next to the code (`X.test.ts(x)`).
 - Server/shared tests start with `// @vitest-environment node`. Frontend tests use `renderWithProviders` from `src/test/utils.tsx`.
 - The globe is mocked in tests (no WebGL in jsdom). Do not remove that mock.

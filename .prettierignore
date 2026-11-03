@@ -1,0 +1,11 @@
+# Hackathon organiser tooling: never touched (AGENTS.md).
+mcp/
+workshop-data/
+.vscode/mcp.json
+
+# Generated, cached or bulky data.
+dist/
+server/.cache/
+public/data/
+package-lock.json
+docs/*.pdf

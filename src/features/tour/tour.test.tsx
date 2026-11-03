@@ -46,7 +46,9 @@ describe('buildTourStops', () => {
     const tariff = tour.find((s) => s.eventId === 'evt_usa_tariff_review' && s.kind === 'event')!
     expect(tariff.narration).toContain('Ripple effect: mock: exporters exposed for India.')
     const ripple = tour.find((s) => s.kind === 'ripple')!
-    expect(ripple.caption).toBe('mock: trade uncertainty (Brent crude) → mock: exporters exposed (India)')
+    expect(ripple.caption).toBe(
+      'mock: trade uncertainty (Brent crude) → mock: exporters exposed (India)',
+    )
     expect(ripple.countryId).toBe('USA')
   })
 })
@@ -61,7 +63,9 @@ describe('TourOverlay', () => {
     expect(useUiStore.getState().tourFocus).toMatchObject({ altitude: 2.6 })
 
     await userEvent.click(screen.getByRole('button', { name: 'Next stop' }))
-    expect(screen.getByRole('heading', { name: 'Dengue cases rise after late monsoon' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Dengue cases rise after late monsoon' }),
+    ).toBeInTheDocument()
     expect(useUiStore.getState().tourFocus).toMatchObject({ countryId: 'IND' })
 
     await userEvent.keyboard('{ArrowLeft}')
@@ -76,18 +80,24 @@ describe('TourOverlay', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true })
     try {
       renderWithProviders(<AppRoutes />, { route: '/?tour=1' })
-      expect(await screen.findByRole('heading', { name: 'The world right now' })).toBeInTheDocument()
+      expect(
+        await screen.findByRole('heading', { name: 'The world right now' }),
+      ).toBeInTheDocument()
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
       // No speech in jsdom, so each stop holds for 9 s.
       if (screen.queryByRole('button', { name: 'Play tour' })) {
         await user.click(screen.getByRole('button', { name: 'Play tour' }))
       }
       await act(() => vi.advanceTimersByTimeAsync(9000))
-      expect(screen.getByRole('heading', { name: 'Dengue cases rise after late monsoon' })).toBeInTheDocument()
+      expect(
+        screen.getByRole('heading', { name: 'Dengue cases rise after late monsoon' }),
+      ).toBeInTheDocument()
 
       await user.click(screen.getByRole('button', { name: 'Pause tour' }))
       await act(() => vi.advanceTimersByTimeAsync(20000))
-      expect(screen.getByRole('heading', { name: 'Dengue cases rise after late monsoon' })).toBeInTheDocument()
+      expect(
+        screen.getByRole('heading', { name: 'Dengue cases rise after late monsoon' }),
+      ).toBeInTheDocument()
     } finally {
       vi.useRealTimers()
     }
