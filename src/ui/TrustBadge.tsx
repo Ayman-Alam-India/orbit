@@ -14,6 +14,8 @@ export function TrustBadge({ trust, compact = false }: { trust?: Trust; compact?
       className={styles.badge}
       data-status={trust.status}
       title={`${label}: ${trust.reason}`}
+      // role="img" so screen readers read the label (a plain span's aria-label is often ignored).
+      role="img"
       aria-label={`${label}: ${trust.reason}`}
     >
       <span aria-hidden>{icon}</span>

@@ -25,3 +25,9 @@
   background: var(--state-color);
   box-shadow: 0 0 0 var(--space-1) color-mix(in srgb, var(--state-color) 25%, transparent);
 }
+
+.status:focus-visible {
+  border-radius: var(--radius-sm);
+  outline: var(--border-width) solid var(--color-primary);
+  outline-offset: var(--space-1);
+}

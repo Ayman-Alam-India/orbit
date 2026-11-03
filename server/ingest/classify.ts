@@ -237,6 +237,52 @@ const NOT_NEWS = [
 export const isNotNews = (title: string) =>
   NOT_NEWS.some((phrase) => title.toLowerCase().includes(phrase))
 
+/**
+ * Sport, entertainment and lifestyle: real news, but never a country's "event". The top-story
+ * fallback skips them (a shooting championship is not what an intelligence globe should pin).
+ */
+const SOFT_NEWS = [
+  'championship',
+  'tournament',
+  'world cup',
+  'olympic',
+  'cricket',
+  'football',
+  'soccer',
+  'tennis',
+  'match',
+  'league',
+  'ipl',
+  'test series',
+  'odi',
+  't20',
+  'grand prix',
+  'medal',
+  'squad',
+  'coach',
+  'box office',
+  'film',
+  'movie',
+  'trailer',
+  'actor',
+  'actress',
+  'celebrity',
+  'bollywood',
+  'hollywood',
+  'album',
+  'song',
+  'concert',
+  'netflix',
+  'web series',
+  'recipe',
+  'horoscope',
+  'fashion',
+  'wedding',
+  'review:',
+]
+export const isSoftNews = (title: string) =>
+  SOFT_NEWS.some((term) => hasTerm(title.toLowerCase(), term))
+
 export type Candidate = {
   kind: OrbitEventKind
   label: string
@@ -325,7 +371,7 @@ export function topStoryCandidate(
   headlines: NewsHeadline[],
   minOutlets = 3,
 ): Candidate | undefined {
-  const news = headlines.filter((h) => !isNotNews(h.title))
+  const news = headlines.filter((h) => !isNotNews(h.title) && !isSoftNews(h.title))
   const words = news.map((h) => new Set(significantWords(h.title)))
   let best: Candidate | undefined
   news.forEach((h, i) => {

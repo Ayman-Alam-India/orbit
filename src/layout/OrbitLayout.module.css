@@ -172,3 +172,49 @@
   pointer-events: none;
   transition: opacity var(--duration-slow) var(--ease-out);
 }
+
+/* ---------- Smaller screens ---------- */
+
+/* Smaller laptops and tablets: the legend stays, just narrower, so the globe keeps its room. */
+@media (max-width: 1100px) {
+  .leftRail {
+    width: var(--legend-width-compact);
+  }
+}
+
+/*
+ * Phones: the globe fills the top of the screen and the panels become a scrollable sheet below it.
+ * In detail views the mini globe steps aside and the content uses the full width.
+ */
+@media (max-width: 760px) {
+  .shell[data-mode='global'] .globe {
+    transform: translateY(-22%) scale(0.9);
+  }
+
+  .shell[data-mode='global'] .overlay {
+    top: 52%;
+    right: var(--space-3);
+    bottom: var(--space-3);
+    left: var(--space-3);
+    width: auto;
+  }
+
+  .shell[data-mode='detail'] .globe,
+  .miniGlobeButton {
+    display: none;
+  }
+
+  .shell[data-mode='detail'] .overlay {
+    right: var(--space-3);
+    bottom: var(--space-3);
+    left: var(--space-3);
+    width: auto;
+    min-width: 0;
+    transform: none;
+  }
+
+  .ticker,
+  .leftRail {
+    display: none;
+  }
+}

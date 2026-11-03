@@ -38,7 +38,15 @@ export function LiveStatus() {
     `Trust: ${data.trust.verified} verified, ${data.trust.corroborated} corroborated, ${data.trust.unverified} unverified`,
   ].join('\n')
   return (
-    <span className={styles.status} data-state={state} title={details} aria-label={details}>
+    // Focusable, so keyboard and screen-reader users get the same details as the hover tooltip.
+    <span
+      className={styles.status}
+      data-state={state}
+      title={details}
+      aria-label={`${label}. ${details}`}
+      role="img"
+      tabIndex={0}
+    >
       <span className={styles.light} aria-hidden />
       {label}
     </span>
