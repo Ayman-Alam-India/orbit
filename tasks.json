@@ -7,8 +7,8 @@
       "load": "medium-heavy"
     },
     "Ayman": {
-      "role": "Drives the Claude build session and relays team decisions; decides the country, event and timeline views",
-      "load": "medium"
+      "role": "Integrator (with Hardik): reviews and merges PRs, runs sync points and demo hardening; drives the Claude build session and relays team decisions; decides the country, event and timeline views",
+      "load": "heavy"
     },
     "Affan": {
       "role": "Decides AI behaviour and tone; provides the AI key; reviews AI output",
@@ -19,8 +19,8 @@
       "load": "light"
     },
     "Hardik": {
-      "role": "Integrator: reviews and merges every PR, runs sync points and the demo laptop",
-      "load": "heavy"
+      "role": "Integrator (with Ayman): reviews and merges PRs, owns the contracts and shared files, runs the demo laptop",
+      "load": "medium"
     }
   },
   "tasks": [
@@ -68,7 +68,7 @@
     },
     {
       "id": "ORB-HAR-02",
-      "owner": "Hardik",
+      "owner": "Ayman",
       "status": "todo",
       "priority": "P0",
       "targetWindow": "H2-H24 (every ~4h)",
@@ -107,7 +107,7 @@
     },
     {
       "id": "ORB-HAR-04",
-      "owner": "Hardik",
+      "owner": "Ayman",
       "builder": "Claude (Ayman's session)",
       "status": "todo",
       "priority": "P1",
@@ -535,7 +535,7 @@
     },
     {
       "id": "ORB-HAR-05",
-      "owner": "Hardik",
+      "owner": "Ayman",
       "builder": "Claude (Ayman's session)",
       "status": "in_progress",
       "priority": "P2",

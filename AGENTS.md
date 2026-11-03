@@ -129,7 +129,7 @@ Code in every folder is written by Claude (section 0). A task may only change fi
 
 ## 11. Git workflow
 
-- `main` must always run. Only Hardik merges (Affan is backup).
+- `main` must always run. Only the integrators, Ayman and Hardik, merge (Affan is backup).
 - Branch per task: the `branch` field in `tasks.json` (`claude/<topic>` for Claude-built tasks, e.g. `claude/globe`).
 - Commit messages: `<area>: <what changed>` (e.g. `globe: add severity rings`). Small commits.
 - Before opening a PR: `git pull origin main`, fix conflicts in YOUR files only, run `npm run check`.

@@ -130,13 +130,13 @@ Secrets never go in code, commits, chat, or `VITE_` variables.
 Claude asks them the customization questions (layout, content, wording, interactions, data) before building, and they review
 and test the result. Teammates don't commit code; they comment on PRs or post in the chat. See [AGENTS.md](AGENTS.md#0-build-model-one-code-writer).
 
-| Person              | Decides and reviews                                          |
-| ------------------- | ------------------------------------------------------------ |
-| Hardik (integrator) | Reviews and merges every PR, sync points, the demo laptop    |
-| Affan               | AI behaviour and tone (provides the AI key)                  |
-| Arham               | Visual direction, layout, globe look                         |
-| Ayman               | Drives the Claude session; country, event and timeline views |
-| Shrey               | Featured countries and events, fact checks, demo rehearsal   |
+| Person              | Decides and reviews                                                                                      |
+| ------------------- | -------------------------------------------------------------------------------------------------------- |
+| Ayman (integrator)  | Reviews and merges PRs, sync points, demo hardening; drives the Claude session; country, event, timeline |
+| Hardik (integrator) | Reviews and merges PRs, contracts and shared files, the demo laptop                                      |
+| Affan               | AI behaviour and tone (provides the AI key)                                                              |
+| Arham               | Visual direction, layout, globe look                                                                     |
+| Shrey               | Featured countries and events, fact checks, demo rehearsal                                               |
 
 The folder-to-owner map and the shared files that need a separate PR are in [AGENTS.md](AGENTS.md#3-folder-ownership-decision-owners).
 
@@ -151,7 +151,7 @@ with your name. Explanation of the fields and the dependency graph: [docs/PLAYBO
 1. `git checkout main && git pull`, then `git checkout -b <branch from tasks.json>`
 2. Small commits: `area: what changed`
 3. `git pull origin main` and `npm run check`
-4. PR titled `[ORB-XXX-NN] summary`. Hardik squash-merges.
+4. PR titled `[ORB-XXX-NN] summary`. An integrator (Ayman or Hardik) merges it.
 
 Contract changes, conflicts and what never gets committed: [docs/INTEGRATION.md](docs/INTEGRATION.md).
 
