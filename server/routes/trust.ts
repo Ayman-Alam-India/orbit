@@ -1,5 +1,6 @@
 import { TrustCheckRequestSchema, type PipelineStatus } from '@shared'
 import { Router } from 'express'
+import { aiHealth } from '../ai/providers/googleModels'
 import { aiVerifiers } from '../ai/verify'
 import { env } from '../env'
 import { ok, parseInput } from '../http'
@@ -33,7 +34,17 @@ trustRouter.get('/status', async (_req, res) => {
       unverified: count('unverified'),
     },
     aiCheckers: aiVerifiers().map((v) => v.name),
-    sources: world?.sources ?? [],
+    sources: [
+      ...(world?.sources ?? []),
+      // AI services: shown once they have been tried, with the provider's own error if they failed.
+      ...(['gemini', 'groq'] as const)
+        .filter((name) => aiHealth[name].at)
+        .map((name) => ({
+          name: name === 'gemini' ? 'Gemini' : 'Groq',
+          ok: Boolean(aiHealth[name].ok),
+          detail: aiHealth[name].detail ?? '',
+        })),
+    ],
   }
   ok(res, status)
 })

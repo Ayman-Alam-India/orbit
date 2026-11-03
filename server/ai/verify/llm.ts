@@ -4,7 +4,7 @@ import { generateText, Output, type LanguageModel } from 'ai'
 import { z } from 'zod'
 import { env } from '../../env'
 import { contextJson } from '../prompt'
-import { withGoogleModels } from '../providers/googleModels'
+import { aiHealth, describeGeminiError, withGoogleModels } from '../providers/googleModels'
 import type { AiContext } from '../types'
 import type { ClaimJudgement, Verifier } from './types'
 
@@ -72,6 +72,16 @@ export function llmVerifier(
 export const geminiVerifier = llmVerifier('gemini', withGoogleModels)
 
 /** Groq (free tier): a different model family from Gemini, for an independent second opinion. */
-export const groqVerifier = llmVerifier('groq', (task) =>
-  task(createGroq({ apiKey: env.GROQ_API_KEY })(env.GROQ_MODEL)),
-)
+export const groqVerifier = llmVerifier('groq', async (task) => {
+  try {
+    const result = await task(createGroq({ apiKey: env.GROQ_API_KEY })(env.GROQ_MODEL))
+    aiHealth.groq = { ok: true, detail: `${env.GROQ_MODEL} answered`, at: Date.now() }
+    return result
+  } catch (err) {
+    // Same one-line, key-free description as for Gemini (status + the provider's own message).
+    const detail = describeGeminiError(err).replace(/gsk_[0-9A-Za-z]{10,}/g, '[key hidden]')
+    aiHealth.groq = { ok: false, detail: `${env.GROQ_MODEL}: ${detail}`, at: Date.now() }
+    console.warn(`[ai] Groq failed (${detail})`)
+    throw err
+  }
+})

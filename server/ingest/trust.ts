@@ -27,7 +27,7 @@ export {
 /** Two headlines tell the same story when their titles share this many significant words. */
 const SAME_STORY_WORDS = 3
 /** AI checks per pipeline pass, to stay inside the free quotas. Results are cached. */
-export const aiBudget = { perPass: 12 }
+export const aiBudget = { perPass: 6 }
 const AI_CACHE_KEY = 'ai-trust'
 
 /** An index of live headlines for "who else reports this story?" lookups. */
