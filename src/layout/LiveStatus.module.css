@@ -1,0 +1,27 @@
+.status {
+  --state-color: var(--color-text-faint);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-family: var(--font-label);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+  cursor: help;
+}
+
+.status[data-state='live'] {
+  --state-color: var(--color-success);
+}
+
+.status[data-state='degraded'] {
+  --state-color: var(--color-accent);
+}
+
+.light {
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--state-color);
+  box-shadow: 0 0 0 var(--space-1) color-mix(in srgb, var(--state-color) 25%, transparent);
+}

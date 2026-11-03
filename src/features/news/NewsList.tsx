@@ -1,7 +1,8 @@
 import type { CountryId } from '@shared'
 import { Link } from 'react-router-dom'
 import { paths } from '../../routes'
-import { ItemList, Panel, QueryState, TrustBadge } from '../../ui'
+import { ItemList, Panel, QueryState } from '../../ui'
+import { TrustWithVerify } from '../insight/VerifyNow'
 import { formatDate, shortSourceName } from '../event/format'
 import { useSources } from '../event/useSources'
 import styles from './NewsList.module.css'
@@ -34,16 +35,29 @@ export function NewsList({ countryId, limit = 6 }: NewsListProps) {
       <QueryState query={query} label="headlines">
         {(news) => (
           <ItemList
-            items={news.slice(0, limit)}
+            // Like a news front page: important stories first, each group newest first.
+            items={[...news]
+              .sort(
+                (a, b) =>
+                  Number(b.importance === 'important') - Number(a.importance === 'important'),
+              )
+              .slice(0, limit)}
             getKey={(n) => n.id}
             empty="No headlines yet."
             renderItem={(n) => (
               <div className={styles.row}>
+                {n.importance === 'important' && (
+                  <span className={styles.important}>Important</span>
+                )}
                 <a href={n.url} target="_blank" rel="noreferrer" className={styles.title}>
                   {n.title}
                 </a>
                 <span className={styles.meta}>
-                  <TrustBadge trust={n.trust} compact />
+                  <TrustWithVerify
+                    trust={n.trust}
+                    request={{ kind: 'headline', id: n.id }}
+                    compact
+                  />
                   <span>{n.publisher ?? sourceName(n.sourceId)}</span>
                   <span>·</span>
                   <span>{recentAgo(n.publishedAt, now) ?? formatDate(n.publishedAt)}</span>

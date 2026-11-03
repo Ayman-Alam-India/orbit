@@ -901,5 +901,83 @@
     "asOf": "2026-09-19T00:00:00Z",
     "sourceId": "src_goodreturns_fuel",
     "live": false
+  },
+  {
+    "id": "mkt_petrol_mumbai",
+    "name": "Petrol, Mumbai",
+    "kind": "fuel",
+    "countryId": "IND",
+    "value": 111.21,
+    "currency": "INR",
+    "unit": "per litre",
+    "previousClose": 111.21,
+    "asOf": "2026-11-03T00:00:00Z",
+    "sourceId": "src_goodreturns_fuel_live",
+    "live": false
+  },
+  {
+    "id": "mkt_diesel_mumbai",
+    "name": "Diesel, Mumbai",
+    "kind": "fuel",
+    "countryId": "IND",
+    "value": 97.83,
+    "currency": "INR",
+    "unit": "per litre",
+    "previousClose": 97.83,
+    "asOf": "2026-11-03T00:00:00Z",
+    "sourceId": "src_goodreturns_fuel_live",
+    "live": false
+  },
+  {
+    "id": "mkt_petrol_kolkata",
+    "name": "Petrol, Kolkata",
+    "kind": "fuel",
+    "countryId": "IND",
+    "value": 113.51,
+    "currency": "INR",
+    "unit": "per litre",
+    "previousClose": 113.51,
+    "asOf": "2026-11-03T00:00:00Z",
+    "sourceId": "src_goodreturns_fuel_live",
+    "live": false
+  },
+  {
+    "id": "mkt_diesel_kolkata",
+    "name": "Diesel, Kolkata",
+    "kind": "fuel",
+    "countryId": "IND",
+    "value": 99.82,
+    "currency": "INR",
+    "unit": "per litre",
+    "previousClose": 99.82,
+    "asOf": "2026-11-03T00:00:00Z",
+    "sourceId": "src_goodreturns_fuel_live",
+    "live": false
+  },
+  {
+    "id": "mkt_petrol_chennai",
+    "name": "Petrol, Chennai",
+    "kind": "fuel",
+    "countryId": "IND",
+    "value": 107.76,
+    "currency": "INR",
+    "unit": "per litre",
+    "previousClose": 107.76,
+    "asOf": "2026-11-03T00:00:00Z",
+    "sourceId": "src_goodreturns_fuel_live",
+    "live": false
+  },
+  {
+    "id": "mkt_diesel_chennai",
+    "name": "Diesel, Chennai",
+    "kind": "fuel",
+    "countryId": "IND",
+    "value": 99.55,
+    "currency": "INR",
+    "unit": "per litre",
+    "previousClose": 99.55,
+    "asOf": "2026-11-03T00:00:00Z",
+    "sourceId": "src_goodreturns_fuel_live",
+    "live": false
   }
 ]

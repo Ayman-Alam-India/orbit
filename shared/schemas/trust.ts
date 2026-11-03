@@ -25,6 +25,40 @@ export const TrustSchema = z.object({
   checkedAt: IsoDateTimeSchema,
 })
 
+/** POST /api/trust/check: re-verify one item now (fresh outlet search + Gemini and Groq). */
+export const TrustCheckRequestSchema = z.object({
+  kind: z.enum(['headline', 'event', 'ripple']),
+  /** The item's ID: `news_...`, `evt_...`/`hs_...` or `imp_...`. */
+  id: z.string().min(1).max(200),
+})
+
+/** GET /api/status: is the live pipeline running, and did each source answer? */
+export const PipelineStatusSchema = z.object({
+  dataMode: z.enum(['mock', 'live']),
+  /** When the last pipeline pass finished. Absent before the first pass (or in mock mode). */
+  lastRunAt: IsoDateTimeSchema.optional(),
+  headlines: z.number().int().nonnegative(),
+  events: z.number().int().nonnegative(),
+  ripples: z.number().int().nonnegative(),
+  trust: z.object({
+    verified: z.number().int().nonnegative(),
+    corroborated: z.number().int().nonnegative(),
+    unverified: z.number().int().nonnegative(),
+  }),
+  /** AI checkers with a key configured, e.g. ["gemini", "groq"]. Empty = outlet count only. */
+  aiCheckers: z.array(z.string()),
+  sources: z.array(
+    z.object({
+      name: z.string().min(1),
+      ok: z.boolean(),
+      /** e.g. "52/53 feeds", "8 prices", "6 reports". */
+      detail: z.string(),
+    }),
+  ),
+})
+
+export type TrustCheckRequest = z.infer<typeof TrustCheckRequestSchema>
+export type PipelineStatus = z.infer<typeof PipelineStatusSchema>
 export type TrustStatus = z.infer<typeof TrustStatusSchema>
 export type AiCheck = z.infer<typeof AiCheckSchema>
 export type Trust = z.infer<typeof TrustSchema>

@@ -50,13 +50,22 @@ function merge(seed: NewsHeadline[], live: NewsHeadline[]) {
   )
 }
 
-/** Every headline carries trust: curated ones are verified; live ones use the pipeline's last rating. */
+/**
+ * Every headline carries trust (curated ones are verified; live ones use the pipeline's last
+ * rating) and, for live ones, importance (important or normal).
+ */
 async function withTrust(seed: NewsHeadline[], live: NewsHeadline[]) {
-  const ratings = live.length ? (await readLiveWorld())?.headlineTrust : undefined
+  const world = live.length ? await readLiveWorld() : undefined
   const verified = curatedTrust()
   return merge(
     seed.map((n) => ({ ...n, trust: verified })),
-    live.map((n) => (ratings?.[n.url] ? { ...n, trust: ratings[n.url] } : n)),
+    live.map((n) => ({
+      ...n,
+      ...(world?.headlineTrust[n.url] ? { trust: world.headlineTrust[n.url] } : {}),
+      ...(world?.headlineImportance?.[n.url]
+        ? { importance: world.headlineImportance[n.url] }
+        : {}),
+    })),
   )
 }
 
@@ -154,4 +163,5 @@ export async function refreshAllFeeds() {
     await new Promise((resolve) => setTimeout(resolve, newsLoop.gapMs))
   }
   console.log(`[sources] live news: ${ok}/${feeds.length} feeds updated`)
+  return { ok, total: feeds.length }
 }

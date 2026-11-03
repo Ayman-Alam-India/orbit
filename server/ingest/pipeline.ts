@@ -6,10 +6,25 @@ import { writeCache } from '../sources/cache'
 import { GDELT_SOURCE_ID } from '../sources/gdelt'
 import { GOOGLE_NEWS_SOURCE_ID } from '../sources/googleNews'
 import { LIVE_WORLD_KEY, type LiveWorld } from '../sources/liveWorld'
-import { fetchWhoSignals } from '../sources/who'
+import { getMarkets } from '../sources/markets'
+import { fetchWhoSignals, whoState } from '../sources/who'
 import { runScan } from './events'
+import { aiImportant, ruleImportance, type Importance } from './importance'
 import { draftRipples, findEvidence } from './ripples'
-import { aiBudget, liveTrust, officialTrust, outletTrust, outletsOf, storyIndex } from './trust'
+import {
+  aiBudget,
+  headlineTrust as checkHeadline,
+  liveTrust,
+  officialTrust,
+  outletTrust,
+  outletsOf,
+  storyIndex,
+} from './trust'
+
+/** The focus country: its headlines are ranked by Gemini and checked by Gemini + Groq every pass. */
+export const FOCUS_COUNTRY = 'IND'
+/** Focus-country headlines AI-checked per pass (newest important ones first; answers are cached). */
+export const focusBudget = { perPass: 8 }
 
 /**
  * ORBIT's live pipeline: one ordered pass, every 10 minutes in DATA_MODE=live.
@@ -17,7 +32,8 @@ import { aiBudget, liveTrust, officialTrust, outletTrust, outletsOf, storyIndex 
  *   2. health   WHO Disease Outbreak News → official health signals, one pin per country
  *   3. events   ORBIT's detector reads the headlines for new events
  *   4. ripples  rules link each event to the countries and markets that depend on it, with news evidence
- *   5. trust    the one verification rule rates every headline, event and ripple
+ *   5. trust    the one verification rule rates every headline, event and ripple; India's headlines
+ *               are also ranked important/normal by Gemini and checked by Gemini + Groq
  * The result is saved (server/.cache/live-world.json) and served by the routes; with wifi off the
  * last pass keeps working.
  */
@@ -25,7 +41,7 @@ import { aiBudget, liveTrust, officialTrust, outletTrust, outletsOf, storyIndex 
 const isLiveHeadline = (h: NewsHeadline) =>
   h.sourceId === GOOGLE_NEWS_SOURCE_ID || h.sourceId === GDELT_SOURCE_ID
 
-async function allLiveHeadlines() {
+export async function allLiveHeadlines() {
   const feeds = await Promise.all(
     [undefined, ...store.getCountries().map((c) => c.id)].map((id) => getNewsFeed(id)),
   )
@@ -52,7 +68,7 @@ export async function runPipeline(): Promise<LiveWorld> {
   }
 
   // 1. News
-  await step('news', refreshAllFeeds, undefined)
+  const feeds = await step('news', refreshAllFeeds, { ok: 0, total: 0 })
   const headlines = await step('headlines', allLiveHeadlines, [])
   const index = storyIndex(headlines)
 
@@ -98,11 +114,63 @@ export async function runPipeline(): Promise<LiveWorld> {
     })
   }
 
-  // 5c. Trust for headlines: the outlet rule (one AI call per headline would use up the free quota)
+  // 5c. Headlines: importance and trust. Everywhere the outlet rule; for the focus country
+  // (India) Gemini also ranks importance and Gemini + Groq check the important ones.
   const headlineTrust: Record<string, Trust> = {}
-  for (const h of headlines) headlineTrust[h.url] = outletTrust(outletsOf(index.sameStory(h.title)))
+  const headlineImportance: Record<string, Importance> = {}
+  for (const h of headlines) {
+    const outlets = outletsOf(index.sameStory(h.title))
+    headlineTrust[h.url] = outletTrust(outlets)
+    headlineImportance[h.url] = ruleImportance(h, outlets.length)
+  }
+  const focus = headlines
+    .filter((h) => h.countryIds.includes(FOCUS_COUNTRY))
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+  const focusName = store.getCountry(FOCUS_COUNTRY)?.name ?? FOCUS_COUNTRY
+  for (const url of await step(
+    'importance',
+    () => aiImportant(focus, focusName),
+    new Set<string>(),
+  ))
+    headlineImportance[url] = 'important'
+  const focusBudgetLeft = { left: focusBudget.perPass }
+  for (const h of focus.filter((x) => headlineImportance[x.url] === 'important')) {
+    if (focusBudgetLeft.left <= 0) break
+    headlineTrust[h.url] = await step(
+      'focus check',
+      () => checkHeadline(h, index.sameStory(h.title), sources, focusBudgetLeft),
+      headlineTrust[h.url],
+    )
+  }
 
-  const world: LiveWorld = { ranAt: Date.now(), events, ripples, headlineTrust }
+  // Source health for GET /api/status.
+  const fuel = (await step('fuel', () => getMarkets(FOCUS_COUNTRY), [])).filter(
+    (m) => m.kind === 'fuel',
+  )
+  const liveFuel = fuel.filter((m) => m.live).length
+  const sourceHealth = [
+    { name: 'Google News', ok: feeds.ok > 0, detail: `${feeds.ok}/${feeds.total} feeds updated` },
+    { name: 'WHO outbreak news', ok: whoState.ok, detail: `${who.length} health signals` },
+    {
+      name: 'Indian fuel prices',
+      ok: liveFuel > 0,
+      detail: `${liveFuel}/${fuel.length} live prices`,
+    },
+    {
+      name: 'Ripple evidence search',
+      ok: withEvidence.some((r) => r.evidence.length),
+      detail: `${withEvidence.filter((r) => r.evidence.length).length}/${withEvidence.length} ripples with news evidence`,
+    },
+  ]
+
+  const world: LiveWorld = {
+    ranAt: Date.now(),
+    events,
+    ripples,
+    headlineTrust,
+    headlineImportance,
+    sources: sourceHealth,
+  }
   await writeCache(LIVE_WORLD_KEY, world)
 
   const all = [...events, ...ripples].map((x) => x.trust?.status)

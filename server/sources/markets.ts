@@ -2,12 +2,14 @@ import { MarketQuoteSchema, type CountryId, type MarketQuote } from '@shared'
 import { store } from '../data/store'
 import { env } from '../env'
 import { readCache, writeCache } from './cache'
+import { FUEL_PAGES, fetchFuelQuote } from './fuel'
 
 /**
  * Market figures. The curated snapshot (server/data/seed/markets.json) is always the base. In
  * DATA_MODE=live, quotes with a `symbol` are refreshed from Yahoo Finance's public chart endpoint
  * in the background (free, keyless, unofficial) and cached, so a slow or blocked request never
- * delays the UI and the last good values survive going offline. Fuel prices stay curated.
+ * delays the UI and the last good values survive going offline. Indian pump prices for the four
+ * metros come from Goodreturns (server/sources/fuel.ts) the same way.
  */
 const FRESH_MS = 15 * 60_000
 const TIMEOUT_MS = 10_000
@@ -60,9 +62,9 @@ let refreshing: Promise<void> | undefined
 export function refreshMarkets(): Promise<void> {
   refreshing ??= (async () => {
     const quotes: MarketQuote[] = []
-    for (const base of store.getMarkets().filter((m) => m.symbol)) {
+    for (const base of store.getMarkets().filter((m) => m.symbol || FUEL_PAGES[m.id])) {
       try {
-        quotes.push(await fetchYahooQuote(base))
+        quotes.push(await (FUEL_PAGES[base.id] ? fetchFuelQuote(base) : fetchYahooQuote(base)))
       } catch (err) {
         console.warn(
           `[sources] market ${base.id} failed:`,

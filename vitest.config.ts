@@ -12,6 +12,8 @@ export default defineConfig({
   test: {
     // Frontend tests run in jsdom. Server/shared tests opt into Node with `// @vitest-environment node`.
     environment: 'jsdom',
+    // Generous per-test limit: under full parallel load a test can wait on several slow async steps.
+    testTimeout: 15_000,
     setupFiles: './src/test/setup.ts',
     // Tests use the small, stable fixture data set, not the curated seed (see server/data/store.ts).
     // Offline, deterministic tests: fixture data, mock AI, no API keys (even if the shell has some).

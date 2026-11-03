@@ -13,6 +13,10 @@ export type LiveWorld = {
   ripples: ImpactLink[]
   /** Trust per live headline URL. */
   headlineTrust: Record<string, Trust>
+  /** Important or normal per live headline URL. */
+  headlineImportance?: Record<string, 'important' | 'normal'>
+  /** Whether each live source answered on this pass, for GET /api/status. */
+  sources?: { name: string; ok: boolean; detail: string }[]
 }
 
 export const LIVE_WORLD_KEY = 'live-world'
