@@ -23,6 +23,8 @@ export const API_ROUTES = {
   /** Runs a detection scan now instead of waiting for the background one. */
   scanEvents: '/api/events/scan',
   news: (countryId?: CountryId) => (countryId ? `/api/news?countryId=${countryId}` : '/api/news'),
+  /** POST { countryId? } → NewsRefreshResult: fetches fresh live headlines now (waits for them). */
+  newsRefresh: '/api/news/refresh',
   sources: '/api/sources',
   insight: (subjectType: InsightSubjectType, subjectId: string) =>
     `/api/insights/${subjectType}/${subjectId}`,

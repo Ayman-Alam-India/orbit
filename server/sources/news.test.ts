@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { NewsHeadlineSchema } from '@shared'
+import { NewsHeadlineSchema, NewsRefreshResultSchema } from '@shared'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { gdeltThrottle, toHeadlines } from './gdelt'
 
@@ -18,7 +18,7 @@ const gdeltArticle = {
   domain: 'example.net',
 }
 
-const { getNewsFeed, refreshNewsFeed } = await import('.')
+const { getNewsFeed, refreshNews, refreshNewsFeed, refreshTimeout } = await import('.')
 
 beforeEach(() => {
   gdeltThrottle.minGapMs = 0
@@ -83,5 +83,40 @@ describe('live news feed', () => {
     await refreshNewsFeed('USA')
     const feed = await getNewsFeed('USA')
     expect(feed.every((n) => n.sourceId !== 'src_gdelt')).toBe(true)
+  })
+})
+
+describe('refresh button (refreshNews)', () => {
+  const ok = () => new Response(JSON.stringify({ articles: [gdeltArticle] }), { status: 200 })
+
+  it('waits for GDELT and answers with the fresh headlines', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(ok()))
+    const result = NewsRefreshResultSchema.parse(await refreshNews('BRA'))
+    expect(result.refreshed).toBe(true)
+    expect(result.fetchedAt).toBeDefined()
+    expect(result.headlines.some((n) => n.publisher === 'example.net')).toBe(true)
+  })
+
+  it('answers with the saved headlines when GDELT fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(ok()))
+    await refreshNewsFeed('BRA')
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
+    const result = await refreshNews('BRA')
+    expect(result.refreshed).toBe(false)
+    expect(result.headlines.some((n) => n.publisher === 'example.net')).toBe(true)
+  })
+
+  it('gives up after the timeout instead of hanging the click', async () => {
+    const previous = refreshTimeout.ms
+    refreshTimeout.ms = 10
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => new Promise<Response>(() => {})),
+    )
+    const result = await refreshNews('IND')
+    refreshTimeout.ms = previous
+    expect(result.refreshed).toBe(false)
+    expect(result.fetchedAt).toBeUndefined()
+    expect(result.headlines.length).toBeGreaterThan(0)
   })
 })

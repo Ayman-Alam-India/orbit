@@ -65,5 +65,6 @@ describe('shared contracts', () => {
     ).toBe(true)
     expect(API_ROUTES.countryEvents('IND')).toBe('/api/countries/IND/events')
     expect(API_ROUTES.news()).toBe('/api/news')
+    expect(API_ROUTES.newsRefresh).toBe('/api/news/refresh')
   })
 })
