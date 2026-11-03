@@ -3,12 +3,17 @@ import { Router } from 'express'
 import { store } from '../data/store'
 import { notFound, ok, parseInput } from '../http'
 import { getAutoEvent, getAutoEvents, runScan } from '../ingest/events'
+import { curatedTrust } from '../sources/trustRules'
 
 export const eventsRouter = Router()
 
 eventsRouter.get('/', (req, res) => {
   const kind = parseInput(OrbitEventKindSchema.optional(), req.query.kind)
-  ok(res, store.getEvents(kind))
+  const verified = curatedTrust()
+  ok(
+    res,
+    store.getEvents(kind).map((e) => ({ ...e, trust: verified })),
+  )
 })
 
 // Both must come before /:id, or they would be read as event IDs.
@@ -18,7 +23,8 @@ eventsRouter.post('/scan', async (_req, res) => ok(res, await runScan()))
 
 eventsRouter.get('/:id', async (req, res) => {
   const id = parseInput(EventIdSchema, req.params.id)
-  const event = store.getEvent(id) ?? (await getAutoEvent(id))
+  const curated = store.getEvent(id)
+  const event = curated ? { ...curated, trust: curatedTrust() } : await getAutoEvent(id)
   if (!event) throw notFound(`Event "${id}"`)
   ok(res, event)
 })

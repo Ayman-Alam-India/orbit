@@ -12,5 +12,7 @@ export const useImpacts = (filter: { eventId?: EventId; countryId?: CountryId } 
   useQuery({
     queryKey: impactKeys.list(filter),
     queryFn: () => apiGet<ImpactLink[]>(API_ROUTES.impacts(filter)),
-    staleTime: 10 * 60_000,
+    staleTime: 60_000,
+    // The live pipeline adds ripples every 10 min: pick them up without a reload.
+    refetchInterval: 2 * 60_000,
   })

@@ -13,13 +13,17 @@ import { geminiVerifier, groqVerifier } from './llm'
 import { rulesVerifier } from './rules'
 import type { Verifier } from './types'
 
-/** LLM verifiers with a key configured, in display order. The rule-based checker always runs last. */
-function configuredVerifiers(): Verifier[] {
+/** The AI (LLM) verifiers that have a key configured: Gemini, Groq, both or none. */
+export function aiVerifiers(): Verifier[] {
   return [
     ...(env.GOOGLE_GENERATIVE_AI_API_KEY ? [geminiVerifier] : []),
     ...(env.GROQ_API_KEY ? [groqVerifier] : []),
-    rulesVerifier,
   ]
+}
+
+/** LLM verifiers with a key configured, in display order. The rule-based checker always runs last. */
+function configuredVerifiers(): Verifier[] {
+  return [...aiVerifiers(), rulesVerifier]
 }
 
 function agreementOf(verdicts: ModelVerdict[]): Agreement {

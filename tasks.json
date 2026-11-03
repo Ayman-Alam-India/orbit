@@ -614,6 +614,39 @@
       ],
       "tests": ["server/data/seed.test.ts"],
       "handoff": "Ask a teammate to spot-check populations and summaries against the World Bank and recent news."
+    },
+    {
+      "id": "ORB-HAR-07",
+      "owner": "Ayman",
+      "builder": "Claude (Ayman's session)",
+      "status": "in_progress",
+      "priority": "P1",
+      "targetWindow": "H18-H22",
+      "branch": "claude/live-pipeline",
+      "title": "Live pipeline: WHO health signals, auto ripples and one trust rule",
+      "description": "One ordered pass every 10 min in live mode: news, WHO outbreak reports (one pin per affected country), detected events, rule-made ripples with news evidence, and ORBIT's one trust rule (verified / corroborated / unverified) on every headline, event and ripple. ORBIT explains and Ask ORBIT use the live picture. Decided by Ayman (team offline, full permission given).",
+      "paths": [
+        "shared/",
+        "server/",
+        "src/ui/",
+        "src/globe/",
+        "src/features/",
+        "docs/API.md",
+        "tasks.json"
+      ],
+      "dependsOn": ["ORB-SHR-07"],
+      "acceptance": [
+        "Every headline, event and ripple shows a trust badge with a reason",
+        "WHO outbreaks appear as pins in every affected country and are connected by arcs",
+        "ORBIT explains leads with current events, not September ones",
+        "With wifi off the last pass keeps working; mock mode never goes online"
+      ],
+      "tests": [
+        "server/ingest/pipeline.test.ts",
+        "server/ai/providers/mock.test.ts",
+        "shared/contracts.test.ts"
+      ],
+      "handoff": "Tell the team where the trust rule lives (shared/schemas/trust.ts) and that the ripple rules are in server/ingest/ripples.ts."
     }
   ]
 }

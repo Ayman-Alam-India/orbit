@@ -1,9 +1,9 @@
 import type { CountryId, ImpactDirection, ImpactLink } from '@shared'
 import { Link } from 'react-router-dom'
 import { paths } from '../../routes'
-import { Panel, QueryState, Tag } from '../../ui'
+import { Panel, QueryState, Tag, TrustBadge } from '../../ui'
 import { useCountries } from '../country/useCountry'
-import { useEvents } from '../event/useEvents'
+import { useAutoEvents, useEvents } from '../event/useEvents'
 import { SourceChips } from '../insight/SourceChips'
 import { changePct, formatChange, formatMarketValue } from '../markets/format'
 import { useMarkets } from '../markets/useMarkets'
@@ -43,7 +43,10 @@ function RippleItem({
   const countries = useCountries()
   const markets = useMarkets()
   const events = useEvents()
-  const cause = events.data?.find((e) => e.id === link.eventId)
+  const autoEvents = useAutoEvents()
+  const cause = [...(events.data ?? []), ...(autoEvents.data ?? [])].find(
+    (e) => e.id === link.eventId,
+  )
   const targetName =
     link.target.kind === 'country'
       ? (countries.data?.find((c) => c.id === link.target.id)?.name ?? link.target.id)
@@ -90,8 +93,13 @@ function RippleItem({
       <div className={styles.foot}>
         <Tag>{link.channel}</Tag>
         <span className={styles.basis} data-basis={link.basis}>
-          {link.basis === 'sourced' ? 'Sourced' : 'ORBIT analysis'}
+          {link.origin === 'auto'
+            ? 'Found by ORBIT'
+            : link.basis === 'sourced'
+              ? 'Sourced'
+              : 'ORBIT analysis'}
         </span>
+        <TrustBadge trust={link.trust} />
         <span className={styles.strength} aria-label={`Strength ${link.strength} of 3`}>
           {[1, 2, 3].map((n) => (
             <span key={n} data-on={n <= link.strength} />
@@ -103,7 +111,18 @@ function RippleItem({
           </Link>
         )}
       </div>
-      {link.sourceIds.length > 0 && <SourceChips ids={link.sourceIds} />}
+      {link.evidenceUrls?.length ? (
+        <p className={styles.evidence}>
+          In the news:{' '}
+          {link.evidenceUrls.slice(0, 3).map((url, i) => (
+            <a key={url} href={url} target="_blank" rel="noreferrer">
+              report {i + 1}
+            </a>
+          ))}
+        </p>
+      ) : (
+        link.sourceIds.length > 0 && <SourceChips ids={link.sourceIds} />
+      )}
     </li>
   )
 }

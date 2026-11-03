@@ -2,6 +2,20 @@ import type { AskRequest, CountryId, OrbitEvent } from '@shared'
 import type { AiContext, AiProvider } from '../types'
 
 const bySeverity = (events: OrbitEvent[]) => [...events].sort((a, b) => b.severity - a.severity)
+
+/** A briefing leads with what is current: events from the last 14 days if there are any. */
+const RECENT_MS = 14 * 24 * 60 * 60_000
+/** Unconfirmed detections never lead a briefing. */
+const trusted = (e: OrbitEvent) => e.trust?.status !== 'unverified'
+
+/** Most severe first, then newest; recent, trusted events come before everything else. */
+export function topEvents(events: OrbitEvent[], now = Date.now()) {
+  const recent = events.filter((e) => trusted(e) && now - Date.parse(e.occurredAt) < RECENT_MS)
+  const pool = recent.length ? recent : events.filter(trusted)
+  return [...(pool.length ? pool : events)].sort(
+    (a, b) => b.severity - a.severity || b.occurredAt.localeCompare(a.occurredAt),
+  )
+}
 const sourcesOf = (events: OrbitEvent[]) => [...new Set(events.flatMap((e) => e.sourceIds))]
 const count = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`
 
@@ -50,7 +64,7 @@ export const mockProvider: AiProvider = {
   name: 'mock',
 
   async generateInsight({ subjectType, subjectId, context }) {
-    const top = bySeverity(context.events)
+    const top = subjectType === 'event' ? bySeverity(context.events) : topEvents(context.events)
     const severe = top.filter((e) => e.severity >= 4).length
     const summary =
       subjectType === 'event' && top[0]

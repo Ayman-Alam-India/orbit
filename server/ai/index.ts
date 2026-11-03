@@ -12,10 +12,11 @@ import {
 import { store } from '../data/store'
 import { env } from '../env'
 import { notFound } from '../http'
-import { getAutoEvent } from '../ingest/events'
+import { getAutoEvent, getAutoEvents } from '../ingest/events'
 import { simulate } from '../sim/simulate'
 import { getNewsFeed } from '../sources'
 import { readCache, writeCache } from '../sources/cache'
+import { readLiveWorld } from '../sources/liveWorld'
 import { getMarkets } from '../sources/markets'
 import { googleProvider } from './providers/google'
 import { mockProvider } from './providers/mock'
@@ -37,6 +38,31 @@ async function findEvent(id: string): Promise<OrbitEvent | undefined> {
   return store.getEvent(id) ?? (await getAutoEvent(id))
 }
 
+/** How many live headlines a briefing sees (newest first). */
+const LIVE_NEWS_IN_CONTEXT = 25
+
+/**
+ * What the live pipeline knows about a country (or the world): WHO signals and detected events,
+ * the newest headlines and the ripples ORBIT found. Empty in mock mode or before the first pass.
+ */
+async function liveExtras(countryId?: string) {
+  const [events, world, news] = await Promise.all([
+    getAutoEvents(),
+    readLiveWorld(),
+    getNewsFeed(countryId as Parameters<typeof getNewsFeed>[0]),
+  ])
+  const touches = (ids: string[]) => !countryId || ids.includes(countryId)
+  const liveEvents = events.filter((e) => touches(e.countryIds))
+  const ids = new Set(liveEvents.map((e) => e.id))
+  return {
+    events: liveEvents,
+    news: news.slice(0, LIVE_NEWS_IN_CONTEXT),
+    impacts: (world?.ripples ?? []).filter(
+      (l) => ids.has(l.eventId) || (l.target.kind === 'country' && touches([l.target.id])),
+    ),
+  }
+}
+
 /** Collects the data an answer should be based on. Unknown IDs become 404s. */
 export async function buildContext(
   subjectType: InsightSubjectType,
@@ -45,27 +71,29 @@ export async function buildContext(
   const sources = store.getSources()
   if (subjectType === 'global') {
     if (subjectId !== GLOBAL_SUBJECT_ID) throw notFound(`Global subject "${subjectId}"`)
+    const live = await liveExtras()
     return withRipples(
       {
         countries: store.getCountries(),
-        events: store.getEvents(),
-        news: store.getNews(),
+        events: [...store.getEvents(), ...live.events],
+        news: live.news,
         sources,
       },
-      store.getImpacts(),
+      [...store.getImpacts(), ...live.impacts],
     )
   }
   if (subjectType === 'country') {
     const country = store.getCountries().find((c) => c.id === subjectId)
     if (!country) throw notFound(`Country "${subjectId}"`)
+    const live = await liveExtras(country.id)
     return withRipples(
       {
         countries: [country],
-        events: store.getEventsByCountry(country.id),
-        news: store.getNews(country.id),
+        events: [...store.getEventsByCountry(country.id), ...live.events],
+        news: live.news,
         sources,
       },
-      store.getImpacts({ countryId: country.id }),
+      [...store.getImpacts({ countryId: country.id }), ...live.impacts],
     )
   }
   const event = await findEvent(subjectId)

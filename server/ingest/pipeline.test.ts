@@ -1,0 +1,214 @@
+// @vitest-environment node
+import {
+  HealthSignalSchema,
+  ImpactLinkSchema,
+  type Country,
+  type NewsHeadline,
+  type OrbitEvent,
+  type Source,
+} from '@shared'
+import { describe, expect, it, vi } from 'vitest'
+import { readRawSeed } from '../data/store'
+import { countriesInTitle, toHealthSignals } from '../sources/who'
+import { draftRipples, rulesFor } from './ripples'
+
+const verify = vi.fn()
+let configured = 0
+vi.mock('../ai/verify', () => ({
+  aiVerifiers: () =>
+    Array.from({ length: configured }, (_, i) => ({ name: `ai${i}`, verify: verify })),
+}))
+const cache = new Map<string, unknown>()
+vi.mock('../sources/cache', () => ({
+  readCache: async (key: string) => cache.get(key),
+  writeCache: async (key: string, value: unknown) => void cache.set(key, value),
+}))
+
+const { liveTrust, outletTrust, storyIndex, isOfficial } = await import('./trust')
+
+// These rules are about the real country list, so they read the curated seed (not the test fixtures).
+const seed = readRawSeed('server/data/seed')
+const countries = seed.countries as Country[]
+const seedSources = seed.sources as Source[]
+const headline = (publisher: string, title: string): NewsHeadline => ({
+  id: `news_gnews_${publisher.replace(/\W/g, '')}`,
+  title,
+  url: `https://${publisher}/${encodeURIComponent(title)}`,
+  sourceId: 'src_google_news',
+  publishedAt: '2026-11-03T09:00:00Z',
+  countryIds: [],
+  publisher,
+})
+const sources: Source[] = []
+
+describe('WHO outbreak reports → health signals', () => {
+  it('finds countries by WHO formal names without false matches', () => {
+    expect(
+      countriesInTitle(
+        'Ebola disease caused by Bundibugyo virus, Democratic Republic of the Congo, Kenya and Nigeria',
+        countries,
+      ),
+    ).toEqual(['COD', 'KEN', 'NGA'])
+    expect(
+      countriesInTitle("Avian influenza - Democratic People's Republic of Korea", countries),
+    ).toEqual(['PRK'])
+    expect(countriesInTitle('Cholera - South Sudan', countries)).toEqual([])
+    expect(
+      countriesInTitle('Middle East respiratory syndrome - Kingdom of Saudi Arabia', countries),
+    ).toEqual(['SAU'])
+  })
+
+  it('puts one pin in every affected country, all citing the WHO report', () => {
+    const signals = toHealthSignals(
+      [
+        {
+          Title:
+            'Ebola disease caused by Bundibugyo virus, Democratic Republic of the Congo, Kenya and Nigeria',
+          UrlName: '2026-DON622',
+          PublicationDateAndTime: '2026-10-23T15:03:45Z',
+          Summary: '<p>Cases continue to rise. Kenya and Nigeria reported imported cases.</p>',
+        },
+        {
+          Title: 'Cholera - Atlantis',
+          UrlName: '2026-DON1',
+          PublicationDateAndTime: '2026-10-23T00:00:00Z',
+        },
+        {
+          Title: 'Old report - India',
+          UrlName: '2025-DON1',
+          PublicationDateAndTime: '2025-01-01T00:00:00Z',
+        },
+      ],
+      countries,
+      Date.parse('2026-11-03T12:00:00Z'),
+    )
+    expect(signals.map((s) => [s.id, s.countryIds[0]])).toEqual([
+      ['hs_who_2026_don622', 'COD'],
+      ['hs_who_2026_don622_ken', 'KEN'],
+      ['hs_who_2026_don622_nga', 'NGA'],
+    ])
+    for (const s of signals) HealthSignalSchema.parse(s)
+    expect(signals[0]).toMatchObject({
+      severity: 4,
+      indicator: 'Ebola disease caused by Bundibugyo virus',
+    })
+    expect(signals[0].summary).toBe(
+      'Cases continue to rise. Kenya and Nigeria reported imported cases.',
+    )
+    expect(signals[1].location).toEqual(countries.find((c) => c.id === 'KEN')!.centroid)
+  })
+})
+
+describe('ripple rules', () => {
+  const event = (over: Partial<OrbitEvent>): OrbitEvent =>
+    ({
+      kind: 'geopolitical',
+      id: 'evt_auto_x',
+      title: 'Tanker attacked near the Strait of Hormuz',
+      summary: 'x',
+      countryIds: ['IRN'],
+      location: { lat: 0, lng: 0 },
+      occurredAt: '2026-11-03T09:00:00Z',
+      severity: 3,
+      sourceIds: [],
+      tags: [],
+      origin: 'auto',
+      category: 'security',
+      actors: [],
+      ...over,
+    }) as OrbitEvent
+
+  it('links a Hormuz event to the countries and markets that depend on it', () => {
+    expect(rulesFor(event({})).map((r) => r.id)).toEqual(['hormuz'])
+    const drafts = draftRipples([event({})], [], countries, new Set(['mkt_brent']))
+    const targets = drafts.map((d) => d.link.target.id)
+    expect(targets).toEqual(expect.arrayContaining(['IND', 'CHN', 'JPN', 'QAT', 'mkt_brent']))
+    expect(targets).not.toContain('IRN') // never its own country
+    for (const d of drafts) {
+      expect(ImpactLinkSchema.parse(d.link)).toMatchObject({ origin: 'auto', basis: 'analysis' })
+    }
+    expect(drafts.find((d) => d.link.target.id === 'IND')!.evidenceQuery).toContain('"India"')
+  })
+
+  it('lets the curated link win and skips unknown markets', () => {
+    const curated = [
+      { ...draftRipples([event({})], [], countries, new Set())[0].link, origin: undefined },
+    ]
+    const drafts = draftRipples([event({})], curated, countries, new Set())
+    expect(drafts.map((d) => d.link.target.id)).not.toContain(curated[0].target.id)
+    expect(drafts.map((d) => d.link.target.id)).not.toContain('mkt_brent')
+  })
+
+  it('connects the countries of one outbreak and their neighbours', () => {
+    const signals = toHealthSignals(
+      [
+        {
+          Title: 'Ebola disease, Democratic Republic of the Congo and Kenya',
+          UrlName: '2026-DON9',
+          PublicationDateAndTime: '2026-11-01T00:00:00Z',
+        },
+      ],
+      countries,
+      Date.parse('2026-11-03T00:00:00Z'),
+    )
+    const links = draftRipples(signals, [], countries, new Set()).map((d) => d.link)
+    expect(links).toContainEqual(
+      expect.objectContaining({
+        eventId: 'hs_who_2026_don9',
+        target: { kind: 'country', id: 'KEN' },
+        strength: 3,
+      }),
+    )
+    // Neighbours of DR Congo and Kenya (Uganda) are flagged as spread risks, once each.
+    expect(links.filter((l) => l.target.id === 'UGA').length).toBeGreaterThanOrEqual(1)
+  })
+})
+
+describe('the one trust rule', () => {
+  it('needs 3 independent outlets for corroborated', () => {
+    expect(outletTrust(['a.com', 'b.com']).status).toBe('unverified')
+    expect(outletTrust(['a.com', 'b.com', 'c.com']).status).toBe('corroborated')
+    expect(outletTrust(['a.com', 'b.com', 'c.com'], 'disagree').status).toBe('unverified')
+    expect(outletTrust(['a.com']).reason).toBe('Reported by 1 outlet (needs 3).')
+  })
+
+  it('groups headlines that tell the same story', () => {
+    const index = storyIndex([
+      headline('a.com', 'Port strike halts container traffic in Mumbai'),
+      headline('b.com', 'Mumbai port strike halts container shipments'),
+      headline('c.com', 'Cricket team wins in Mumbai'),
+    ])
+    const same = index.sameStory('Strike halts container traffic at Mumbai port')
+    expect(same.map((h) => h.publisher)).toEqual(['a.com', 'b.com'])
+  })
+
+  it('asks the AI checkers only once 3+ outlets report it, and caches the answer', async () => {
+    const evidence = ['a.com', 'b.com', 'c.com'].map((p) => headline(p, 'Port strike in Mumbai'))
+    configured = 0
+    expect((await liveTrust('claim', evidence, sources, { left: 5 })).aiCheck).toBe('unavailable')
+
+    configured = 2
+    verify.mockResolvedValue([{ verdict: 'supported', sourceIds: [], reason: 'ok' }])
+    const budget = { left: 5 }
+    const agreed = await liveTrust('claim', evidence, sources, budget)
+    expect(agreed).toMatchObject({ status: 'corroborated', aiCheck: 'agree' })
+    expect(verify).toHaveBeenCalledTimes(2)
+    await liveTrust('claim', evidence, sources, budget) // cached
+    expect(verify).toHaveBeenCalledTimes(2)
+    expect(budget.left).toBe(4)
+
+    verify.mockResolvedValueOnce([{ verdict: 'contradicted', sourceIds: [], reason: 'no' }])
+    const disputed = await liveTrust('other claim', evidence, sources, budget)
+    expect(disputed).toMatchObject({ status: 'unverified', aiCheck: 'disagree' })
+
+    // Fewer than 3 outlets: the AI is not asked at all.
+    verify.mockClear()
+    expect((await liveTrust('x', evidence.slice(0, 2), sources, budget)).status).toBe('unverified')
+    expect(verify).not.toHaveBeenCalled()
+  })
+
+  it('treats WHO and governments as official', () => {
+    expect(isOfficial(seedSources.find((s) => s.id === 'src_who_don_live'))).toBe(true)
+    expect(isOfficial(seedSources.find((s) => s.id === 'src_google_news'))).toBe(false)
+  })
+})

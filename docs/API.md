@@ -55,7 +55,7 @@ Always build paths with `API_ROUTES` from `@shared`. The column "Builder" shows 
 | `GET /api/countries/:id/events`             | `API_ROUTES.countryEvents(id)`   | `OrbitEvent[]` newest first, every event whose `countryIds` includes `id`                                                           | 400, 404                                                      |
 | `GET /api/countries/:id/timeline`           | `API_ROUTES.countryTimeline(id)` | `TimelineEvent[]` oldest first                                                                                                      | 400, 404                                                      |
 | `GET /api/events?kind=`                     | `API_ROUTES.events(kind?)`       | `OrbitEvent[]` newest first. `kind` optional: `geopolitical` or `health`                                                            | 400 bad kind                                                  |
-| `GET /api/events/auto`                      | `API_ROUTES.autoEvents`          | `OrbitEvent[]` ORBIT detected in live headlines itself (`origin: "auto"`, unverified). Empty in `DATA_MODE=mock`                    | none                                                          |
+| `GET /api/events/auto`                      | `API_ROUTES.autoEvents`          | `OrbitEvent[]`: WHO health signals and events ORBIT detected in live headlines (`origin: "auto"`, with `trust`). Empty in mock mode | none                                                          |
 | `POST /api/events/scan`                     | `API_ROUTES.scanEvents`          | `OrbitEvent[]`: runs a detection scan now instead of waiting for the background one                                                 | none                                                          |
 | `GET /api/events/:id`                       | `API_ROUTES.event(id)`           | `OrbitEvent`                                                                                                                        | 400 bad ID, 404                                               |
 | `GET /api/news?countryId=`                  | `API_ROUTES.news(countryId?)`    | `NewsHeadline[]` newest first. Without `countryId`: all                                                                             | 400 bad ID                                                    |
@@ -293,6 +293,24 @@ Rules for every live source (server-side only):
   answers with the saved headlines and `refreshed: false`.
 - The automatic event detector (`server/ingest/`) reads both Google News and GDELT headlines.
 - Cached feeds live in `server/.cache/news-<COUNTRY|global>.json`. With wifi off, cached and seed headlines keep working.
+
+**Live pipeline (implemented)** (`server/ingest/pipeline.ts`): in `DATA_MODE=live` one ordered pass runs on startup and every 10 min:
+
+1. **News:** every feed (above).
+2. **Health:** WHO Disease Outbreak News (`server/sources/who.ts`, free, keyless, `src_who_don_live`). Each report becomes a health
+   signal **per affected country** (`hs_who_<report>[_<country>]`), so a multi-country outbreak has a pin everywhere it is. Only the newest
+   report per disease and country is kept. WHO is official, so these are `verified`.
+3. **Events:** the headline detector (`server/ingest/events.ts`).
+4. **Ripples:** fixed rules (`server/ingest/ripples.ts`) link an event to the countries and markets that depend on a channel
+   (Red Sea/Suez, Strait of Hormuz, Taiwan chips, Black Sea grain), plus outbreak links between countries in the same WHO report and
+   spread risk to neighbours. Rules fire only on words naming the channel, never on the country alone. Each link is then searched in
+   Google News; matching articles become `evidenceUrls`. Curated links always win.
+5. **Trust:** the rule above for every headline, event and ripple. At most 12 AI checks per pass; answers are cached.
+
+The result is saved in `server/.cache/live-world.json` and served by `GET /api/events/auto` (WHO + detected), `GET /api/countries/:id/events`
+(curated + live for that country), `GET /api/impacts` (curated + auto) and `GET /api/news` (trust per headline). "ORBIT explains"
+and Ask ORBIT see the same live events, the newest 25 headlines and the auto ripples; briefings lead with trusted events from the
+last 14 days. The server logs one line per pass: `[ingest] pipeline: N headlines, … · V verified, C corroborated, U unverified`.
 
 ## Changing this contract
 

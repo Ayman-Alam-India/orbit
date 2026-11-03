@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { paths } from '../../routes'
-import { Button, ItemList, Panel, QueryState, SeverityBadge } from '../../ui'
+import { Button, ItemList, Panel, QueryState, SeverityBadge, TrustBadge } from '../../ui'
 import styles from './DetectedEvents.module.css'
 import { formatDate } from './format'
 import { useAutoEvents } from './useEvents'
@@ -8,8 +8,8 @@ import { useScanEvents } from './useScanEvents'
 
 /**
  * Events ORBIT found on its own in the live news feed (decision owner: Shrey).
- * They are deliberately kept apart from the curated ones and labelled unverified: detection is
- * automatic, fact-checking is not. "Scan now" runs a detection pass while you watch.
+ * They are kept apart from the curated ones and carry ORBIT's trust label (verified for WHO,
+ * corroborated or unverified for headline-detected events). "Scan now" runs a detection pass while you watch.
  */
 export function DetectedEvents({ limit = 4 }: { limit?: number }) {
   const query = useAutoEvents()
@@ -25,7 +25,9 @@ export function DetectedEvents({ limit = 4 }: { limit?: number }) {
       }
     >
       <p className={styles.note}>
-        Read from today's live headlines automatically. Unverified until a human checks it.
+        Found automatically in live headlines and WHO outbreak reports. Each is rated by one rule: ✓
+        verified (official source), ◑ corroborated (3+ outlets and the AI checkers agree), ○
+        unverified.
       </p>
       <QueryState query={query} label="detected events">
         {(events) => (
@@ -41,7 +43,11 @@ export function DetectedEvents({ limit = 4 }: { limit?: number }) {
               <div className={styles.row}>
                 <div className={styles.head}>
                   <SeverityBadge severity={e.severity} />
-                  <span className={styles.flag}>Unverified</span>
+                  {e.trust ? (
+                    <TrustBadge trust={e.trust} />
+                  ) : (
+                    <span className={styles.flag}>Unverified</span>
+                  )}
                   <span className={styles.date}>{formatDate(e.occurredAt)}</span>
                 </div>
                 <Link to={paths.event(e.countryIds[0], e.id)} className={styles.title}>

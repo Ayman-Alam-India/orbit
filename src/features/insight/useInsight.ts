@@ -13,4 +13,6 @@ export const useInsight = (subjectType: InsightSubjectType, subjectId: string) =
     queryKey: insightKeys.subject(subjectType, subjectId),
     queryFn: () => apiGet<AIInsight>(API_ROUTES.insight(subjectType, subjectId)),
     staleTime: 5 * 60_000,
+    // Live data changes every 10 min on the server: the briefing follows without a reload.
+    refetchInterval: 10 * 60_000,
   })
