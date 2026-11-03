@@ -60,6 +60,8 @@ Always build paths with `API_ROUTES` from `@shared`. The column "Builder" shows 
 | `GET /api/events/:id`                       | `API_ROUTES.event(id)`           | `OrbitEvent`                                                                                                                        | 400 bad ID, 404                                               |
 | `GET /api/news?countryId=`                  | `API_ROUTES.news(countryId?)`    | `NewsHeadline[]` newest first. Without `countryId`: all                                                                             | 400 bad ID                                                    |
 | `POST /api/news/refresh`                    | `API_ROUTES.newsRefresh`         | `NewsRefreshResult`: asks the live source for fresh headlines now and waits (max 20 s). Body `{ countryId? }`                       | 400 bad ID, 404 unknown country                               |
+| `POST /api/trust/check`                     | `API_ROUTES.trustCheck`          | `Trust`: "Verify now". Body `{ kind: headline                                                                                       | event                                                         | ripple, id }`: fresh news search + Gemini/Groq, saved | 400, 404, 503 in mock mode |
+| `GET /api/status`                           | `API_ROUTES.status`              | `PipelineStatus`: last live pass, counts, trust totals, AI checkers, health of each source                                          | none                                                          |
 | `GET /api/sources`                          | `API_ROUTES.sources`             | `Source[]`                                                                                                                          | none                                                          |
 | `GET /api/insights/:subjectType/:subjectId` | `API_ROUTES.insight(type, id)`   | `AIInsight`. `subjectType` = `global` (id `world`), `country` (country ID) or `event` (event ID)                                    | 400 bad type, 404 unknown subject                             |
 | `POST /api/ask`                             | `API_ROUTES.ask`                 | `AskAnswer`                                                                                                                         | 400 invalid body                                              |
@@ -133,7 +135,9 @@ Check `kind` before using kind-specific fields.
 ### NewsHeadline (`shared/schemas/news.ts`)
 
 `id` (`news_...`), `title`, `url`, `sourceId`, `publishedAt`, `countryIds` (may be empty), `eventId` (optional, links to an OrbitEvent),
-`publisher` (optional: the outlet's domain, e.g. `reuters.com`, set for live GDELT headlines whose `sourceId` is `src_gdelt`).
+`publisher` (optional: the outlet's domain, e.g. `reuters.com`, set for live headlines), `trust` (optional, below) and `importance`
+(optional, live headlines: `important` when the classifier rates it serious, 3+ outlets report it, or, for India, Gemini ranks it
+important; otherwise `normal`). The news panel lists important headlines first.
 
 ### NewsRefreshResult (`shared/schemas/news.ts`)
 
@@ -311,6 +315,10 @@ The result is saved in `server/.cache/live-world.json` and served by `GET /api/e
 (curated + live for that country), `GET /api/impacts` (curated + auto) and `GET /api/news` (trust per headline). "ORBIT explains"
 and Ask ORBIT see the same live events, the newest 25 headlines and the auto ripples; briefings lead with trusted events from the
 last 14 days. The server logs one line per pass: `[ingest] pipeline: N headlines, … · V verified, C corroborated, U unverified`.
+
+**India focus (implemented):** each pass Gemini ranks India's headlines important/normal (max 30, cached), and Gemini + Groq check up to
+8 important ones against **other** outlets' reports of the same story. Petrol and diesel for Delhi, Mumbai, Kolkata and Chennai come from
+Goodreturns (`server/sources/fuel.ts`, `src_goodreturns_fuel_live`) with a 10-day history, refreshed with the other market figures.
 
 ## Changing this contract
 
