@@ -212,3 +212,53 @@ describe('the one trust rule', () => {
     expect(isOfficial(seedSources.find((s) => s.id === 'src_google_news'))).toBe(false)
   })
 })
+
+describe('every country gets current events', () => {
+  it("picks a quiet country's most-reported story (3+ outlets), and nothing for a lone report", async () => {
+    const { topStoryCandidate } = await import('./classify')
+    const story = (publisher: string) =>
+      headline(publisher, 'Reserve Bank of India holds repo rate steady')
+    const top = topStoryCandidate([
+      story('a.com'),
+      story('b.com'),
+      story('c.com'),
+      headline('d.com', 'Cricket: India beat Australia'),
+    ])
+    expect(top).toMatchObject({ label: 'top story', severity: 2 })
+    expect(top!.headlines).toHaveLength(3)
+    expect(topStoryCandidate([story('a.com'), story('b.com')])).toBeUndefined()
+  })
+})
+
+describe('important or normal', () => {
+  it('marks serious or widely reported headlines important', async () => {
+    const { ruleImportance } = await import('./importance')
+    expect(ruleImportance(headline('a.com', 'Earthquake kills dozens in Gujarat'), 1)).toBe(
+      'important',
+    )
+    expect(ruleImportance(headline('a.com', 'RBI keeps repo rate unchanged'), 4)).toBe('important')
+    expect(ruleImportance(headline('a.com', 'New cafe opens in Pune'), 1)).toBe('normal')
+  })
+
+  it('checks a headline only against OTHER outlets', async () => {
+    const { headlineTrust } = await import('./trust')
+    configured = 2
+    verify.mockClear()
+    verify.mockResolvedValue([{ verdict: 'supported', sourceIds: [], reason: 'ok' }])
+    const own = headline('a.com', 'Monsoon floods close Mumbai schools')
+    const alone = await headlineTrust(own, [own], sources, { left: 3 })
+    expect(alone).toMatchObject({
+      status: 'unverified',
+      aiCheck: 'unavailable',
+      outlets: ['a.com'],
+    })
+    expect(verify).not.toHaveBeenCalled()
+    const others = ['b.com', 'c.com'].map((p) =>
+      headline(p, 'Mumbai schools closed by monsoon floods'),
+    )
+    const backed = await headlineTrust(own, [own, ...others], sources, { left: 3 })
+    expect(backed).toMatchObject({ status: 'corroborated', aiCheck: 'agree' })
+    const context = verify.mock.calls[0][1] as { news: NewsHeadline[] }
+    expect(context.news.map((h) => h.publisher)).toEqual(['b.com', 'c.com'])
+  })
+})

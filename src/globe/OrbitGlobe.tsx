@@ -165,6 +165,15 @@ export default function OrbitGlobe() {
     () => [...(events.data ?? []), ...(autoEvents.data ?? [])],
     [events.data, autoEvents.data],
   )
+  // Pins: every curated and confirmed event, plus unconfirmed detections only when they are serious
+  // (severity 3+). Routine unconfirmed items still appear in the country's events list.
+  const pinnedEvents = useMemo(
+    () =>
+      allEvents.filter(
+        (e) => e.origin !== 'auto' || e.severity >= 3 || e.trust?.status !== 'unverified',
+      ),
+    [allEvents],
+  )
   // Rings for severe curated events and severe official (WHO) signals.
   const severeEvents = useMemo(
     () =>
@@ -229,7 +238,7 @@ export default function OrbitGlobe() {
       polygonLabel={(f) => tooltipHtml((f as CountryFeature).properties.name)}
       onPolygonHover={(f) => setHoveredCountry((f as CountryFeature | null)?.properties.id)}
       onPolygonClick={(f) => navigate(paths.country((f as CountryFeature).properties.id))}
-      pointsData={allEvents}
+      pointsData={pinnedEvents}
       pointLat={(e) => (e as OrbitEvent).location.lat}
       pointLng={(e) => (e as OrbitEvent).location.lng}
       pointColor={(e) =>

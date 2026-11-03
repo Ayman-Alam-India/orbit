@@ -14,7 +14,9 @@ import {
   classifyHeadlines,
   mentionsCountry,
   numbersGrounded,
+  outletCount,
   significantWords,
+  topStoryCandidate,
   type Candidate,
 } from './classify'
 
@@ -37,10 +39,15 @@ export const SCAN_FRESH_MS = 20 * 60_000
 // GDELT's feed for a quiet country can be a week old, so the window is generous; the event still
 // carries the headline's own date, and the list is sorted by it.
 const HEADLINE_MAX_AGE_MS = 14 * 24 * 60 * 60_000
-const MAX_PER_COUNTRY = 2
-/** Below this, a headline is not worth a pin on the globe: routine business and diary items. */
+const MAX_PER_COUNTRY = 3
+/** Conflict, security and outbreaks (severity 3+) count from a single report. */
 const MIN_SEVERITY = 3
-const MAX_TOTAL = 12
+/** Economy and diplomacy (severity 2) count once this many outlets report the story. */
+const MIN_OUTLETS_ROUTINE = 2
+/** Room for about three events per country across the 52 countries. */
+const MAX_TOTAL = 150
+/** Gemini only polishes summaries this severe (the free quota can't cover ~150 a pass). */
+const AI_SUMMARY_MIN_SEVERITY = 3
 const AI_TIMEOUT_MS = 12_000
 
 type AutoEventCache = { scannedAt: number; events: OrbitEvent[] }
@@ -64,7 +71,7 @@ function quoteHeadlines(candidate: Candidate): string {
   const more = rest.length
     ? ` ${rest.length} more headline${rest.length > 1 ? 's' : ''} report the same story.`
     : ''
-  return `Reported by live news: "${first.title}"${publisher}.${more} ORBIT detected this automatically and has not verified it.`
+  return `Reported by live news: "${first.title}"${publisher}.${more} ORBIT detected this automatically and has not verified it; its badge says how well other outlets confirm it.`
 }
 
 const SummarySchema = z.object({
@@ -82,6 +89,7 @@ async function summarise(
 ): Promise<{ summary: string; severity: number }> {
   const fallback = { summary: quoteHeadlines(candidate), severity: candidate.severity }
   if (env.AI_PROVIDER !== 'google' || !env.GOOGLE_GENERATIVE_AI_API_KEY) return fallback
+  if (candidate.severity < AI_SUMMARY_MIN_SEVERITY) return fallback
   try {
     const { output } = await withGoogleModels((model) =>
       generateText({
@@ -161,14 +169,23 @@ export async function scanForAutoEvents(): Promise<OrbitEvent[]> {
   for (const country of store.getCountries()) {
     const headlines = (await getNewsFeed(country.id)).filter((n) => isLive(n) && isRecent(n))
     if (headlines.length === 0) continue
-    const candidates = classifyHeadlines(headlines)
+    const isNew = (c: { title: string }) => !curated.some((e) => sameStory(e.title, c.title))
+    let candidates = classifyHeadlines(headlines)
       .filter(
         (c) =>
-          c.severity >= MIN_SEVERITY &&
+          (c.severity >= MIN_SEVERITY || outletCount(c) >= MIN_OUTLETS_ROUTINE) &&
           mentionsCountry(c.title, country) &&
-          !curated.some((e) => sameStory(e.title, c.title)),
+          isNew(c),
       )
       .slice(0, MAX_PER_COUNTRY)
+    // A quiet country still gets its most-reported story of the day, so its events stay current.
+    if (!candidates.length) {
+      const top = topStoryCandidate(
+        headlines.filter((h) => mentionsCountry(h.title, country)),
+        MIN_OUTLETS_ROUTINE,
+      )
+      if (top && isNew(top)) candidates = [top]
+    }
     for (const candidate of candidates) {
       if (detected.some((e) => sameStory(e.title, candidate.title))) continue
       const event = buildEvent(candidate, country, await summarise(candidate, country))
